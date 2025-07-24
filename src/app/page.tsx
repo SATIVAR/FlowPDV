@@ -4,8 +4,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { ArrowRight, Rocket, Package, Target, CheckCircle2 } from 'lucide-react';
-import { stores } from '@/lib/data';
+import { ArrowRight, Rocket, Package, Target } from 'lucide-react';
 
 export default function Home() {
   const partnerLogos = [
@@ -29,11 +28,10 @@ export default function Home() {
             <p className="text-lg md:text-xl text-muted-foreground max-w-3xl mx-auto mb-8">
               Crie sua loja online, gerencie produtos e expanda suas vendas. Tudo que você precisa para decolar no digital, em um só lugar.
             </p>
-            <div className="flex flex-col sm:flex-row justify-center items-center gap-4">
-              <Button asChild size="lg" className="gradient-cta text-primary-foreground border-none hover:opacity-90 transition-opacity w-full sm:w-auto">
-                <Link href="/register">Comece grátis agora</Link>
+            <div className="flex justify-center items-center gap-4">
+              <Button asChild size="lg" className="gradient-cta text-primary-foreground border-none hover:opacity-90 transition-opacity">
+                <Link href="/register">Quero Vender Agora</Link>
               </Button>
-              <p className="text-sm text-muted-foreground">Não precisa de cartão de crédito.</p>
             </div>
           </div>
           <div className="relative mt-12 md:mt-20 px-4">
@@ -117,7 +115,7 @@ export default function Home() {
             </div>
           </div>
         </section>
-
+        
         {/* How It Works Section */}
         <section className="py-16 md:py-24 bg-background">
           <div className="container mx-auto px-4">
@@ -125,26 +123,27 @@ export default function Home() {
               <h2 className="font-headline text-4xl md:text-5xl font-bold tracking-tight">Começar a vender é fácil</h2>
               <p className="text-muted-foreground mt-4 max-w-2xl mx-auto text-lg">Siga estes 3 passos simples para lançar sua loja online.</p>
             </div>
-            <div className="grid md:grid-cols-3 gap-8 md:gap-4">
-              <div className="text-center flex flex-col items-center">
-                <div className="w-16 h-16 rounded-full gradient-cta flex items-center justify-center text-primary-foreground font-bold text-2xl mb-4">1</div>
-                <h3 className="font-headline text-xl font-bold mb-2">Crie sua Conta</h3>
-                <p className="text-muted-foreground px-4">Cadastre-se grátis e configure as informações essenciais da sua loja.</p>
-              </div>
-              <div className="text-center flex flex-col items-center">
-                 <div className="w-16 h-16 rounded-full gradient-cta flex items-center justify-center text-primary-foreground font-bold text-2xl mb-4">2</div>
-                <h3 className="font-headline text-xl font-bold mb-2">Adicione seus Produtos</h3>
-                <p className="text-muted-foreground px-4">Faça o upload de fotos, descrições e preços dos seus produtos em nossa plataforma.</p>
-              </div>
-              <div className="text-center flex flex-col items-center">
-                 <div className="w-16 h-16 rounded-full gradient-cta flex items-center justify-center text-primary-foreground font-bold text-2xl mb-4">3</div>
-                <h3 className="font-headline text-xl font-bold mb-2">Comece a Vender</h3>
-                <p className="text-muted-foreground px-4">Gerencie seus pedidos, interaja com clientes e veja seu negócio decolar.</p>
-              </div>
+            <div className="grid md:grid-cols-3 gap-8 md:gap-4 relative">
+                <div className="absolute top-8 left-0 w-full h-px bg-border -z-10 hidden md:block" />
+                <div className="absolute top-8 left-0 w-full h-px bg-gradient-to-r from-primary to-accent -z-10 hidden md:block" />
+                <div className="text-center flex flex-col items-center p-4">
+                  <div className="relative w-16 h-16 rounded-full gradient-cta flex items-center justify-center text-primary-foreground font-bold text-2xl mb-4 shadow-lg ring-4 ring-background">1</div>
+                  <h3 className="font-headline text-xl font-bold mb-2">Crie sua Conta</h3>
+                  <p className="text-muted-foreground px-4">Cadastre-se e configure as informações essenciais da sua loja.</p>
+                </div>
+                <div className="text-center flex flex-col items-center p-4">
+                  <div className="relative w-16 h-16 rounded-full gradient-cta flex items-center justify-center text-primary-foreground font-bold text-2xl mb-4 shadow-lg ring-4 ring-background">2</div>
+                  <h3 className="font-headline text-xl font-bold mb-2">Adicione seus Produtos</h3>
+                  <p className="text-muted-foreground px-4">Faça o upload de fotos, descrições e preços dos seus produtos.</p>
+                </div>
+                <div className="text-center flex flex-col items-center p-4">
+                  <div className="relative w-16 h-16 rounded-full gradient-cta flex items-center justify-center text-primary-foreground font-bold text-2xl mb-4 shadow-lg ring-4 ring-background">3</div>
+                  <h3 className="font-headline text-xl font-bold mb-2">Comece a Vender</h3>
+                  <p className="text-muted-foreground px-4">Gerencie seus pedidos, interaja com clientes e veja seu negócio decolar.</p>
+                </div>
             </div>
           </div>
         </section>
-
 
         {/* CTA Section */}
         <section className="py-20 md:py-32 gradient-bg">
@@ -166,3 +165,5 @@ export default function Home() {
     </div>
   );
 }
+
+    
