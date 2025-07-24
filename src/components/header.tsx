@@ -18,7 +18,7 @@ import { Icons } from './icons';
 import { ModeToggle } from './mode-toggle';
 
 export function Header() {
-  const { user, logout } = useAuth();
+  const { user, logout, hasRole } = useAuth();
 
   const getInitials = (name: string) => {
     const names = name.split(' ');
@@ -43,6 +43,13 @@ export function Header() {
             >
               Dashboard
             </Link>
+          )}
+           {user && hasRole('Lojista') && (
+            <>
+              <Link href="/dashboard/pedidos" className="transition-colors hover:text-foreground/80 text-foreground/60 font-medium">Pedidos</Link>
+              <Link href="/dashboard/produtos" className="transition-colors hover:text-foreground/80 text-foreground/60 font-medium">Produtos</Link>
+              <Link href="/dashboard/relatorios" className="transition-colors hover:text-foreground/80 text-foreground/60 font-medium">Relatórios</Link>
+            </>
           )}
         </nav>
         <div className="flex items-center justify-end space-x-2">

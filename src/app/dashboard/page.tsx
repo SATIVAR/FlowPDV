@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useEffect } from 'react';
@@ -7,7 +8,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { orders, products, users } from '@/lib/data';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
-import { BarChart, Users, Package, ShoppingCart } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { BarChart, Users, Package, ShoppingCart, DollarSign, Activity, PlusCircle } from 'lucide-react';
 
 function SuperAdminDashboard() {
   return (
@@ -53,47 +55,73 @@ function LojistaDashboard() {
 
   return (
     <div className="space-y-8">
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <Card>
+      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+        <Card className="bg-card/80 backdrop-blur-sm">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Store Revenue</CardTitle>
-            <BarChart className="h-4 w-4 text-muted-foreground" />
+            <CardTitle className="text-sm font-medium">Receita Total</CardTitle>
+            <DollarSign className="h-5 w-5 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold font-headline">$12,874.22</div>
-            <p className="text-xs text-muted-foreground">+15.2% from last month</p>
+            <p className="text-xs text-muted-foreground">+15.2% em relação ao mês passado</p>
           </CardContent>
         </Card>
-        <Card>
+        <Card className="bg-card/80 backdrop-blur-sm">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Products</CardTitle>
-            <Package className="h-4 w-4 text-muted-foreground" />
+            <CardTitle className="text-sm font-medium">Vendas Hoje</CardTitle>
+            <ShoppingCart className="h-5 w-5 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold font-headline">+32</div>
+            <p className="text-xs text-muted-foreground">+10.1% em relação a ontem</p>
+          </CardContent>
+        </Card>
+        <Card className="bg-card/80 backdrop-blur-sm">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Total de Produtos</CardTitle>
+            <Package className="h-5 w-5 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold font-headline">{storeProducts.length}</div>
-            <p className="text-xs text-muted-foreground">Total products in store</p>
+            <p className="text-xs text-muted-foreground">Produtos ativos na loja</p>
+          </CardContent>
+        </Card>
+        <Card className="bg-card/80 backdrop-blur-sm">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Novos Clientes</CardTitle>
+            <Activity className="h-5 w-5 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold font-headline">+5</div>
+            <p className="text-xs text-muted-foreground">Na última semana</p>
           </CardContent>
         </Card>
       </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Your Products</CardTitle>
-          <CardDescription>Manage your store's products.</CardDescription>
+      <Card className="bg-card/80 backdrop-blur-sm">
+        <CardHeader className="flex flex-row items-center justify-between">
+            <div>
+                <CardTitle>Seus Produtos</CardTitle>
+                <CardDescription>Gerencie o catálogo da sua loja.</CardDescription>
+            </div>
+            <Button size="sm">
+                <PlusCircle className="mr-2 h-4 w-4" />
+                Adicionar Produto
+            </Button>
         </CardHeader>
         <CardContent>
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Name</TableHead>
-                <TableHead>Price</TableHead>
-                <TableHead>Stock</TableHead>
+                <TableHead>Nome</TableHead>
+                <TableHead>Preço</TableHead>
+                <TableHead>Estoque</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {storeProducts.map(product => (
                 <TableRow key={product.id}>
-                  <TableCell>{product.name}</TableCell>
+                  <TableCell className="font-medium">{product.name}</TableCell>
                   <TableCell>${product.price.toFixed(2)}</TableCell>
                   <TableCell>{product.stock}</TableCell>
                 </TableRow>
@@ -186,7 +214,7 @@ export default function DashboardPage() {
     <div className="container mx-auto px-4 py-8">
       <div className="mb-8">
         <h1 className="font-headline text-4xl font-bold">Dashboard</h1>
-        <p className="text-muted-foreground">Welcome back, {user.name}! Here's your overview.</p>
+        <p className="text-muted-foreground">Bem-vindo(a) de volta, {user.name}!</p>
       </div>
       {renderDashboard()}
     </div>
