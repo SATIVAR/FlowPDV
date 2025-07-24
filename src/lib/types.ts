@@ -1,0 +1,40 @@
+export type Role = 'Super Admin' | 'Lojista' | 'Cliente';
+
+export interface User {
+  id: string;
+  name: string;
+  email: string;
+  password?: string; // Optional for OAuth users
+  role: Role;
+  avatar?: string;
+  isOAuth?: boolean;
+}
+
+export interface Product {
+  id: string;
+  name: string;
+  description: string;
+  price: number;
+  imageUrl: string;
+  stock: number;
+  storeId: string;
+}
+
+export interface CartItem extends Product {
+  quantity: number;
+}
+
+export interface Order {
+  id: string;
+  userId: string;
+  items: CartItem[];
+  total: number;
+  status: 'Pending' | 'Shipped' | 'Delivered';
+  createdAt: Date;
+  shippingAddress: {
+    street: string;
+    city: string;
+    zip: string;
+    country: string;
+  }
+}
