@@ -1,5 +1,5 @@
 
-import type { User, Product, Order, Store } from './types';
+import type { User, Product, Order, Store, Category } from './types';
 
 export const users: User[] = [
   {
@@ -24,7 +24,8 @@ export const users: User[] = [
     email: 'cliente@flowpdv.com',
     password: 'password123',
     role: 'Cliente',
-    avatar: 'https://placehold.co/100x100'
+    avatar: 'https://placehold.co/100x100',
+    whatsapp: '+5511999998888',
   },
   {
     id: '4',
@@ -81,6 +82,12 @@ export const stores: Store[] = [
   }
 ];
 
+export const categories: Category[] = [
+  { id: 'cat-1', name: 'Eletrônicos' },
+  { id: 'cat-2', name: 'Alimentos' },
+  { id: 'cat-3', name: 'Moda' },
+];
+
 export const products: Product[] = [
   {
     id: 'prod1',
@@ -89,7 +96,9 @@ export const products: Product[] = [
     price: 189.99,
     imageUrl: 'https://placehold.co/400x400',
     stock: 50,
-    storeId: 'store-1'
+    storeId: 'store-1',
+    categoryId: 'cat-1',
+    unit: 'unidade'
   },
   {
     id: 'prod2',
@@ -98,7 +107,9 @@ export const products: Product[] = [
     price: 79.50,
     imageUrl: 'https://placehold.co/400x400',
     stock: 120,
-    storeId: 'store-1'
+    storeId: 'store-1',
+    categoryId: 'cat-1',
+    unit: 'unidade'
   },
   {
     id: 'prod3',
@@ -107,7 +118,9 @@ export const products: Product[] = [
     price: 42.00,
     imageUrl: 'https://placehold.co/400x400',
     stock: 200,
-    storeId: 'store-2'
+    storeId: 'store-2',
+    categoryId: 'cat-2',
+    unit: 'kilo'
   },
   {
     id: 'prod4',
@@ -116,7 +129,9 @@ export const products: Product[] = [
     price: 8.50,
     imageUrl: 'https://placehold.co/400x400',
     stock: 15,
-    storeId: 'store-2'
+    storeId: 'store-2',
+    categoryId: 'cat-2',
+    unit: 'grama'
   },
   {
     id: 'prod5',
@@ -125,7 +140,9 @@ export const products: Product[] = [
     price: 65.75,
     imageUrl: 'https://placehold.co/400x400',
     stock: 75,
-    storeId: 'store-3'
+    storeId: 'store-3',
+    categoryId: 'cat-3',
+    unit: 'unidade'
   },
   {
     id: 'prod6',
@@ -134,7 +151,9 @@ export const products: Product[] = [
     price: 249.99,
     imageUrl: 'https://placehold.co/400x400',
     stock: 30,
-    storeId: 'store-3'
+    storeId: 'store-3',
+    categoryId: 'cat-3',
+    unit: 'unidade'
   },
 ];
 

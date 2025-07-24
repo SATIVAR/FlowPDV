@@ -9,6 +9,7 @@ export interface User {
   role: Role;
   avatar?: string;
   isOAuth?: boolean;
+  whatsapp?: string;
 }
 
 export interface Store {
@@ -19,6 +20,13 @@ export interface Store {
     coverUrl: string;
 }
 
+export interface Category {
+  id: string;
+  name: string;
+}
+
+export type ProductUnit = 'unidade' | 'kilo' | 'grama';
+
 export interface Product {
   id: string;
   name: string;
@@ -27,6 +35,8 @@ export interface Product {
   imageUrl: string;
   stock: number;
   storeId: string;
+  categoryId?: string;
+  unit: ProductUnit;
 }
 
 export interface CartItem extends Product {

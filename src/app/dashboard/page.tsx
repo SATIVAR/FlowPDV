@@ -5,7 +5,7 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/hooks/use-auth';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { orders, products as initialProducts, users as initialUsers } from '@/lib/data';
+import { orders, products as initialProducts, users as initialUsers, categories as initialCategories } from '@/lib/data';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -17,7 +17,8 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
-import type { Product, User } from '@/lib/types';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import type { Product, User, Category, ProductUnit } from '@/lib/types';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 
 
@@ -64,9 +65,11 @@ const productFormSchema = z.object({
   name: z.string().min(2, { message: "O nome do produto é obrigatório." }),
   price: z.coerce.number().min(0.01, { message: "O preço deve ser positivo." }),
   stock: z.coerce.number().int().min(0, { message: "O estoque não pode ser negativo." }),
+  unit: z.enum(['unidade', 'kilo', 'grama'], { required_error: "A unidade é obrigatória." }),
+  categoryId: z.string().optional(),
 });
 
-function ProductForm({ onSave, product, children }: { onSave: (data: Product) => void, product?: Product, children: React.ReactNode }) {
+function ProductForm({ onSave, product, categories, children }: { onSave: (data: Product) => void, product?: Product, categories: Category[], children: React.ReactNode }) {
   const [open, setOpen] = useState(false);
   const form = useForm<z.infer<typeof productFormSchema>>({
     resolver: zodResolver(productFormSchema),
@@ -74,6 +77,8 @@ function ProductForm({ onSave, product, children }: { onSave: (data: Product) =>
       name: product?.name || '',
       price: product?.price || 0,
       stock: product?.stock || 0,
+      unit: product?.unit || 'unidade',
+      categoryId: product?.categoryId || '',
     },
   });
 
@@ -116,32 +121,80 @@ function ProductForm({ onSave, product, children }: { onSave: (data: Product) =>
                 </FormItem>
               )}
             />
-            <FormField
-              control={form.control}
-              name="price"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Preço</FormLabel>
-                  <FormControl>
-                    <Input type="number" step="0.01" placeholder="99.99" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-             <FormField
-              control={form.control}
-              name="stock"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Estoque</FormLabel>
-                  <FormControl>
-                    <Input type="number" placeholder="10" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+            <div className="grid grid-cols-2 gap-4">
+               <FormField
+                control={form.control}
+                name="price"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Preço</FormLabel>
+                    <FormControl>
+                      <Input type="number" step="0.01" placeholder="99.99" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+               <FormField
+                control={form.control}
+                name="stock"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Estoque</FormLabel>
+                    <FormControl>
+                      <Input type="number" placeholder="10" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+                <FormField
+                  control={form.control}
+                  name="unit"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Unidade</FormLabel>
+                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Selecione" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="unidade">Unidade</SelectItem>
+                          <SelectItem value="kilo">Kilo (kg)</SelectItem>
+                          <SelectItem value="grama">Grama (g)</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                 <FormField
+                  control={form.control}
+                  name="categoryId"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Categoria</FormLabel>
+                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Selecione" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {categories.map(category => (
+                            <SelectItem key={category.id} value={category.id}>{category.name}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+            </div>
             <DialogFooter>
               <Button type="submit">Salvar</Button>
             </DialogFooter>
@@ -154,7 +207,7 @@ function ProductForm({ onSave, product, children }: { onSave: (data: Product) =>
 
 const customerFormSchema = z.object({
   name: z.string().min(2, { message: "O nome é obrigatório." }),
-  email: z.string().email({ message: "E-mail inválido." }),
+  whatsapp: z.string().min(10, { message: "Número de WhatsApp inválido." }),
 });
 
 function CustomerForm({ onSave, customer, children }: { onSave: (data: User) => void, customer?: User, children: React.ReactNode }) {
@@ -163,7 +216,7 @@ function CustomerForm({ onSave, customer, children }: { onSave: (data: User) => 
     resolver: zodResolver(customerFormSchema),
     defaultValues: {
       name: customer?.name || '',
-      email: customer?.email || '',
+      whatsapp: customer?.whatsapp || '',
     },
   });
 
@@ -171,6 +224,7 @@ function CustomerForm({ onSave, customer, children }: { onSave: (data: User) => 
     onSave({
       id: customer?.id || `user-${Date.now()}`,
       role: 'Cliente',
+      email: customer?.email || `${values.name.split(' ')[0].toLowerCase()}@cliente.com`,
       avatar: customer?.avatar || 'https://placehold.co/100x100',
       ...values,
     });
@@ -207,12 +261,12 @@ function CustomerForm({ onSave, customer, children }: { onSave: (data: User) => 
             />
             <FormField
               control={form.control}
-              name="email"
+              name="whatsapp"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Email</FormLabel>
+                  <FormLabel>WhatsApp</FormLabel>
                   <FormControl>
-                    <Input type="email" placeholder="cliente@email.com" {...field} />
+                    <Input placeholder="+55 (11) 99999-9999" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -228,10 +282,61 @@ function CustomerForm({ onSave, customer, children }: { onSave: (data: User) => 
   );
 }
 
+const categoryFormSchema = z.object({
+  name: z.string().min(2, { message: "O nome da categoria é obrigatório." }),
+});
+
+function CategoryForm({ onSave, category, children }: { onSave: (data: Omit<Category, 'id'>) => void, category?: Category, children: React.ReactNode }) {
+    const [open, setOpen] = useState(false);
+    const form = useForm<z.infer<typeof categoryFormSchema>>({
+        resolver: zodResolver(categoryFormSchema),
+        defaultValues: {
+            name: category?.name || '',
+        },
+    });
+
+    const onSubmit = (values: z.infer<typeof categoryFormSchema>) => {
+        onSave(values);
+        setOpen(false);
+        form.reset();
+    };
+
+    return (
+        <Dialog open={open} onOpenChange={setOpen}>
+            <DialogTrigger asChild>{children}</DialogTrigger>
+            <DialogContent className="sm:max-w-[425px]">
+                <DialogHeader>
+                    <DialogTitle>{category ? 'Editar Categoria' : 'Adicionar Categoria'}</DialogTitle>
+                </DialogHeader>
+                <Form {...form}>
+                    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+                        <FormField
+                            control={form.control}
+                            name="name"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Nome da Categoria</FormLabel>
+                                    <FormControl>
+                                        <Input placeholder="Ex: Bebidas" {...field} />
+                                    </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+                        <DialogFooter>
+                            <Button type="submit">Salvar</Button>
+                        </DialogFooter>
+                    </form>
+                </Form>
+            </DialogContent>
+        </Dialog>
+    );
+}
 
 function LojistaDashboard() {
   const [products, setProducts] = useState(() => initialProducts.filter(p => p.storeId === '2'));
   const [customers, setCustomers] = useState(() => initialUsers.filter(u => u.role === 'Cliente'));
+  const [categories, setCategories] = useState(() => initialCategories);
 
   const handleSaveProduct = (productData: Product) => {
     setProducts(prev => {
@@ -260,6 +365,13 @@ function LojistaDashboard() {
   const handleDeleteCustomer = (customerId: string) => {
     setCustomers(prev => prev.filter(c => c.id !== customerId));
   }
+  
+  const handleSaveCategory = (categoryData: Omit<Category, 'id'>) => {
+    setCategories(prev => {
+        const newCategory = { ...categoryData, id: `cat-${Date.now()}` };
+        return [newCategory, ...prev];
+    });
+  };
 
 
   return (
@@ -325,7 +437,7 @@ function LojistaDashboard() {
             <TableHeader>
               <TableRow>
                 <TableHead>Nome</TableHead>
-                <TableHead>Email</TableHead>
+                <TableHead>WhatsApp</TableHead>
                 <TableHead className="text-right">Ações</TableHead>
               </TableRow>
             </TableHeader>
@@ -333,7 +445,7 @@ function LojistaDashboard() {
               {customers.map(customer => (
                 <TableRow key={customer.id}>
                   <TableCell className="font-medium">{customer.name}</TableCell>
-                  <TableCell>{customer.email}</TableCell>
+                  <TableCell>{customer.whatsapp}</TableCell>
                   <TableCell className="text-right space-x-2">
                      <CustomerForm onSave={handleSaveCustomer} customer={customer}>
                         <Button variant="ghost" size="icon">
@@ -373,12 +485,20 @@ function LojistaDashboard() {
                 <CardTitle>Seus Produtos</CardTitle>
                 <CardDescription>Gerencie o catálogo da sua loja.</CardDescription>
             </div>
-             <ProductForm onSave={handleSaveProduct}>
-                <Button size="sm">
-                    <PlusCircle className="mr-2 h-4 w-4" />
-                    Adicionar Produto
-                </Button>
-            </ProductForm>
+            <div className="flex items-center gap-2">
+              <CategoryForm onSave={handleSaveCategory}>
+                  <Button size="sm" variant="outline">
+                      <PlusCircle className="mr-2 h-4 w-4" />
+                      Adicionar Categoria
+                  </Button>
+              </CategoryForm>
+              <ProductForm onSave={handleSaveProduct} categories={categories}>
+                  <Button size="sm">
+                      <PlusCircle className="mr-2 h-4 w-4" />
+                      Adicionar Produto
+                  </Button>
+              </ProductForm>
+            </div>
         </CardHeader>
         <CardContent>
           <Table>
@@ -387,6 +507,8 @@ function LojistaDashboard() {
                 <TableHead>Nome</TableHead>
                 <TableHead>Preço</TableHead>
                 <TableHead>Estoque</TableHead>
+                <TableHead>Unidade</TableHead>
+                <TableHead>Categoria</TableHead>
                 <TableHead className="text-right">Ações</TableHead>
               </TableRow>
             </TableHeader>
@@ -394,10 +516,12 @@ function LojistaDashboard() {
               {products.map(product => (
                 <TableRow key={product.id}>
                   <TableCell className="font-medium">{product.name}</TableCell>
-                  <TableCell>${product.price.toFixed(2)}</TableCell>
+                  <TableCell>R$ {product.price.toFixed(2)}</TableCell>
                   <TableCell>{product.stock}</TableCell>
+                  <TableCell>{product.unit}</TableCell>
+                  <TableCell>{categories.find(c => c.id === product.categoryId)?.name || '-'}</TableCell>
                    <TableCell className="text-right space-x-2">
-                     <ProductForm onSave={handleSaveProduct} product={product}>
+                     <ProductForm onSave={handleSaveProduct} product={product} categories={categories}>
                         <Button variant="ghost" size="icon">
                           <Edit className="h-4 w-4" />
                         </Button>
@@ -518,5 +642,3 @@ export default function DashboardPage() {
     </div>
   );
 }
-
-    
