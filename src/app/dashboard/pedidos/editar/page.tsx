@@ -1,14 +1,14 @@
 
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { useRouter, useParams } from 'next/navigation';
 import { useForm, useFieldArray, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
-import { products as initialProducts, users as initialCustomers, paymentMethods as initialPaymentMethods } from '@/lib/data';
-import type { Product, User, PaymentMethod, ProductUnit, OrderStatus } from '@/lib/types';
+import { products as initialProducts, users as initialCustomers, paymentMethods as initialPaymentMethods, orders as initialOrders } from '@/lib/data';
+import type { Product, User, PaymentMethod, ProductUnit, Order } from '@/lib/types';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
@@ -47,6 +47,7 @@ const orderFormSchema = z.object({
     path: ["customerId"],
 });
 
+
 const customProductSchema = z.object({
   name: z.string().min(1, "O nome é obrigatório."),
   price: z.coerce.number().min(0.01, "O preço deve ser positivo."),
@@ -54,21 +55,45 @@ const customProductSchema = z.object({
   unit: z.enum(['unidade', 'kilo', 'grama']),
 });
 
-export default function NewOrderPage() {
+export default function EditOrderPage() {
     const router = useRouter();
+    const params = useParams();
+    const { id: orderId } = params;
     const { toast } = useToast();
+
+    const [order, setOrder] = useState<Order | null>(null);
     const [products, setProducts] = useState<Product[]>(() => initialProducts.filter(p => p.storeId === '2'));
     const [customers, setCustomers] = useState<User[]>(() => initialCustomers.filter(u => u.role === 'Cliente'));
     const [paymentMethods, setPaymentMethods] = useState<PaymentMethod[]>(() => initialPaymentMethods);
 
     const form = useForm<z.infer<typeof orderFormSchema>>({
         resolver: zodResolver(orderFormSchema),
-        defaultValues: {
-            customerType: 'registered',
-            items: [],
-            status: 'Pendente',
-        },
     });
+    
+    const customerType = form.watch('customerType');
+
+    useEffect(() => {
+        const foundOrder = initialOrders.find(o => o.id === orderId);
+        if (foundOrder) {
+            setOrder(foundOrder);
+            const isRegistered = !!foundOrder.userId;
+
+            form.reset({
+                customerType: isRegistered ? 'registered' : 'unregistered',
+                customerId: foundOrder.userId,
+                customerName: isRegistered ? undefined : foundOrder.customerName,
+                paymentMethodId: paymentMethods.find(pm => pm.name === foundOrder.paymentMethod)?.id || '',
+                status: foundOrder.status,
+                items: foundOrder.items.map(item => ({
+                    productId: item.id,
+                    name: item.name,
+                    quantity: item.quantity,
+                    price: item.price,
+                    unit: item.unit,
+                })),
+            });
+        }
+    }, [orderId, form, paymentMethods]);
 
     const { fields, append, remove, update } = useFieldArray({
         control: form.control,
@@ -80,7 +105,6 @@ export default function NewOrderPage() {
     const [customProductErrors, setCustomProductErrors] = useState<any>({});
     
     const total = form.watch('items').reduce((acc, item) => acc + (item.price * item.quantity), 0);
-    const customerType = form.watch('customerType');
 
     const handleAddPredefinedProduct = () => {
         const product = products.find(p => p.id === selectedProductId);
@@ -113,7 +137,7 @@ export default function NewOrderPage() {
         }
     }
     
-    const handleSaveCustomer = (customerData: User) => {
+     const handleSaveCustomer = (customerData: User) => {
         const newCustomer = {
             ...customerData,
             id: `user-${Date.now()}`,
@@ -126,20 +150,29 @@ export default function NewOrderPage() {
         toast({ title: 'Cliente adicionado!', description: 'O novo cliente foi salvo com sucesso.'})
     };
 
+
     const handleCustomProductChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
         const { name, value } = e.target;
         setCustomProduct(prev => ({...prev, [name]: value}));
     }
 
     const onSubmit = (values: z.infer<typeof orderFormSchema>) => {
-        // Here you would typically send the data to your API
-        console.log("New Order Submitted:", values);
+        // Here you would typically send the data to your API to update the order
+        console.log("Updated Order Submitted:", values);
         toast({
-            title: "Pedido Criado!",
-            description: "O novo pedido foi salvo com sucesso.",
+            title: "Pedido Atualizado!",
+            description: "O pedido foi atualizado com sucesso.",
         });
         router.push('/dashboard/pedidos');
     };
+    
+    if (!order) {
+        return (
+             <div className="container mx-auto px-4 py-8 text-center">
+                <p>Carregando pedido...</p>
+            </div>
+        )
+    }
 
     return (
         <div className="container mx-auto px-4 py-8 max-w-4xl">
@@ -150,8 +183,8 @@ export default function NewOrderPage() {
                    </Link>
                 </Button>
                 <div>
-                    <h1 className="font-headline text-3xl font-bold">Novo Pedido</h1>
-                    <p className="text-muted-foreground">Crie um novo pedido para um cliente.</p>
+                    <h1 className="font-headline text-3xl font-bold">Editar Pedido #{order.id.slice(-6)}</h1>
+                    <p className="text-muted-foreground">Atualize as informações do pedido.</p>
                 </div>
             </div>
             
@@ -198,7 +231,7 @@ export default function NewOrderPage() {
                                             render={({ field }) => (
                                             <FormItem className="flex-grow">
                                                 <FormLabel>Cliente</FormLabel>
-                                                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                                <Select onValueChange={field.onChange} value={field.value}>
                                                     <FormControl>
                                                         <SelectTrigger>
                                                         <SelectValue placeholder="Selecione um cliente" />
@@ -232,9 +265,7 @@ export default function NewOrderPage() {
                                     />
                                 )}
                                 <FormMessage>{form.formState.errors.customerId?.message}</FormMessage>
-
                             </div>
-
                              <FormField
                                 control={form.control}
                                 name="paymentMethodId"
@@ -404,7 +435,7 @@ export default function NewOrderPage() {
                     <FormMessage>{form.formState.errors.items?.message || form.formState.errors.items?.root?.message}</FormMessage>
                     <div className="flex justify-end gap-2 pt-4">
                         <Button type="button" variant="ghost" onClick={() => router.back()}>Cancelar</Button>
-                        <Button type="submit" disabled={form.formState.isSubmitting}>Salvar Pedido</Button>
+                        <Button type="submit" disabled={form.formState.isSubmitting}>Salvar Alterações</Button>
                     </div>
                 </form>
             </Form>

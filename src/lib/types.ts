@@ -1,4 +1,5 @@
 
+
 export type Role = 'Super Admin' | 'Lojista' | 'Cliente';
 
 export interface User {
@@ -50,7 +51,7 @@ export interface PaymentMethod {
 
 export interface Order {
   id:string;
-  userId: string;
+  userId?: string; // Can be optional for unregistered customers
   storeId: string;
   customerName: string;
   items: CartItem[];

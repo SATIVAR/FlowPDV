@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import { useEffect, useState } from 'react';
@@ -7,12 +8,10 @@ import { useAuth } from '@/hooks/use-auth';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { orders, products as initialProducts, users as initialUsers, categories as initialCategories, paymentMethods as initialPaymentMethods } from '@/lib/data';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { BarChart, Users, Package, ShoppingCart, DollarSign, Activity, PlusCircle, Edit, Trash2, CreditCard } from 'lucide-react';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Input, MaskedInput } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
+import { Input } from '@/components/ui/input';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -21,6 +20,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import type { Product, User, Category, PaymentMethod } from '@/lib/types';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { CustomerForm } from '@/components/customer-form';
 
 
 function SuperAdminDashboard() {
@@ -206,83 +206,6 @@ function ProductForm({ onSave, product, categories, children }: { onSave: (data:
   );
 }
 
-const customerFormSchema = z.object({
-  name: z.string().min(2, { message: "O nome é obrigatório." }),
-  whatsapp: z.string().min(10, { message: "Número de WhatsApp inválido." }),
-});
-
-function CustomerForm({ onSave, customer, children }: { onSave: (data: User) => void, customer?: User, children: React.ReactNode }) {
-  const [open, setOpen] = useState(false);
-  const form = useForm<z.infer<typeof customerFormSchema>>({
-    resolver: zodResolver(customerFormSchema),
-    defaultValues: {
-      name: customer?.name || '',
-      whatsapp: customer?.whatsapp || '',
-    },
-  });
-
-  const onSubmit = (values: z.infer<typeof customerFormSchema>) => {
-    onSave({
-      id: customer?.id || `user-${Date.now()}`,
-      role: 'Cliente',
-      avatar: customer?.avatar || 'https://placehold.co/100x100',
-      ...values,
-      whatsapp: values.whatsapp.replace(/\D/g, ''),
-    });
-    setOpen(false);
-    form.reset();
-  };
-
-  return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        {children}
-      </DialogTrigger>
-      <DialogContent className="sm:max-w-[425px]">
-        <DialogHeader>
-          <DialogTitle>{customer ? 'Editar Cliente' : 'Adicionar Cliente'}</DialogTitle>
-          <DialogDescription>
-             {customer ? 'Edite as informações do seu cliente.' : 'Preencha as informações do novo cliente.'}
-          </DialogDescription>
-        </DialogHeader>
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-            <FormField
-              control={form.control}
-              name="name"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Nome Completo</FormLabel>
-                  <FormControl>
-                    <Input placeholder="Nome do Cliente" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="whatsapp"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>WhatsApp</FormLabel>
-                  <FormControl>
-                    <MaskedInput mask="(00) 00000-0000" placeholder="+55 (11) 99999-9999" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <DialogFooter>
-              <Button type="submit">Salvar</Button>
-            </DialogFooter>
-          </form>
-        </Form>
-      </DialogContent>
-    </Dialog>
-  );
-}
-
 const categoryFormSchema = z.object({
   name: z.string().min(2, { message: "O nome da categoria é obrigatório." }),
 });
@@ -411,7 +334,7 @@ function LojistaDashboard() {
       if (existing) {
         return prev.map(c => c.id === customerData.id ? customerData : c);
       }
-      return [customerData, ...prev];
+      return [{...customerData, id: `user-${Date.now()}`, role: 'Cliente', avatar: 'https://placehold.co/100x100'}, ...prev];
     })
   };
 
@@ -529,7 +452,7 @@ function LojistaDashboard() {
                           <TableCell className="font-medium">{customer.name}</TableCell>
                           <TableCell>{customer.whatsapp}</TableCell>
                           <TableCell className="text-right space-x-2">
-                             <CustomerForm onSave={handleSaveCustomer} customer={customer}>
+                             <CustomerForm onSave={(data) => handleSaveCustomer({...data, id: customer.id})} customer={customer}>
                                 <Button variant="ghost" size="icon">
                                   <Edit className="h-4 w-4" />
                                 </Button>

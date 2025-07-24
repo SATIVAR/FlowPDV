@@ -1,4 +1,5 @@
 
+
 import type { User, Product, Order, Store, Category, PaymentMethod } from './types';
 
 export const users: User[] = [
