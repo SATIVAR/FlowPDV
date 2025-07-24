@@ -26,14 +26,6 @@ export const users: User[] = [
     role: 'Cliente',
     avatar: 'https://placehold.co/100x100',
     whatsapp: '+5511999998888',
-  },
-  {
-    id: '4',
-    name: 'Google User',
-    email: 'google.user@gmail.com',
-    role: 'Lojista',
-    avatar: 'https://placehold.co/100x100',
-    isOAuth: true,
   }
 ];
 

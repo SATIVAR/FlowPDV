@@ -1,9 +1,10 @@
+
 'use client';
 
 import React, { useState, useEffect, useCallback } from 'react';
 import { AuthContext } from '@/hooks/use-auth';
 import type { User, Role } from '@/lib/types';
-import { users, orders } from '@/lib/data';
+import { users } from '@/lib/data';
 
 const USER_STORAGE_KEY = 'flowpdv.user';
 
@@ -36,7 +37,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const login = useCallback(async (email: string, password?: string): Promise<User> => {
     const foundUser = users.find(
-      (u) => u.email === email && !u.isOAuth && u.password === password
+      (u) => u.email === email && u.password === password
     );
     if (foundUser) {
       updateUserInStorage(foundUser);
@@ -45,15 +46,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     throw new Error('Invalid email or password');
   }, []);
   
-  const googleLogin = useCallback(async (): Promise<User> => {
-    const googleUser = users.find(u => u.isOAuth);
-    if (googleUser) {
-      updateUserInStorage(googleUser);
-      return googleUser;
-    }
-    throw new Error('Google user not found in mock data.');
-  }, []);
-
   const register = useCallback(async (name: string, email: string, password: string): Promise<User> => {
       const existingUser = users.find((u) => u.email === email);
       if (existingUser) {
@@ -64,10 +56,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         name,
         email,
         password,
-        role: 'Cliente',
+        role: 'Lojista', // New users are merchants by default
         avatar: 'https://placehold.co/100x100',
       };
-      users.push(newUser);
+      users.push(newUser); // Note: In a real app, this would be a DB call.
       updateUserInStorage(newUser);
       return newUser;
     }, []);
@@ -87,7 +79,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const value = {
     user,
     login,
-    googleLogin,
     logout,
     register,
     isAuthenticated,
