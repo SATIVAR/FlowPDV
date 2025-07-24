@@ -5,7 +5,7 @@ export const users: User[] = [
   {
     id: '1',
     name: 'Super Admin',
-    whatsapp: '00000000000',
+    whatsapp: '85988776655',
     password: 'adminsenha',
     role: 'Super Admin',
     avatar: 'https://placehold.co/100x100'

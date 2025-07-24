@@ -57,7 +57,7 @@ export default function LoginPage() {
     }
   };
   
-  const isSuperAdminLogin = form.watch('whatsapp').replace(/\D/g, '') === '00000000000';
+  const isSuperAdminLogin = form.watch('whatsapp').replace(/\D/g, '') === '85988776655';
 
   return (
     <div className="container flex items-center justify-center min-h-[calc(100vh-4rem)] py-12">
