@@ -22,8 +22,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Separator } from '@/components/ui/separator';
 
 const formSchema = z.object({
-  email: z.string().email({ message: 'Invalid email address.' }),
-  password: z.string().min(1, { message: 'Password is required.' }),
+  email: z.string().email({ message: 'Endereço de e-mail inválido.' }),
+  password: z.string().min(1, { message: 'A senha é obrigatória.' }),
 });
 
 export default function LoginPage() {
@@ -43,14 +43,14 @@ export default function LoginPage() {
     try {
       await login(values.email, values.password);
       toast({
-        title: 'Success',
-        description: 'Logged in successfully.',
+        title: 'Sucesso',
+        description: 'Login efetuado com sucesso.',
       });
       router.push('/dashboard');
     } catch (error) {
       toast({
         variant: 'destructive',
-        title: 'Login Failed',
+        title: 'Falha no Login',
         description: (error as Error).message,
       });
     }
@@ -60,14 +60,14 @@ export default function LoginPage() {
     try {
       await googleLogin();
       toast({
-        title: 'Success',
-        description: 'Logged in successfully with Google.',
+        title: 'Sucesso',
+        description: 'Login com Google efetuado com sucesso.',
       });
       router.push('/dashboard');
     } catch (error) {
       toast({
         variant: 'destructive',
-        title: 'Login Failed',
+        title: 'Falha no Login',
         description: (error as Error).message,
       });
     }
@@ -77,8 +77,8 @@ export default function LoginPage() {
     <div className="container flex items-center justify-center min-h-[calc(100vh-4rem)] py-12">
       <Card className="w-full max-w-md mx-auto">
         <CardHeader className="text-center">
-          <CardTitle className="font-headline text-3xl">Welcome Back!</CardTitle>
-          <CardDescription>Enter your credentials to access your account</CardDescription>
+          <CardTitle className="font-headline text-3xl">Bem-vindo(a) de volta!</CardTitle>
+          <CardDescription>Insira suas credenciais para acessar sua conta</CardDescription>
         </CardHeader>
         <CardContent>
           <Form {...form}>
@@ -90,7 +90,7 @@ export default function LoginPage() {
                   <FormItem>
                     <FormLabel>Email</FormLabel>
                     <FormControl>
-                      <Input placeholder="you@example.com" {...field} />
+                      <Input placeholder="voce@exemplo.com" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -101,7 +101,7 @@ export default function LoginPage() {
                 name="password"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Password</FormLabel>
+                    <FormLabel>Senha</FormLabel>
                     <FormControl>
                       <Input type="password" placeholder="••••••••" {...field} />
                     </FormControl>
@@ -110,7 +110,7 @@ export default function LoginPage() {
                 )}
               />
               <Button type="submit" className="w-full" disabled={form.formState.isSubmitting}>
-                {form.formState.isSubmitting ? 'Signing in...' : 'Sign In'}
+                {form.formState.isSubmitting ? 'Entrando...' : 'Entrar'}
               </Button>
             </form>
           </Form>
@@ -118,12 +118,12 @@ export default function LoginPage() {
             <Separator />
           </div>
           <Button variant="outline" className="w-full" onClick={handleGoogleLogin}>
-            Sign in with Google
+            Entrar com Google
           </Button>
           <p className="mt-6 text-center text-sm text-muted-foreground">
-            Don&apos;t have an account?{' '}
+            Não tem uma conta?{' '}
             <Link href="/register" className="font-medium text-primary hover:underline">
-              Sign up
+              Cadastre-se
             </Link>
           </p>
         </CardContent>

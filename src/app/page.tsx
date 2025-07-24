@@ -40,7 +40,7 @@ export default function Home() {
                 src="https://placehold.co/1200x600"
                 width={1200}
                 height={600}
-                alt="Dashboard do Lojista TenantFlow"
+                alt="Dashboard do Lojista FlowPDV"
                 className="rounded-xl shadow-2xl mx-auto relative z-10 opacity-80"
                 data-ai-hint="dashboard mockup"
               />
@@ -159,7 +159,7 @@ export default function Home() {
       
       <footer className="bg-background border-t">
         <div className="container mx-auto px-4 py-6 text-center text-muted-foreground text-sm">
-          <p>&copy; {new Date().getFullYear()} TenantFlow. Todos os direitos reservados.</p>
+          <p>&copy; {new Date().getFullYear()} FlowPDV. Todos os direitos reservados.</p>
         </div>
       </footer>
     </div>

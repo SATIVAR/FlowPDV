@@ -5,7 +5,7 @@ export const users: User[] = [
   {
     id: '1',
     name: 'Super Admin',
-    email: 'admin@tenantflow.com',
+    email: 'admin@flowpdv.com',
     password: 'password123',
     role: 'Super Admin',
     avatar: 'https://placehold.co/100x100'
@@ -13,7 +13,7 @@ export const users: User[] = [
   {
     id: '2',
     name: 'Loja da Esquina',
-    email: 'lojista@tenantflow.com',
+    email: 'lojista@flowpdv.com',
     password: 'password123',
     role: 'Lojista',
     avatar: 'https://placehold.co/100x100'
@@ -21,7 +21,7 @@ export const users: User[] = [
   {
     id: '3',
     name: 'Cliente Fiel',
-    email: 'cliente@tenantflow.com',
+    email: 'cliente@flowpdv.com',
     password: 'password123',
     role: 'Cliente',
     avatar: 'https://placehold.co/100x100'

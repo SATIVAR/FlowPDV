@@ -7,7 +7,7 @@ import { Header } from '@/components/header';
 import { ThemeProvider } from '@/components/theme-provider';
 
 export const metadata: Metadata = {
-  title: 'TenantFlow - O marketplace para todos',
+  title: 'FlowPDV - O marketplace para todos',
   description: 'Uma plataforma completa para você criar sua loja, gerenciar seus produtos e alcançar mais clientes. Simples, rápido e sem taxas escondidas.',
   keywords: ['marketplace', 'e-commerce', 'vendas online', 'loja virtual'],
 };

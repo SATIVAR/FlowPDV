@@ -21,9 +21,9 @@ import { useAuth } from '@/hooks/use-auth';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 
 const formSchema = z.object({
-  name: z.string().min(2, { message: 'Name must be at least 2 characters.' }),
-  email: z.string().email({ message: 'Invalid email address.' }),
-  password: z.string().min(8, { message: 'Password must be at least 8 characters.' }),
+  name: z.string().min(2, { message: 'O nome deve ter pelo menos 2 caracteres.' }),
+  email: z.string().email({ message: 'Endereço de e-mail inválido.' }),
+  password: z.string().min(8, { message: 'A senha deve ter pelo menos 8 caracteres.' }),
 });
 
 export default function RegisterPage() {
@@ -44,14 +44,14 @@ export default function RegisterPage() {
     try {
       await register(values.name, values.email, values.password);
       toast({
-        title: 'Success',
-        description: 'Account created successfully. You are now logged in.',
+        title: 'Sucesso',
+        description: 'Conta criada com sucesso. Você já pode fazer o login.',
       });
       router.push('/dashboard');
     } catch (error) {
       toast({
         variant: 'destructive',
-        title: 'Registration Failed',
+        title: 'Falha no Cadastro',
         description: (error as Error).message,
       });
     }
@@ -61,8 +61,8 @@ export default function RegisterPage() {
     <div className="container flex items-center justify-center min-h-[calc(100vh-4rem)] py-12">
       <Card className="w-full max-w-md mx-auto">
         <CardHeader className="text-center">
-          <CardTitle className="font-headline text-3xl">Create an Account</CardTitle>
-          <CardDescription>Join TenantFlow today to start shopping.</CardDescription>
+          <CardTitle className="font-headline text-3xl">Crie sua Conta</CardTitle>
+          <CardDescription>Junte-se à FlowPDV hoje para começar a vender.</CardDescription>
         </CardHeader>
         <CardContent>
           <Form {...form}>
@@ -72,9 +72,9 @@ export default function RegisterPage() {
                 name="name"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Full Name</FormLabel>
+                    <FormLabel>Nome Completo</FormLabel>
                     <FormControl>
-                      <Input placeholder="John Doe" {...field} />
+                      <Input placeholder="Seu Nome Completo" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -87,7 +87,7 @@ export default function RegisterPage() {
                   <FormItem>
                     <FormLabel>Email</FormLabel>
                     <FormControl>
-                      <Input placeholder="you@example.com" {...field} />
+                      <Input placeholder="voce@exemplo.com" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -98,7 +98,7 @@ export default function RegisterPage() {
                 name="password"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Password</FormLabel>
+                    <FormLabel>Senha</FormLabel>
                     <FormControl>
                       <Input type="password" placeholder="••••••••" {...field} />
                     </FormControl>
@@ -107,14 +107,14 @@ export default function RegisterPage() {
                 )}
               />
               <Button type="submit" className="w-full !mt-6" disabled={form.formState.isSubmitting}>
-                {form.formState.isSubmitting ? 'Creating account...' : 'Create Account'}
+                {form.formState.isSubmitting ? 'Criando conta...' : 'Criar Conta'}
               </Button>
             </form>
           </Form>
           <p className="mt-6 text-center text-sm text-muted-foreground">
-            Already have an account?{' '}
+            Já tem uma conta?{' '}
             <Link href="/login" className="font-medium text-primary hover:underline">
-              Sign in
+              Entrar
             </Link>
           </p>
         </CardContent>

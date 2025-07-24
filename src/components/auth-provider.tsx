@@ -5,7 +5,7 @@ import { AuthContext } from '@/hooks/use-auth';
 import type { User, Role } from '@/lib/types';
 import { users, orders } from '@/lib/data';
 
-const USER_STORAGE_KEY = 'tenantflow.user';
+const USER_STORAGE_KEY = 'flowpdv.user';
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
