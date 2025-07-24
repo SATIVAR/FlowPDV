@@ -52,6 +52,7 @@ function SuperAdminDashboard() {
 
 function LojistaDashboard() {
   const storeProducts = products.filter(p => p.storeId === '2'); // Mock storeId
+  const storeCustomers = users.filter(u => u.role === 'Cliente'); // Mock customer data
 
   return (
     <div className="space-y-8">
@@ -97,6 +98,16 @@ function LojistaDashboard() {
           </CardContent>
         </Card>
       </div>
+
+      <Card className="bg-card/80 backdrop-blur-sm">
+        <CardHeader>
+            <CardTitle>Seus Clientes</CardTitle>
+            <CardDescription>Gerencie os clientes da sua loja.</CardDescription>
+        </CardHeader>
+        <CardContent>
+            <p className="text-muted-foreground">Gerenciamento de clientes em breve.</p>
+        </CardContent>
+      </Card>
 
       <Card className="bg-card/80 backdrop-blur-sm">
         <CardHeader className="flex flex-row items-center justify-between">
