@@ -19,6 +19,8 @@ import * as z from 'zod';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+
 
 const orderFormSchema = z.object({
   customerId: z.string({ required_error: "Selecione um cliente." }),
@@ -408,5 +410,7 @@ export default function PedidosPage() {
             </Card>
         </div>
     );
+
+    
 
     
