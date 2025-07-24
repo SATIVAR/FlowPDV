@@ -4,7 +4,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { ArrowRight, Store, Users, ShoppingCart, Rocket, Package, Target } from 'lucide-react';
+import { ArrowRight, Rocket, Package, Target } from 'lucide-react';
 import { stores } from '@/lib/data';
 import {
   Carousel,
@@ -22,17 +22,17 @@ export default function Home() {
         <section className="bg-primary/5 dark:bg-primary/10 py-20 md:py-32">
           <div className="container mx-auto px-4 text-center">
             <h1 className="font-headline text-4xl md:text-6xl font-bold tracking-tight mb-4">
-              O marketplace para todos
+              Sua vitrine no mundo digital
             </h1>
             <p className="text-lg md:text-xl text-muted-foreground max-w-3xl mx-auto mb-8">
-              Uma plataforma completa para você criar sua loja, gerenciar seus produtos e alcançar mais clientes. Simples, rápido e sem taxas escondidas.
+              Crie sua loja, gerencie seus produtos e alcance milhares de clientes. Nós cuidamos da tecnologia, você foca em vender.
             </p>
             <div className="flex justify-center gap-4">
               <Button asChild size="lg">
-                <Link href="/register">Comece a Vender</Link>
+                <Link href="/register">Crie sua Loja Grátis</Link>
               </Button>
               <Button asChild size="lg" variant="outline">
-                <Link href="#features">Saiba Mais <ArrowRight className="ml-2 h-5 w-5" /></Link>
+                <Link href="#features">Descubra os Benefícios <ArrowRight className="ml-2 h-5 w-5" /></Link>
               </Button>
             </div>
           </div>
@@ -42,41 +42,41 @@ export default function Home() {
         <section id="features" className="py-16 md:py-24 bg-background">
           <div className="container mx-auto px-4">
             <div className="text-center mb-12">
-              <h2 className="font-headline text-3xl md:text-4xl font-bold">Por que escolher a TenantFlow?</h2>
-              <p className="text-muted-foreground mt-2 max-w-2xl mx-auto">Oferecemos as melhores ferramentas para lojistas e uma experiência de compra incrível para clientes.</p>
+              <h2 className="font-headline text-3xl md:text-4xl font-bold">A plataforma ideal para o seu negócio</h2>
+              <p className="text-muted-foreground mt-2 max-w-2xl mx-auto">Ferramentas poderosas e uma interface intuitiva para impulsionar suas vendas e simplificar sua rotina.</p>
             </div>
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-              <Card className="hover:shadow-lg transition-shadow border-0 bg-primary/5 dark:bg-primary/10">
-                <CardHeader className="items-center text-center">
-                  <div className="bg-primary/10 p-3 rounded-full mb-2">
-                    <Rocket className="h-8 w-8 text-primary" />
+              <Card className="text-center border-0 bg-transparent shadow-none">
+                <CardHeader className="items-center">
+                  <div className="bg-primary/10 p-4 rounded-full mb-4">
+                    <Rocket className="h-10 w-10 text-primary" />
                   </div>
-                  <CardTitle className="font-headline text-xl">Lançamento Rápido</CardTitle>
+                  <CardTitle className="font-headline text-2xl">Lançamento em Minutos</CardTitle>
                 </CardHeader>
-                <CardContent className="text-center text-muted-foreground">
-                  <p>Crie e configure sua loja em minutos, sem necessidade de conhecimento técnico. Comece a vender rapidamente.</p>
+                <CardContent className="text-muted-foreground">
+                  <p>Configure sua loja de forma rápida e descomplicada. Sem necessidade de conhecimento técnico, comece a vender hoje mesmo.</p>
                 </CardContent>
               </Card>
-              <Card className="hover:shadow-lg transition-shadow border-0 bg-primary/5 dark:bg-primary/10">
-                <CardHeader className="items-center text-center">
-                  <div className="bg-primary/10 p-3 rounded-full mb-2">
-                    <Package className="h-8 w-8 text-primary" />
+              <Card className="text-center border-0 bg-transparent shadow-none">
+                <CardHeader className="items-center">
+                  <div className="bg-primary/10 p-4 rounded-full mb-4">
+                    <Package className="h-10 w-10 text-primary" />
                   </div>
-                  <CardTitle className="font-headline text-xl">Gestão Simplificada</CardTitle>
+                  <CardTitle className="font-headline text-2xl">Gestão Completa</CardTitle>
                 </CardHeader>
-                <CardContent className="text-center text-muted-foreground">
-                  <p>Gerencie seus produtos, estoque e pedidos com uma interface simples e intuitiva, focada no que importa.</p>
+                <CardContent className="text-muted-foreground">
+                  <p>Controle total sobre seus produtos, estoque e pedidos em um painel de controle centralizado e fácil de usar.</p>
                 </CardContent>
               </Card>
-              <Card className="hover:shadow-lg transition-shadow border-0 bg-primary/5 dark:bg-primary/10">
-                <CardHeader className="items-center text-center">
-                  <div className="bg-primary/10 p-3 rounded-full mb-2">
-                    <Users className="h-8 w-8 text-primary" />
+              <Card className="text-center border-0 bg-transparent shadow-none">
+                <CardHeader className="items-center">
+                  <div className="bg-primary/10 p-4 rounded-full mb-4">
+                    <Target className="h-10 w-10 text-primary" />
                   </div>
-                  <CardTitle className="font-headline text-xl">Alcance Mais Clientes</CardTitle>
+                  <CardTitle className="font-headline text-2xl">Visibilidade Ampliada</CardTitle>
                 </CardHeader>
-                <CardContent className="text-center text-muted-foreground">
-                  <p>Exponha sua marca para uma base de clientes diversificada e aumente a visibilidade dos seus produtos.</p>
+                <CardContent className="text-muted-foreground">
+                  <p>Exponha sua marca para uma base de clientes diversificada e aumente o alcance dos seus produtos em nosso marketplace.</p>
                 </CardContent>
               </Card>
             </div>
@@ -87,19 +87,20 @@ export default function Home() {
         <section id="partners" className="py-16 md:py-24 bg-primary/5 dark:bg-primary/10">
           <div className="container mx-auto px-4">
             <div className="text-center mb-12">
-              <h2 className="font-headline text-3xl md:text-4xl font-bold">Nossos Parceiros</h2>
-              <p className="text-muted-foreground mt-2 max-w-2xl mx-auto">Conheça algumas das lojas que confiam na nossa plataforma.</p>
+              <h2 className="font-headline text-3xl md:text-4xl font-bold">Nossos Lojistas de Sucesso</h2>
+              <p className="text-muted-foreground mt-2 max-w-2xl mx-auto">Conheça algumas das lojas que confiam e crescem com a nossa plataforma.</p>
             </div>
             <Carousel opts={{ loop: true, align: 'start' }} className="w-full">
               <CarouselContent>
                 {stores.map((store) => (
                   <CarouselItem key={store.id} className="md:basis-1/2 lg:basis-1/3">
                     <div className="p-1">
-                      <Card className="overflow-hidden transition-shadow hover:shadow-xl h-full flex flex-col">
+                      <Card className="overflow-hidden transition-shadow hover:shadow-xl h-full flex flex-col group">
                         <CardHeader className="p-0 relative h-48">
-                          <Image src={store.coverUrl} alt={`${store.name} cover`} layout="fill" objectFit="cover" data-ai-hint="store cover" />
+                          <Image src={store.coverUrl} alt={`${store.name} cover`} layout="fill" objectFit="cover" className="transition-transform duration-500 group-hover:scale-105" data-ai-hint="store cover" />
+                          <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
                           <div className="absolute bottom-0 left-4 transform translate-y-1/2">
-                              <Image src={store.logoUrl} alt={`${store.name} logo`} width={64} height={64} className="rounded-full border-4 border-background bg-background" data-ai-hint="store logo" />
+                              <Image src={store.logoUrl} alt={`${store.name} logo`} width={64} height={64} className="rounded-full border-4 border-background bg-background transition-transform duration-300 group-hover:scale-110" data-ai-hint="store logo" />
                           </div>
                         </CardHeader>
                         <CardContent className="pt-10 flex-grow">
@@ -126,36 +127,39 @@ export default function Home() {
         <section className="py-16 md:py-24 bg-background">
           <div className="container mx-auto px-4">
             <div className="text-center mb-12">
-              <h2 className="font-headline text-3xl md:text-4xl font-bold">Como Funciona</h2>
-              <p className="text-muted-foreground mt-2">Em três passos simples você está pronto para o sucesso.</p>
+              <h2 className="font-headline text-3xl md:text-4xl font-bold">Vender na TenantFlow é Simples</h2>
+              <p className="text-muted-foreground mt-2">Em três passos você está pronto para o sucesso.</p>
             </div>
-            <div className="grid md:grid-cols-3 gap-8 text-center">
-              <div className="flex flex-col items-center">
-                <div className="bg-primary text-primary-foreground rounded-full h-16 w-16 flex items-center justify-center text-2xl font-bold mb-4 ring-8 ring-primary/10">1</div>
-                <h3 className="font-headline text-xl font-semibold mb-2">Crie sua Conta</h3>
-                <p className="text-muted-foreground">Cadastre-se como lojista ou cliente de forma rápida e gratuita.</p>
-              </div>
-              <div className="flex flex-col items-center">
-                <div className="bg-primary text-primary-foreground rounded-full h-16 w-16 flex items-center justify-center text-2xl font-bold mb-4 ring-8 ring-primary/10">2</div>
-                <h3 className="font-headline text-xl font-semibold mb-2">Configure sua Loja</h3>
-                <p className="text-muted-foreground">Adicione seus produtos, personalize sua página e defina seus preços.</p>
-              </div>
-              <div className="flex flex-col items-center">
-                <div className="bg-primary text-primary-foreground rounded-full h-16 w-16 flex items-center justify-center text-2xl font-bold mb-4 ring-8 ring-primary/10">3</div>
-                <h3 className="font-headline text-xl font-semibold mb-2">Comece a Vender!</h3>
-                <p className="text-muted-foreground">Alcance milhares de clientes e gerencie seus pedidos com facilidade.</p>
-              </div>
+            <div className="relative">
+                <div className="absolute top-8 left-0 w-full h-0.5 bg-border hidden md:block" />
+                <div className="grid md:grid-cols-3 gap-8 text-center relative">
+                    <div className="flex flex-col items-center p-4">
+                        <div className="bg-primary text-primary-foreground rounded-full h-16 w-16 flex items-center justify-center text-2xl font-bold mb-4 ring-8 ring-background z-10">1</div>
+                        <h3 className="font-headline text-xl font-semibold mb-2">Crie sua Conta</h3>
+                        <p className="text-muted-foreground">Cadastre-se como lojista gratuitamente e defina as informações básicas do seu negócio.</p>
+                    </div>
+                    <div className="flex flex-col items-center p-4">
+                        <div className="bg-primary text-primary-foreground rounded-full h-16 w-16 flex items-center justify-center text-2xl font-bold mb-4 ring-8 ring-background z-10">2</div>
+                        <h3 className="font-headline text-xl font-semibold mb-2">Cadastre seus Produtos</h3>
+                        <p className="text-muted-foreground">Adicione seus produtos com fotos, descrições e preços de forma intuitiva.</p>
+                    </div>
+                    <div className="flex flex-col items-center p-4">
+                        <div className="bg-primary text-primary-foreground rounded-full h-16 w-16 flex items-center justify-center text-2xl font-bold mb-4 ring-8 ring-background z-10">3</div>
+                        <h3 className="font-headline text-xl font-semibold mb-2">Comece a Vender!</h3>
+                        <p className="text-muted-foreground">Alcance milhares de clientes, gerencie seus pedidos e veja seu negócio crescer.</p>
+                    </div>
+                </div>
             </div>
           </div>
         </section>
 
         {/* CTA Section */}
-        <section className="py-20 md:py-32 bg-primary/5 dark:bg-primary/10">
+        <section className="py-20 md:py-32 bg-primary/90 text-primary-foreground">
           <div className="container mx-auto px-4 text-center">
-            <h2 className="font-headline text-3xl md:text-4xl font-bold mb-4">Pronto para começar?</h2>
-            <p className="text-muted-foreground text-lg mb-8">Junte-se à nossa comunidade de vendedores e compradores hoje mesmo.</p>
-            <Button asChild size="lg">
-              <Link href="/register">Abra sua Loja Agora</Link>
+            <h2 className="font-headline text-3xl md:text-4xl font-bold mb-4">Pronto para transformar seu negócio?</h2>
+            <p className="text-primary-foreground/80 text-lg mb-8 max-w-2xl mx-auto">Junte-se à nossa comunidade de vendedores de sucesso e comece a construir sua presença online hoje mesmo.</p>
+            <Button asChild size="lg" variant="secondary" className="bg-primary-foreground text-primary hover:bg-primary-foreground/90">
+              <Link href="/register">Quero Vender Agora</Link>
             </Button>
           </div>
         </section>
