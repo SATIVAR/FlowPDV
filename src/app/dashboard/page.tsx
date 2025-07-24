@@ -11,7 +11,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { BarChart, Users, Package, ShoppingCart, DollarSign, Activity, PlusCircle, Edit, Trash2 } from 'lucide-react';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Input } from '@/components/ui/input';
+import { Input, MaskedInput } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -226,6 +226,7 @@ function CustomerForm({ onSave, customer, children }: { onSave: (data: User) => 
       role: 'Cliente',
       avatar: customer?.avatar || 'https://placehold.co/100x100',
       ...values,
+      whatsapp: values.whatsapp.replace(/\D/g, ''),
     });
     setOpen(false);
     form.reset();
@@ -265,7 +266,7 @@ function CustomerForm({ onSave, customer, children }: { onSave: (data: User) => 
                 <FormItem>
                   <FormLabel>WhatsApp</FormLabel>
                   <FormControl>
-                    <Input placeholder="+55 (11) 99999-9999" {...field} />
+                    <MaskedInput mask="(00) 00000-0000" placeholder="+55 (11) 99999-9999" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>

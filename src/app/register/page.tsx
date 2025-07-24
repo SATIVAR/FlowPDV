@@ -16,7 +16,7 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form';
-import { Input } from '@/components/ui/input';
+import { Input, MaskedInput } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/use-auth';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -45,7 +45,8 @@ export default function RegisterPage() {
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
-      await register(values.name, values.whatsapp, values.password);
+      const unmaskedWhatsapp = values.whatsapp.replace(/\D/g, '');
+      await register(values.name, unmaskedWhatsapp, values.password);
       toast({
         title: 'Sucesso',
         description: 'Conta de lojista criada com sucesso. Você já pode fazer o login.',
@@ -90,7 +91,7 @@ export default function RegisterPage() {
                   <FormItem>
                     <FormLabel>WhatsApp</FormLabel>
                     <FormControl>
-                      <Input placeholder="(11) 99999-9999" {...field} />
+                       <MaskedInput mask="(00) 00000-0000" placeholder="(11) 99999-9999" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>

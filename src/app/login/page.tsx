@@ -16,7 +16,7 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form';
-import { Input } from '@/components/ui/input';
+import { Input, MaskedInput } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/use-auth';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -41,7 +41,8 @@ export default function LoginPage() {
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
-      await login(values.whatsapp, values.password);
+       const unmaskedWhatsapp = values.whatsapp.replace(/\D/g, '');
+      await login(unmaskedWhatsapp, values.password);
       toast({
         title: 'Sucesso',
         description: 'Login efetuado com sucesso.',
@@ -56,7 +57,7 @@ export default function LoginPage() {
     }
   };
   
-  const isSuperAdminLogin = form.watch('whatsapp') === '00000000000';
+  const isSuperAdminLogin = form.watch('whatsapp').replace(/\D/g, '') === '00000000000';
 
   return (
     <div className="container flex items-center justify-center min-h-[calc(100vh-4rem)] py-12">
@@ -75,7 +76,7 @@ export default function LoginPage() {
                   <FormItem>
                     <FormLabel>WhatsApp</FormLabel>
                     <FormControl>
-                      <Input placeholder="(11) 99999-9999" {...field} />
+                      <MaskedInput mask="(00) 00000-0000" placeholder="(11) 99999-9999" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
