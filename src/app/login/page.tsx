@@ -1,3 +1,4 @@
+
 'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -22,14 +23,14 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Separator } from '@/components/ui/separator';
 
 const formSchema = z.object({
-  email: z.string().email({ message: 'Endereço de e-mail inválido.' }),
+  email: z.string().min(1, { message: 'O e-mail é obrigatório.' }),
   password: z.string().min(1, { message: 'A senha é obrigatória.' }),
 });
 
 export default function LoginPage() {
   const router = useRouter();
   const { toast } = useToast();
-  const { login, googleLogin } = useAuth();
+  const { login, googleLogin, user } = useAuth();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -73,6 +74,8 @@ export default function LoginPage() {
     }
   }
 
+  const isSuperAdminLogin = form.getValues('email') === 'admin@flowpdv.com' || user?.role === 'Super Admin';
+
   return (
     <div className="container flex items-center justify-center min-h-[calc(100vh-4rem)] py-12">
       <Card className="w-full max-w-md mx-auto">
@@ -114,18 +117,22 @@ export default function LoginPage() {
               </Button>
             </form>
           </Form>
-          <div className="my-6">
-            <Separator />
-          </div>
-          <Button variant="outline" className="w-full" onClick={handleGoogleLogin}>
-            Entrar com Google
-          </Button>
-          <p className="mt-6 text-center text-sm text-muted-foreground">
-            Não tem uma conta?{' '}
-            <Link href="/register" className="font-medium text-primary hover:underline">
-              Cadastre-se
-            </Link>
-          </p>
+          {!isSuperAdminLogin && (
+            <>
+              <div className="my-6">
+                <Separator />
+              </div>
+              <Button variant="outline" className="w-full" onClick={handleGoogleLogin}>
+                Entrar com Google
+              </Button>
+              <p className="mt-6 text-center text-sm text-muted-foreground">
+                Não tem uma conta?{' '}
+                <Link href="/register" className="font-medium text-primary hover:underline">
+                  Cadastre-se
+                </Link>
+              </p>
+            </>
+          )}
         </CardContent>
       </Card>
     </div>

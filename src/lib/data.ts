@@ -6,7 +6,7 @@ export const users: User[] = [
     id: '1',
     name: 'Super Admin',
     email: 'admin@flowpdv.com',
-    password: 'password123',
+    password: 'adminsenha',
     role: 'Super Admin',
     avatar: 'https://placehold.co/100x100'
   },
