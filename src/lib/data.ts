@@ -30,7 +30,7 @@ export const users: User[] = [
     id: '4',
     name: 'Google User',
     email: 'google.user@gmail.com',
-    role: 'Cliente',
+    role: 'Lojista',
     avatar: 'https://placehold.co/100x100',
     isOAuth: true,
   }
