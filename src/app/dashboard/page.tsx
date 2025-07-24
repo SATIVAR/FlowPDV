@@ -5,11 +5,11 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/hooks/use-auth';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { orders, products as initialProducts, users as initialUsers, categories as initialCategories } from '@/lib/data';
+import { orders, products as initialProducts, users as initialUsers, categories as initialCategories, paymentMethods as initialPaymentMethods } from '@/lib/data';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { BarChart, Users, Package, ShoppingCart, DollarSign, Activity, PlusCircle, Edit, Trash2 } from 'lucide-react';
+import { BarChart, Users, Package, ShoppingCart, DollarSign, Activity, PlusCircle, Edit, Trash2, CreditCard } from 'lucide-react';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Input, MaskedInput } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -18,8 +18,9 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import type { Product, User, Category, ProductUnit } from '@/lib/types';
+import type { Product, User, Category, PaymentMethod } from '@/lib/types';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 
 function SuperAdminDashboard() {
@@ -286,7 +287,7 @@ const categoryFormSchema = z.object({
   name: z.string().min(2, { message: "O nome da categoria é obrigatório." }),
 });
 
-function CategoryForm({ onSave, category, children }: { onSave: (data: Omit<Category, 'id'>) => void, category?: Category, children: React.ReactNode }) {
+function CategoryForm({ onSave, category, children }: { onSave: (data: Omit<Category, 'id'>, id?: string) => void, category?: Category, children: React.ReactNode }) {
     const [open, setOpen] = useState(false);
     const form = useForm<z.infer<typeof categoryFormSchema>>({
         resolver: zodResolver(categoryFormSchema),
@@ -296,7 +297,7 @@ function CategoryForm({ onSave, category, children }: { onSave: (data: Omit<Cate
     });
 
     const onSubmit = (values: z.infer<typeof categoryFormSchema>) => {
-        onSave(values);
+        onSave(values, category?.id);
         setOpen(false);
         form.reset();
     };
@@ -333,10 +334,62 @@ function CategoryForm({ onSave, category, children }: { onSave: (data: Omit<Cate
     );
 }
 
+const paymentMethodFormSchema = z.object({
+  name: z.string().min(2, { message: "O nome é obrigatório." }),
+});
+
+function PaymentMethodForm({ onSave, paymentMethod, children }: { onSave: (data: Omit<PaymentMethod, 'id'>, id?: string) => void, paymentMethod?: PaymentMethod, children: React.ReactNode }) {
+    const [open, setOpen] = useState(false);
+    const form = useForm<z.infer<typeof paymentMethodFormSchema>>({
+        resolver: zodResolver(paymentMethodFormSchema),
+        defaultValues: {
+            name: paymentMethod?.name || '',
+        },
+    });
+
+    const onSubmit = (values: z.infer<typeof paymentMethodFormSchema>) => {
+        onSave(values, paymentMethod?.id);
+        setOpen(false);
+        form.reset();
+    };
+
+    return (
+        <Dialog open={open} onOpenChange={setOpen}>
+            <DialogTrigger asChild>{children}</DialogTrigger>
+            <DialogContent className="sm:max-w-[425px]">
+                <DialogHeader>
+                    <DialogTitle>{paymentMethod ? 'Editar Forma de Pagamento' : 'Nova Forma de Pagamento'}</DialogTitle>
+                </DialogHeader>
+                <Form {...form}>
+                    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+                        <FormField
+                            control={form.control}
+                            name="name"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Nome</FormLabel>
+                                    <FormControl>
+                                        <Input placeholder="Ex: Pix" {...field} />
+                                    </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+                        <DialogFooter>
+                            <Button type="submit">Salvar</Button>
+                        </DialogFooter>
+                    </form>
+                </Form>
+            </DialogContent>
+        </Dialog>
+    );
+}
+
 function LojistaDashboard() {
   const [products, setProducts] = useState(() => initialProducts.filter(p => p.storeId === '2'));
   const [customers, setCustomers] = useState(() => initialUsers.filter(u => u.role === 'Cliente'));
   const [categories, setCategories] = useState(() => initialCategories);
+  const [paymentMethods, setPaymentMethods] = useState(() => initialPaymentMethods);
 
   const handleSaveProduct = (productData: Product) => {
     setProducts(prev => {
@@ -366,13 +419,33 @@ function LojistaDashboard() {
     setCustomers(prev => prev.filter(c => c.id !== customerId));
   }
   
-  const handleSaveCategory = (categoryData: Omit<Category, 'id'>) => {
-    setCategories(prev => {
+  const handleSaveCategory = (categoryData: Omit<Category, 'id'>, id?: string) => {
+     setCategories(prev => {
+        if (id) {
+          return prev.map(c => c.id === id ? { ...c, ...categoryData } : c);
+        }
         const newCategory = { ...categoryData, id: `cat-${Date.now()}` };
         return [newCategory, ...prev];
     });
   };
 
+  const handleDeleteCategory = (categoryId: string) => {
+    setCategories(prev => prev.filter(c => c.id !== categoryId));
+  };
+
+  const handleSavePaymentMethod = (paymentMethodData: Omit<PaymentMethod, 'id'>, id?: string) => {
+     setPaymentMethods(prev => {
+        if (id) {
+          return prev.map(p => p.id === id ? { ...p, ...paymentMethodData } : p);
+        }
+        const newPaymentMethod = { ...paymentMethodData, id: `pm-${Date.now()}` };
+        return [newPaymentMethod, ...prev];
+    });
+  };
+
+  const handleDeletePaymentMethod = (paymentMethodId: string) => {
+    setPaymentMethods(prev => prev.filter(p => p.id !== paymentMethodId));
+  };
 
   return (
     <div className="space-y-8">
@@ -419,139 +492,264 @@ function LojistaDashboard() {
         </Card>
       </div>
 
-      <Card className="bg-card/80 backdrop-blur-sm">
-        <CardHeader className="flex flex-row items-center justify-between">
-            <div>
-                <CardTitle>Seus Clientes</CardTitle>
-                <CardDescription>Gerencie os clientes da sua loja.</CardDescription>
-            </div>
-            <CustomerForm onSave={handleSaveCustomer}>
-               <Button size="sm">
-                  <PlusCircle className="mr-2 h-4 w-4" />
-                  Adicionar Cliente
-               </Button>
-            </CustomerForm>
-        </CardHeader>
-        <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Nome</TableHead>
-                <TableHead>WhatsApp</TableHead>
-                <TableHead className="text-right">Ações</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {customers.map(customer => (
-                <TableRow key={customer.id}>
-                  <TableCell className="font-medium">{customer.name}</TableCell>
-                  <TableCell>{customer.whatsapp}</TableCell>
-                  <TableCell className="text-right space-x-2">
-                     <CustomerForm onSave={handleSaveCustomer} customer={customer}>
-                        <Button variant="ghost" size="icon">
-                          <Edit className="h-4 w-4" />
-                        </Button>
-                     </CustomerForm>
-                     <AlertDialog>
-                      <AlertDialogTrigger asChild>
-                         <Button variant="ghost" size="icon" className="text-destructive hover:text-destructive">
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
-                      </AlertDialogTrigger>
-                      <AlertDialogContent>
-                        <AlertDialogHeader>
-                          <AlertDialogTitle>Você tem certeza?</AlertDialogTitle>
-                          <AlertDialogDescription>
-                            Essa ação não pode ser desfeita. Isso excluirá permanentemente o cliente.
-                          </AlertDialogDescription>
-                        </AlertDialogHeader>
-                        <AlertDialogFooter>
-                          <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                          <AlertDialogAction onClick={() => handleDeleteCustomer(customer.id)} className="bg-destructive hover:bg-destructive/90">Excluir</AlertDialogAction>
-                        </AlertDialogFooter>
-                      </AlertDialogContent>
-                    </AlertDialog>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </CardContent>
-      </Card>
+       <Tabs defaultValue="customers" className="space-y-4">
+        <TabsList>
+            <TabsTrigger value="customers"><Users className="mr-2 h-4 w-4" /> Clientes</TabsTrigger>
+            <TabsTrigger value="products"><Package className="mr-2 h-4 w-4" /> Produtos</TabsTrigger>
+            <TabsTrigger value="categories"><Activity className="mr-2 h-4 w-4" /> Categorias</TabsTrigger>
+            <TabsTrigger value="paymentMethods"><CreditCard className="mr-2 h-4 w-4" /> Formas de Pagamento</TabsTrigger>
+        </TabsList>
 
-      <Card className="bg-card/80 backdrop-blur-sm">
-        <CardHeader className="flex flex-row items-center justify-between">
-            <div>
-                <CardTitle>Seus Produtos</CardTitle>
-                <CardDescription>Gerencie o catálogo da sua loja.</CardDescription>
-            </div>
-            <div className="flex items-center gap-2">
-              <CategoryForm onSave={handleSaveCategory}>
-                  <Button size="sm" variant="outline">
-                      <PlusCircle className="mr-2 h-4 w-4" />
-                      Adicionar Categoria
-                  </Button>
-              </CategoryForm>
-              <ProductForm onSave={handleSaveProduct} categories={categories}>
-                  <Button size="sm">
-                      <PlusCircle className="mr-2 h-4 w-4" />
-                      Adicionar Produto
-                  </Button>
-              </ProductForm>
-            </div>
-        </CardHeader>
-        <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Nome</TableHead>
-                <TableHead>Preço</TableHead>
-                <TableHead>Estoque</TableHead>
-                <TableHead>Unidade</TableHead>
-                <TableHead>Categoria</TableHead>
-                <TableHead className="text-right">Ações</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {products.map(product => (
-                <TableRow key={product.id}>
-                  <TableCell className="font-medium">{product.name}</TableCell>
-                  <TableCell>R$ {product.price.toFixed(2)}</TableCell>
-                  <TableCell>{product.stock}</TableCell>
-                  <TableCell>{product.unit}</TableCell>
-                  <TableCell>{categories.find(c => c.id === product.categoryId)?.name || '-'}</TableCell>
-                   <TableCell className="text-right space-x-2">
-                     <ProductForm onSave={handleSaveProduct} product={product} categories={categories}>
-                        <Button variant="ghost" size="icon">
-                          <Edit className="h-4 w-4" />
+        <TabsContent value="customers">
+             <Card className="bg-card/80 backdrop-blur-sm">
+                <CardHeader className="flex flex-row items-center justify-between">
+                    <div>
+                        <CardTitle>Seus Clientes</CardTitle>
+                        <CardDescription>Gerencie os clientes da sua loja.</CardDescription>
+                    </div>
+                    <CustomerForm onSave={handleSaveCustomer}>
+                       <Button size="sm">
+                          <PlusCircle className="mr-2 h-4 w-4" />
+                          Adicionar Cliente
+                       </Button>
+                    </CustomerForm>
+                </CardHeader>
+                <CardContent>
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Nome</TableHead>
+                        <TableHead>WhatsApp</TableHead>
+                        <TableHead className="text-right">Ações</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {customers.map(customer => (
+                        <TableRow key={customer.id}>
+                          <TableCell className="font-medium">{customer.name}</TableCell>
+                          <TableCell>{customer.whatsapp}</TableCell>
+                          <TableCell className="text-right space-x-2">
+                             <CustomerForm onSave={handleSaveCustomer} customer={customer}>
+                                <Button variant="ghost" size="icon">
+                                  <Edit className="h-4 w-4" />
+                                </Button>
+                             </CustomerForm>
+                             <AlertDialog>
+                              <AlertDialogTrigger asChild>
+                                 <Button variant="ghost" size="icon" className="text-destructive hover:text-destructive">
+                                    <Trash2 className="h-4 w-4" />
+                                  </Button>
+                              </AlertDialogTrigger>
+                              <AlertDialogContent>
+                                <AlertDialogHeader>
+                                  <AlertDialogTitle>Você tem certeza?</AlertDialogTitle>
+                                  <AlertDialogDescription>
+                                    Essa ação não pode ser desfeita. Isso excluirá permanentemente o cliente.
+                                  </AlertDialogDescription>
+                                </AlertDialogHeader>
+                                <AlertDialogFooter>
+                                  <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                                  <AlertDialogAction onClick={() => handleDeleteCustomer(customer.id)} className="bg-destructive hover:bg-destructive/90">Excluir</AlertDialogAction>
+                                </AlertDialogFooter>
+                              </AlertDialogContent>
+                            </AlertDialog>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </CardContent>
+              </Card>
+        </TabsContent>
+
+        <TabsContent value="products">
+            <Card className="bg-card/80 backdrop-blur-sm">
+                <CardHeader className="flex flex-row items-center justify-between">
+                    <div>
+                        <CardTitle>Seus Produtos</CardTitle>
+                        <CardDescription>Gerencie o catálogo da sua loja.</CardDescription>
+                    </div>
+                    <ProductForm onSave={handleSaveProduct} categories={categories}>
+                        <Button size="sm">
+                            <PlusCircle className="mr-2 h-4 w-4" />
+                            Adicionar Produto
                         </Button>
-                     </ProductForm>
-                    <AlertDialog>
-                      <AlertDialogTrigger asChild>
-                         <Button variant="ghost" size="icon" className="text-destructive hover:text-destructive">
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
-                      </AlertDialogTrigger>
-                      <AlertDialogContent>
-                        <AlertDialogHeader>
-                          <AlertDialogTitle>Você tem certeza?</AlertDialogTitle>
-                          <AlertDialogDescription>
-                            Essa ação não pode ser desfeita. Isso excluirá permanentemente o produto.
-                          </AlertDialogDescription>
-                        </AlertDialogHeader>
-                        <AlertDialogFooter>
-                          <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                          <AlertDialogAction onClick={() => handleDeleteProduct(product.id)} className="bg-destructive hover:bg-destructive/90">Excluir</AlertDialogAction>
-                        </AlertDialogFooter>
-                      </AlertDialogContent>
-                    </AlertDialog>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </CardContent>
-      </Card>
+                    </ProductForm>
+                </CardHeader>
+                <CardContent>
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Nome</TableHead>
+                        <TableHead>Preço</TableHead>
+                        <TableHead>Estoque</TableHead>
+                        <TableHead>Unidade</TableHead>
+                        <TableHead>Categoria</TableHead>
+                        <TableHead className="text-right">Ações</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {products.map(product => (
+                        <TableRow key={product.id}>
+                          <TableCell className="font-medium">{product.name}</TableCell>
+                          <TableCell>R$ {product.price.toFixed(2)}</TableCell>
+                          <TableCell>{product.stock}</TableCell>
+                          <TableCell>{product.unit}</TableCell>
+                          <TableCell>{categories.find(c => c.id === product.categoryId)?.name || '-'}</TableCell>
+                           <TableCell className="text-right space-x-2">
+                             <ProductForm onSave={handleSaveProduct} product={product} categories={categories}>
+                                <Button variant="ghost" size="icon">
+                                  <Edit className="h-4 w-4" />
+                                </Button>
+                             </ProductForm>
+                            <AlertDialog>
+                              <AlertDialogTrigger asChild>
+                                 <Button variant="ghost" size="icon" className="text-destructive hover:text-destructive">
+                                    <Trash2 className="h-4 w-4" />
+                                  </Button>
+                              </AlertDialogTrigger>
+                              <AlertDialogContent>
+                                <AlertDialogHeader>
+                                  <AlertDialogTitle>Você tem certeza?</AlertDialogTitle>
+                                  <AlertDialogDescription>
+                                    Essa ação não pode ser desfeita. Isso excluirá permanentemente o produto.
+                                  </AlertDialogDescription>
+                                </AlertDialogHeader>
+                                <AlertDialogFooter>
+                                  <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                                  <AlertDialogAction onClick={() => handleDeleteProduct(product.id)} className="bg-destructive hover:bg-destructive/90">Excluir</AlertDialogAction>
+                                </AlertDialogFooter>
+                              </AlertDialogContent>
+                            </AlertDialog>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </CardContent>
+              </Card>
+        </TabsContent>
+        
+         <TabsContent value="categories">
+            <Card className="bg-card/80 backdrop-blur-sm">
+                <CardHeader className="flex flex-row items-center justify-between">
+                    <div>
+                        <CardTitle>Categorias de Produtos</CardTitle>
+                        <CardDescription>Gerencie as categorias para seus produtos.</CardDescription>
+                    </div>
+                     <CategoryForm onSave={handleSaveCategory}>
+                        <Button size="sm">
+                            <PlusCircle className="mr-2 h-4 w-4" />
+                            Adicionar Categoria
+                        </Button>
+                    </CategoryForm>
+                </CardHeader>
+                <CardContent>
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Nome</TableHead>
+                        <TableHead className="text-right">Ações</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {categories.map(category => (
+                        <TableRow key={category.id}>
+                          <TableCell className="font-medium">{category.name}</TableCell>
+                          <TableCell className="text-right space-x-2">
+                             <CategoryForm onSave={handleSaveCategory} category={category}>
+                                <Button variant="ghost" size="icon">
+                                  <Edit className="h-4 w-4" />
+                                </Button>
+                             </CategoryForm>
+                             <AlertDialog>
+                              <AlertDialogTrigger asChild>
+                                 <Button variant="ghost" size="icon" className="text-destructive hover:text-destructive">
+                                    <Trash2 className="h-4 w-4" />
+                                  </Button>
+                              </AlertDialogTrigger>
+                              <AlertDialogContent>
+                                <AlertDialogHeader>
+                                  <AlertDialogTitle>Você tem certeza?</AlertDialogTitle>
+                                  <AlertDialogDescription>
+                                    Essa ação não pode ser desfeita. Isso excluirá permanentemente a categoria e desassociará os produtos vinculados.
+                                  </AlertDialogDescription>
+                                </AlertDialogHeader>
+                                <AlertDialogFooter>
+                                  <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                                  <AlertDialogAction onClick={() => handleDeleteCategory(category.id)} className="bg-destructive hover:bg-destructive/90">Excluir</AlertDialogAction>
+                                </AlertDialogFooter>
+                              </AlertDialogContent>
+                            </AlertDialog>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </CardContent>
+              </Card>
+        </TabsContent>
+        
+        <TabsContent value="paymentMethods">
+            <Card className="bg-card/80 backdrop-blur-sm">
+                <CardHeader className="flex flex-row items-center justify-between">
+                    <div>
+                        <CardTitle>Formas de Pagamento</CardTitle>
+                        <CardDescription>Gerencie as formas de pagamento aceitas.</CardDescription>
+                    </div>
+                     <PaymentMethodForm onSave={handleSavePaymentMethod}>
+                        <Button size="sm">
+                            <PlusCircle className="mr-2 h-4 w-4" />
+                            Adicionar Forma de Pagamento
+                        </Button>
+                    </PaymentMethodForm>
+                </CardHeader>
+                <CardContent>
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Nome</TableHead>
+                        <TableHead className="text-right">Ações</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {paymentMethods.map(pm => (
+                        <TableRow key={pm.id}>
+                          <TableCell className="font-medium">{pm.name}</TableCell>
+                          <TableCell className="text-right space-x-2">
+                             <PaymentMethodForm onSave={handleSavePaymentMethod} paymentMethod={pm}>
+                                <Button variant="ghost" size="icon">
+                                  <Edit className="h-4 w-4" />
+                                </Button>
+                             </PaymentMethodForm>
+                             <AlertDialog>
+                              <AlertDialogTrigger asChild>
+                                 <Button variant="ghost" size="icon" className="text-destructive hover:text-destructive">
+                                    <Trash2 className="h-4 w-4" />
+                                  </Button>
+                              </AlertDialogTrigger>
+                              <AlertDialogContent>
+                                <AlertDialogHeader>
+                                  <AlertDialogTitle>Você tem certeza?</AlertDialogTitle>
+                                  <AlertDialogDescription>
+                                    Essa ação não pode ser desfeita. Isso excluirá permanentemente a forma de pagamento.
+                                  </AlertDialogDescription>
+                                </AlertDialogHeader>
+                                <AlertDialogFooter>
+                                  <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                                  <AlertDialogAction onClick={() => handleDeletePaymentMethod(pm.id)} className="bg-destructive hover:bg-destructive/90">Excluir</AlertDialogAction>
+                                </AlertDialogFooter>
+                              </AlertDialogContent>
+                            </AlertDialog>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </CardContent>
+              </Card>
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }

@@ -1,5 +1,5 @@
 
-import type { User, Product, Order, Store, Category } from './types';
+import type { User, Product, Order, Store, Category, PaymentMethod } from './types';
 
 export const users: User[] = [
   {
@@ -95,6 +95,12 @@ export const categories: Category[] = [
   { id: 'cat-3', name: 'Moda' },
 ];
 
+export const paymentMethods: PaymentMethod[] = [
+    { id: 'pm-1', name: 'Pix' },
+    { id: 'pm-2', name: 'Cartão de Crédito' },
+    { id: 'pm-3', name: 'Dinheiro' },
+]
+
 export const products: Product[] = [
   {
     id: 'prod1',
@@ -177,6 +183,7 @@ export const orders: Order[] = [
         total: products[0].price + (products[2].price * 2),
         status: 'Pendente',
         createdAt: new Date(2023, 10, 28),
+        paymentMethod: 'Pix'
     },
     {
         id: 'order-2',
@@ -189,6 +196,7 @@ export const orders: Order[] = [
         total: products[4].price,
         status: 'Enviado',
         createdAt: new Date(2023, 10, 25),
+        paymentMethod: 'Cartão de Crédito'
     },
     {
         id: 'order-3',
@@ -202,6 +210,7 @@ export const orders: Order[] = [
         total: (products[3].price * 5) + products[5].price,
         status: 'Entregue',
         createdAt: new Date(2023, 10, 20),
+        paymentMethod: 'Dinheiro'
     },
     {
         id: 'order-4',
@@ -214,5 +223,6 @@ export const orders: Order[] = [
         total: products[1].price * 2,
         status: 'Cancelado',
         createdAt: new Date(2023, 10, 15),
+        paymentMethod: 'Pix'
     }
 ];
