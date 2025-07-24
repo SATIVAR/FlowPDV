@@ -22,7 +22,7 @@ import { useAuth } from '@/hooks/use-auth';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 
 const formSchema = z.object({
-  email: z.string().min(1, { message: 'O e-mail é obrigatório.' }),
+  whatsapp: z.string().min(1, { message: 'O WhatsApp é obrigatório.' }),
   password: z.string().min(1, { message: 'A senha é obrigatória.' }),
 });
 
@@ -34,14 +34,14 @@ export default function LoginPage() {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      email: '',
+      whatsapp: '',
       password: '',
     },
   });
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
-      await login(values.email, values.password);
+      await login(values.whatsapp, values.password);
       toast({
         title: 'Sucesso',
         description: 'Login efetuado com sucesso.',
@@ -56,7 +56,7 @@ export default function LoginPage() {
     }
   };
   
-  const isSuperAdminLogin = form.watch('email') === 'admin@flowpdv.com';
+  const isSuperAdminLogin = form.watch('whatsapp') === '00000000000';
 
   return (
     <div className="container flex items-center justify-center min-h-[calc(100vh-4rem)] py-12">
@@ -70,12 +70,12 @@ export default function LoginPage() {
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
               <FormField
                 control={form.control}
-                name="email"
+                name="whatsapp"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Email</FormLabel>
+                    <FormLabel>WhatsApp</FormLabel>
                     <FormControl>
-                      <Input placeholder="voce@exemplo.com" {...field} />
+                      <Input placeholder="(11) 99999-9999" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>

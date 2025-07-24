@@ -4,12 +4,12 @@ export type Role = 'Super Admin' | 'Lojista' | 'Cliente';
 export interface User {
   id: string;
   name: string;
-  email: string;
-  password?: string; // Optional for OAuth users
+  email?: string; // Optional, as WhatsApp is the primary identifier
+  password?: string;
   role: Role;
   avatar?: string;
   isOAuth?: boolean;
-  whatsapp?: string;
+  whatsapp: string;
 }
 
 export interface Store {

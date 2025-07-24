@@ -5,7 +5,7 @@ export const users: User[] = [
   {
     id: '1',
     name: 'Super Admin',
-    email: 'admin@flowpdv.com',
+    whatsapp: '00000000000',
     password: 'adminsenha',
     role: 'Super Admin',
     avatar: 'https://placehold.co/100x100'
@@ -13,7 +13,7 @@ export const users: User[] = [
   {
     id: '2',
     name: 'Loja da Esquina',
-    email: 'lojista@flowpdv.com',
+    whatsapp: '11988887777',
     password: 'password123',
     role: 'Lojista',
     avatar: 'https://placehold.co/100x100'
@@ -21,11 +21,10 @@ export const users: User[] = [
   {
     id: '3',
     name: 'Cliente Fiel',
-    email: 'cliente@flowpdv.com',
+    whatsapp: '11999998888',
     password: 'password123',
     role: 'Cliente',
     avatar: 'https://placehold.co/100x100',
-    whatsapp: '+5511999998888',
   }
 ];
 

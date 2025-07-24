@@ -224,7 +224,6 @@ function CustomerForm({ onSave, customer, children }: { onSave: (data: User) => 
     onSave({
       id: customer?.id || `user-${Date.now()}`,
       role: 'Cliente',
-      email: customer?.email || `${values.name.split(' ')[0].toLowerCase()}@cliente.com`,
       avatar: customer?.avatar || 'https://placehold.co/100x100',
       ...values,
     });

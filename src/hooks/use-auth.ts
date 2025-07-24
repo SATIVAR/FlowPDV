@@ -4,9 +4,9 @@ import type { User, Role } from '@/lib/types';
 
 interface AuthContextType {
   user: User | null;
-  login: (email: string, password?: string) => Promise<User>;
+  login: (whatsapp: string, password?: string) => Promise<User>;
   logout: () => void;
-  register: (name: string, email: string, password: string) => Promise<User>;
+  register: (name: string, whatsapp: string, password: string) => Promise<User>;
   isAuthenticated: boolean;
   hasRole: (role: Role | Role[]) => boolean;
 }

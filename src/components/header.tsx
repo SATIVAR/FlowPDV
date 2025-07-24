@@ -74,7 +74,7 @@ export function Header() {
                       {user.name}
                     </p>
                     <p className="text-xs leading-none text-muted-foreground">
-                      {user.email}
+                      {user.whatsapp}
                     </p>
                   </div>
                 </DropdownMenuLabel>

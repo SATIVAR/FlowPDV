@@ -1,3 +1,4 @@
+
 'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -19,10 +20,12 @@ import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/use-auth';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { Info } from 'lucide-react';
 
 const formSchema = z.object({
   name: z.string().min(2, { message: 'O nome deve ter pelo menos 2 caracteres.' }),
-  email: z.string().email({ message: 'Endereço de e-mail inválido.' }),
+  whatsapp: z.string().min(10, { message: 'Número de WhatsApp inválido.' }),
   password: z.string().min(8, { message: 'A senha deve ter pelo menos 8 caracteres.' }),
 });
 
@@ -35,17 +38,17 @@ export default function RegisterPage() {
     resolver: zodResolver(formSchema),
     defaultValues: {
       name: '',
-      email: '',
+      whatsapp: '',
       password: '',
     },
   });
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
-      await register(values.name, values.email, values.password);
+      await register(values.name, values.whatsapp, values.password);
       toast({
         title: 'Sucesso',
-        description: 'Conta criada com sucesso. Você já pode fazer o login.',
+        description: 'Conta de lojista criada com sucesso. Você já pode fazer o login.',
       });
       router.push('/dashboard');
     } catch (error) {
@@ -61,7 +64,7 @@ export default function RegisterPage() {
     <div className="container flex items-center justify-center min-h-[calc(100vh-4rem)] py-12">
       <Card className="w-full max-w-md mx-auto">
         <CardHeader className="text-center">
-          <CardTitle className="font-headline text-3xl">Crie sua Conta</CardTitle>
+          <CardTitle className="font-headline text-3xl">Crie sua Conta de Lojista</CardTitle>
           <CardDescription>Junte-se à FlowPDV hoje para começar a vender.</CardDescription>
         </CardHeader>
         <CardContent>
@@ -72,9 +75,9 @@ export default function RegisterPage() {
                 name="name"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Nome Completo</FormLabel>
+                    <FormLabel>Nome da Loja ou Lojista</FormLabel>
                     <FormControl>
-                      <Input placeholder="Seu Nome Completo" {...field} />
+                      <Input placeholder="Sua Loja Incrível" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -82,12 +85,12 @@ export default function RegisterPage() {
               />
               <FormField
                 control={form.control}
-                name="email"
+                name="whatsapp"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Email</FormLabel>
+                    <FormLabel>WhatsApp</FormLabel>
                     <FormControl>
-                      <Input placeholder="voce@exemplo.com" {...field} />
+                      <Input placeholder="(11) 99999-9999" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -106,8 +109,14 @@ export default function RegisterPage() {
                   </FormItem>
                 )}
               />
+              <Alert>
+                <Info className="h-4 w-4" />
+                <AlertDescription>
+                  Você está criando uma conta de <strong>Lojista</strong>. Com ela, você poderá cadastrar seus produtos e gerenciar sua loja na FlowPDV.
+                </AlertDescription>
+              </Alert>
               <Button type="submit" className="w-full !mt-6" disabled={form.formState.isSubmitting}>
-                {form.formState.isSubmitting ? 'Criando conta...' : 'Criar Conta'}
+                {form.formState.isSubmitting ? 'Criando conta...' : 'Criar Conta de Lojista'}
               </Button>
             </form>
           </Form>

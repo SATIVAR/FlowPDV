@@ -35,28 +35,28 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
-  const login = useCallback(async (email: string, password?: string): Promise<User> => {
+  const login = useCallback(async (whatsapp: string, password?: string): Promise<User> => {
     const foundUser = users.find(
-      (u) => u.email === email && u.password === password
+      (u) => u.whatsapp === whatsapp && u.password === password
     );
     if (foundUser) {
       updateUserInStorage(foundUser);
       return foundUser;
     }
-    throw new Error('Invalid email or password');
+    throw new Error('WhatsApp ou senha inválidos');
   }, []);
   
-  const register = useCallback(async (name: string, email: string, password: string): Promise<User> => {
-      const existingUser = users.find((u) => u.email === email);
+  const register = useCallback(async (name: string, whatsapp: string, password: string): Promise<User> => {
+      const existingUser = users.find((u) => u.whatsapp === whatsapp);
       if (existingUser) {
-        throw new Error('User with this email already exists');
+        throw new Error('Usuário com este WhatsApp já existe');
       }
       const newUser: User = {
         id: `user-${Date.now()}`,
         name,
-        email,
+        whatsapp,
         password,
-        role: 'Lojista', // New users are merchants by default
+        role: 'Lojista',
         avatar: 'https://placehold.co/100x100',
       };
       users.push(newUser); // Note: In a real app, this would be a DB call.
