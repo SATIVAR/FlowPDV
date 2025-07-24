@@ -41,17 +41,16 @@ export interface CartItem extends Product {
   quantity: number;
 }
 
+export type OrderStatus = 'Pendente' | 'Processando' | 'Enviado' | 'Entregue' | 'Cancelado';
+
+
 export interface Order {
   id:string;
   userId: string;
+  storeId: string;
+  customerName: string;
   items: CartItem[];
   total: number;
-  status: 'Pending' | 'Shipped' | 'Delivered';
+  status: OrderStatus;
   createdAt: Date;
-  shippingAddress: {
-    street: string;
-    city: string;
-    zip: string;
-    country: string;
-  }
 }

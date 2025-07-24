@@ -25,7 +25,23 @@ export const users: User[] = [
     password: 'password123',
     role: 'Cliente',
     avatar: 'https://placehold.co/100x100',
-  }
+  },
+  {
+    id: '4',
+    name: 'Ana Costa',
+    whatsapp: '21987654321',
+    password: 'password123',
+    role: 'Cliente',
+    avatar: 'https://placehold.co/100x100',
+  },
+  {
+    id: '5',
+    name: 'Carlos Silva',
+    whatsapp: '31912345678',
+    password: 'password123',
+    role: 'Cliente',
+    avatar: 'https://placehold.co/100x100',
+  },
 ];
 
 export const stores: Store[] = [
@@ -87,7 +103,7 @@ export const products: Product[] = [
     price: 189.99,
     imageUrl: 'https://placehold.co/400x400',
     stock: 50,
-    storeId: 'store-1',
+    storeId: 'store-2', // Changed to Lojista's store
     categoryId: 'cat-1',
     unit: 'unidade'
   },
@@ -98,7 +114,7 @@ export const products: Product[] = [
     price: 79.50,
     imageUrl: 'https://placehold.co/400x400',
     stock: 120,
-    storeId: 'store-1',
+    storeId: 'store-2', // Changed to Lojista's store
     categoryId: 'cat-1',
     unit: 'unidade'
   },
@@ -131,7 +147,7 @@ export const products: Product[] = [
     price: 65.75,
     imageUrl: 'https://placehold.co/400x400',
     stock: 75,
-    storeId: 'store-3',
+    storeId: 'store-2', // Changed to Lojista's store
     categoryId: 'cat-3',
     unit: 'unidade'
   },
@@ -142,10 +158,61 @@ export const products: Product[] = [
     price: 249.99,
     imageUrl: 'https://placehold.co/400x400',
     stock: 30,
-    storeId: 'store-3',
+    storeId: 'store-2', // Changed to Lojista's store
     categoryId: 'cat-3',
     unit: 'unidade'
   },
 ];
 
-export const orders: Order[] = [];
+export const orders: Order[] = [
+    {
+        id: 'order-1',
+        storeId: '2',
+        userId: '3',
+        customerName: 'Cliente Fiel',
+        items: [
+            {...products[0], quantity: 1},
+            {...products[2], quantity: 2},
+        ],
+        total: products[0].price + (products[2].price * 2),
+        status: 'Pendente',
+        createdAt: new Date(2023, 10, 28),
+    },
+    {
+        id: 'order-2',
+        storeId: '2',
+        userId: '4',
+        customerName: 'Ana Costa',
+        items: [
+            {...products[4], quantity: 1},
+        ],
+        total: products[4].price,
+        status: 'Enviado',
+        createdAt: new Date(2023, 10, 25),
+    },
+    {
+        id: 'order-3',
+        storeId: '2',
+        userId: '5',
+        customerName: 'Carlos Silva',
+        items: [
+            {...products[3], quantity: 5},
+            {...products[5], quantity: 1},
+        ],
+        total: (products[3].price * 5) + products[5].price,
+        status: 'Entregue',
+        createdAt: new Date(2023, 10, 20),
+    },
+    {
+        id: 'order-4',
+        storeId: '2',
+        userId: '3',
+        customerName: 'Cliente Fiel',
+        items: [
+            {...products[1], quantity: 2},
+        ],
+        total: products[1].price * 2,
+        status: 'Cancelado',
+        createdAt: new Date(2023, 10, 15),
+    }
+];
