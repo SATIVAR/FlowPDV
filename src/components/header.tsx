@@ -32,7 +32,7 @@ export function Header() {
     <header className="sticky top-0 z-40 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container flex h-16 items-center">
         <Link href="/" className="mr-6 flex items-center space-x-2">
-          <Icons.Logo className="h-8 w-8 text-primary" />
+          <Icons.Logo className="h-10 w-10 text-primary" />
           <span className="font-headline font-bold text-xl">FlowPDV</span>
         </Link>
         <nav className="flex items-center gap-6 text-sm flex-1">
