@@ -1,4 +1,5 @@
-import type { User, Product, Order } from './types';
+
+import type { User, Product, Order, Store } from './types';
 
 export const users: User[] = [
   {
@@ -35,6 +36,51 @@ export const users: User[] = [
   }
 ];
 
+export const stores: Store[] = [
+  {
+    id: 'store-1',
+    name: 'Tech Wonders',
+    address: '123 Innovation Drive, Silicon Valley',
+    logoUrl: 'https://placehold.co/128x128',
+    coverUrl: 'https://placehold.co/600x400'
+  },
+  {
+    id: 'store-2',
+    name: 'Gourmet Delights',
+    address: '456 Culinary Lane, Foodie Town',
+    logoUrl: 'https://placehold.co/128x128',
+    coverUrl: 'https://placehold.co/600x400'
+  },
+  {
+    id: 'store-3',
+    name: 'Fashion Forward',
+    address: '789 Style Avenue, Trend City',
+    logoUrl: 'https://placehold.co/128x128',
+    coverUrl: 'https://placehold.co/600x400'
+  },
+  {
+    id: 'store-4',
+    name: 'Bookworm\'s Paradise',
+    address: '101 Knowledge St, Readington',
+    logoUrl: 'https://placehold.co/128x128',
+    coverUrl: 'https://placehold.co/600x400'
+  },
+  {
+    id: 'store-5',
+    name: 'Home Comforts',
+    address: '212 Cozy Corner, Relaxville',
+    logoUrl: 'https://placehold.co/128x128',
+    coverUrl: 'https://placehold.co/600x400'
+  },
+  {
+    id: 'store-6',
+    name: 'Vintage Finds',
+    address: '333 Retro Row, Old Town',
+    logoUrl: 'https://placehold.co/128x128',
+    coverUrl: 'https://placehold.co/600x400'
+  }
+];
+
 export const products: Product[] = [
   {
     id: 'prod1',
@@ -43,7 +89,7 @@ export const products: Product[] = [
     price: 189.99,
     imageUrl: 'https://placehold.co/400x400',
     stock: 50,
-    storeId: '2'
+    storeId: 'store-1'
   },
   {
     id: 'prod2',
@@ -52,43 +98,43 @@ export const products: Product[] = [
     price: 79.50,
     imageUrl: 'https://placehold.co/400x400',
     stock: 120,
-    storeId: '2'
+    storeId: 'store-1'
   },
   {
     id: 'prod3',
-    name: 'Sentient Coffee Mug',
-    description: 'Keeps your coffee hot and your secrets safe.',
+    name: 'Artisanal Cheese Board',
+    description: 'A fine selection of imported and local cheeses.',
     price: 42.00,
     imageUrl: 'https://placehold.co/400x400',
     stock: 200,
-    storeId: '2'
+    storeId: 'store-2'
   },
   {
     id: 'prod4',
-    name: 'Singularity Screen',
-    description: 'A 32-inch 8K monitor that displays the future.',
-    price: 1299.99,
+    name: 'Organic Sourdough',
+    description: 'Freshly baked with a crispy crust and soft crumb.',
+    price: 8.50,
     imageUrl: 'https://placehold.co/400x400',
     stock: 15,
-    storeId: '2'
+    storeId: 'store-2'
   },
   {
     id: 'prod5',
-    name: 'Recursive Desk Lamp',
-    description: 'A lamp that is lit by a smaller version of itself.',
+    name: 'Silk Scarf',
+    description: 'A beautifully printed 100% silk scarf.',
     price: 65.75,
     imageUrl: 'https://placehold.co/400x400',
     stock: 75,
-    storeId: '2'
+    storeId: 'store-3'
   },
   {
     id: 'prod6',
-    name: 'Null-Pointer Pen',
-    description: 'A pen that writes in invisible, memory-safe ink.',
-    price: 24.99,
+    name: 'Leather Tote Bag',
+    description: 'A timeless classic for your everyday needs.',
+    price: 249.99,
     imageUrl: 'https://placehold.co/400x400',
-    stock: 300,
-    storeId: '2'
+    stock: 30,
+    storeId: 'store-3'
   },
 ];
 

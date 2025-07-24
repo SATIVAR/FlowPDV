@@ -1,9 +1,9 @@
+
 'use client';
 
 import Link from 'next/link';
-import { ShoppingCart, User as UserIcon, LogOut } from 'lucide-react';
+import { LogOut, User as UserIcon } from 'lucide-react';
 import { useAuth } from '@/hooks/use-auth';
-import { useCart } from '@/hooks/use-cart';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -15,10 +15,10 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Icons } from './icons';
+import { ModeToggle } from './mode-toggle';
 
 export function Header() {
-  const { user, logout, hasRole } = useAuth();
-  const { itemCount } = useCart();
+  const { user, logout } = useAuth();
 
   const getInitials = (name: string) => {
     const names = name.split(' ');
@@ -45,18 +45,8 @@ export function Header() {
             </Link>
           )}
         </nav>
-        <div className="flex items-center justify-end space-x-4">
-          <Link href="/cart">
-            <Button variant="ghost" size="icon" aria-label="Open cart">
-              <ShoppingCart className="h-5 w-5" />
-              {itemCount > 0 && (
-                <span className="absolute top-1 right-1 flex h-4 w-4 items-center justify-center rounded-full bg-primary text-xs font-bold text-primary-foreground">
-                  {itemCount}
-                </span>
-              )}
-            </Button>
-          </Link>
-
+        <div className="flex items-center justify-end space-x-2">
+          <ModeToggle />
           {user ? (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>

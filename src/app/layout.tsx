@@ -1,13 +1,15 @@
+
 import type { Metadata } from 'next';
 import './globals.css';
 import { Toaster } from '@/components/ui/toaster';
 import { AuthProvider } from '@/components/auth-provider';
 import { Header } from '@/components/header';
-import { CartProvider } from '@/components/cart-provider';
+import { ThemeProvider } from '@/components/theme-provider';
 
 export const metadata: Metadata = {
-  title: 'TenantFlow',
-  description: 'A multi-tenant e-commerce platform.',
+  title: 'TenantFlow - O marketplace para todos',
+  description: 'Uma plataforma completa para você criar sua loja, gerenciar seus produtos e alcançar mais clientes. Simples, rápido e sem taxas escondidas.',
+  keywords: ['marketplace', 'e-commerce', 'vendas online', 'loja virtual'],
 };
 
 export default function RootLayout({
@@ -16,7 +18,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="h-full">
+    <html lang="en" className="h-full" suppressHydrationWarning>
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link
@@ -30,15 +32,20 @@ export default function RootLayout({
         />
       </head>
       <body className="font-body antialiased h-full">
-        <AuthProvider>
-          <CartProvider>
+        <ThemeProvider
+            attribute="class"
+            defaultTheme="light"
+            enableSystem
+            disableTransitionOnChange
+        >
+          <AuthProvider>
             <div className="min-h-full flex flex-col">
               <Header />
               <main className="flex-grow">{children}</main>
             </div>
             <Toaster />
-          </CartProvider>
-        </AuthProvider>
+          </AuthProvider>
+        </ThemeProvider>
       </body>
     </html>
   );

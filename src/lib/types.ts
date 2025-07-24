@@ -1,3 +1,4 @@
+
 export type Role = 'Super Admin' | 'Lojista' | 'Cliente';
 
 export interface User {
@@ -8,6 +9,14 @@ export interface User {
   role: Role;
   avatar?: string;
   isOAuth?: boolean;
+}
+
+export interface Store {
+    id: string;
+    name: string;
+    address: string;
+    logoUrl: string;
+    coverUrl: string;
 }
 
 export interface Product {
@@ -25,7 +34,7 @@ export interface CartItem extends Product {
 }
 
 export interface Order {
-  id: string;
+  id:string;
   userId: string;
   items: CartItem[];
   total: number;
