@@ -67,7 +67,10 @@ export function Header() {
               
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" className="px-2 text-foreground/60 font-medium hover:text-foreground/80">
+                   <Button
+                      variant="ghost"
+                      className="px-2 text-foreground/60 font-medium transition-colors hover:bg-transparent hover:text-foreground/80 focus-visible:ring-0 focus-visible:ring-offset-0 data-[state=open]:text-foreground/80"
+                    >
                     Minha Loja
                     <ChevronDown className="ml-1 h-4 w-4" />
                   </Button>
