@@ -13,7 +13,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { Sheet, SheetContent, SheetTrigger, SheetClose } from "@/components/ui/sheet";
+import { Sheet, SheetContent, SheetTrigger, SheetClose, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Icons } from './icons';
@@ -43,7 +43,7 @@ export function Header() {
   };
 
   const LojistaNavLinks = ({ isMobile = false }) => {
-    const commonLinkClasses = "py-2 md:py-0 px-2 transition-colors hover:text-foreground/80 text-foreground/60 font-medium";
+    const commonLinkClasses = "py-2 text-lg md:text-sm md:py-0 px-2 transition-colors hover:text-foreground/80 text-foreground/60 font-medium";
 
     const renderLink = (href: string, text: string) => {
         const link = <Link href={href} className={commonLinkClasses}>{text}</Link>;
@@ -52,62 +52,84 @@ export function Header() {
         }
         return link;
     }
+    
+    const renderDropdown = (triggerText: string, items: {href: string, icon: React.ElementType, text: string, external?: boolean}[]) => {
+      const content = (
+          <DropdownMenuContent align="start">
+              {items.map(item => (
+                   <DropdownMenuItem key={item.text} asChild>
+                       {item.external ? (
+                           <a href={item.href} target="_blank" rel="noopener noreferrer">
+                               <item.icon className="mr-2 h-4 w-4" /> {item.text}
+                           </a>
+                       ) : (
+                           <Link href={item.href}>
+                               <item.icon className="mr-2 h-4 w-4" /> {item.text}
+                           </Link>
+                       )}
+                   </DropdownMenuItem>
+              ))}
+          </DropdownMenuContent>
+      );
+      
+       if (isMobile) {
+          return (
+            <Accordion type="single" collapsible className="w-full">
+              <AccordionItem value={triggerText} className="border-b-0">
+                <AccordionTrigger className={`${commonLinkClasses} hover:no-underline`}>{triggerText}</AccordionTrigger>
+                <AccordionContent className="pl-4">
+                  <div className="flex flex-col gap-2">
+                    {items.map(item => (
+                       <SheetClose asChild key={item.text}>
+                         {item.external ? (
+                             <a href={item.href} target="_blank" rel="noopener noreferrer" className="py-2 text-foreground/60 hover:text-foreground/80 flex items-center">
+                                 <item.icon className="mr-2 h-4 w-4" /> {item.text}
+                             </a>
+                         ) : (
+                             <Link href={item.href} className="py-2 text-foreground/60 hover:text-foreground/80 flex items-center">
+                                 <item.icon className="mr-2 h-4 w-4" /> {item.text}
+                             </Link>
+                         )}
+                       </SheetClose>
+                    ))}
+                  </div>
+                </AccordionContent>
+              </AccordionItem>
+            </Accordion>
+          )
+       }
+
+       return (
+            <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    className="px-2 text-foreground/60 font-medium transition-colors hover:bg-transparent hover:text-foreground/80 focus-visible:ring-0 focus-visible:ring-offset-0 data-[state=open]:text-foreground/80"
+                  >
+                    {triggerText}
+                    <ChevronDown className="ml-1 h-4 w-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+                {content}
+            </DropdownMenu>
+       )
+    }
 
     return (
-      <>
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button
-              variant="ghost"
-              className="px-2 text-foreground/60 font-medium transition-colors hover:bg-transparent hover:text-foreground/80 focus-visible:ring-0 focus-visible:ring-offset-0 data-[state=open]:text-foreground/80"
-            >
-              Pedidos
-              <ChevronDown className="ml-1 h-4 w-4" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="start">
-            <DropdownMenuItem asChild>
-              <Link href="/dashboard/pedidos">
-                <Eye className="mr-2 h-4 w-4" /> Ver Pedidos
-              </Link>
-            </DropdownMenuItem>
-            <DropdownMenuItem asChild>
-              <Link href="/dashboard/pedidos/novo">
-                <PlusCircle className="mr-2 h-4 w-4" /> Novo Pedido
-              </Link>
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
+      <Fragment>
+        {renderDropdown("Pedidos", [
+            { href: "/dashboard/pedidos", icon: Eye, text: "Ver Pedidos" },
+            { href: "/dashboard/pedidos/novo", icon: PlusCircle, text: "Novo Pedido" }
+        ])}
 
         {renderLink("/dashboard/produtos", "Produtos")}
         {renderLink("/dashboard/relatorios", "Relatórios")}
 
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button
-              variant="ghost"
-              className="px-2 text-foreground/60 font-medium transition-colors hover:bg-transparent hover:text-foreground/80 focus-visible:ring-0 focus-visible:ring-offset-0 data-[state=open]:text-foreground/80"
-            >
-              Minha Loja
-              <ChevronDown className="ml-1 h-4 w-4" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="start">
-            {storeSlug && (
-              <DropdownMenuItem asChild>
-                <a href={`/loja/${storeSlug}`} target="_blank" rel="noopener noreferrer">
-                  <ExternalLink className="mr-2 h-4 w-4" /> Ver Loja
-                </a>
-              </DropdownMenuItem>
-            )}
-            <DropdownMenuItem asChild>
-              <Link href="/dashboard/minha-loja">
-                <Settings className="mr-2 h-4 w-4" /> Configurações
-              </Link>
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      </>
+        {renderDropdown("Minha Loja", [
+            ...(storeSlug ? [{ href: `/loja/${storeSlug}`, icon: ExternalLink, text: "Ver Loja", external: true }] : []),
+            { href: "/dashboard/minha-loja", icon: Settings, text: "Configurações" }
+        ])}
+      </Fragment>
     );
   };
 
@@ -121,12 +143,14 @@ export function Header() {
         </Link>
         <nav className="hidden md:flex items-center gap-1 text-sm flex-1">
           {user && (
-            <Link
-              href="/dashboard"
-              className="px-2 transition-colors hover:text-foreground/80 text-foreground/60 font-medium"
-            >
-              Dashboard
-            </Link>
+             <SheetClose asChild>
+                <Link
+                href="/dashboard"
+                className="px-2 transition-colors hover:text-foreground/80 text-foreground/60 font-medium"
+                >
+                Dashboard
+                </Link>
+             </SheetClose>
           )}
           {user && hasRole('Lojista') && <LojistaNavLinks />}
         </nav>
@@ -192,6 +216,9 @@ export function Header() {
                   </Button>
                 </SheetTrigger>
                 <SheetContent>
+                  <SheetHeader>
+                    <SheetTitle className="sr-only">Menu</SheetTitle>
+                  </SheetHeader>
                   <div className="p-4">
                      <SheetClose asChild>
                         <Link href="/" className="mr-6 flex items-center space-x-2 mb-6">
