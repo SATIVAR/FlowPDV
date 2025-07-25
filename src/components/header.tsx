@@ -143,14 +143,12 @@ export function Header() {
         </Link>
         <nav className="hidden md:flex items-center gap-1 text-sm flex-1">
           {user && (
-             <SheetClose asChild>
-                <Link
+             <Link
                 href="/dashboard"
                 className="px-2 transition-colors hover:text-foreground/80 text-foreground/60 font-medium"
-                >
+             >
                 Dashboard
-                </Link>
-             </SheetClose>
+             </Link>
           )}
           {user && hasRole('Lojista') && <LojistaNavLinks />}
         </nav>
