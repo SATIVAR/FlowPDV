@@ -47,47 +47,29 @@ export const users: User[] = [
 
 export const stores: Store[] = [
   {
-    id: 'store-1',
+    id: '1',
     name: 'Tech Wonders',
-    address: '123 Innovation Drive, Silicon Valley',
+    slug: 'tech-wonders',
     logoUrl: 'https://placehold.co/128x128',
-    coverUrl: 'https://placehold.co/600x400'
+    coverUrl: 'https://placehold.co/600x400',
+    deliveryOptions: [
+        { type: 'Entrega', enabled: true, price: 10, details: 'Entrega em toda a cidade.' },
+        { type: 'Retirada', enabled: false }
+    ]
   },
   {
-    id: 'store-2',
-    name: 'Gourmet Delights',
-    address: '456 Culinary Lane, Foodie Town',
+    id: '2',
+    name: 'Loja da Esquina',
+    slug: 'loja-da-esquina',
+    description: 'Sua loja de conveniência favorita, agora online! Peça e receba em casa.',
+    contactWhatsapp: '11988887777',
     logoUrl: 'https://placehold.co/128x128',
-    coverUrl: 'https://placehold.co/600x400'
+    coverUrl: 'https://placehold.co/600x400',
+    deliveryOptions: [
+        { type: 'Entrega', enabled: true, price: 5, details: 'Entregamos em um raio de 5km.' },
+        { type: 'Retirada', enabled: true, details: 'Retire na loja em até 30 minutos.' }
+    ]
   },
-  {
-    id: 'store-3',
-    name: 'Fashion Forward',
-    address: '789 Style Avenue, Trend City',
-    logoUrl: 'https://placehold.co/128x128',
-    coverUrl: 'https://placehold.co/600x400'
-  },
-  {
-    id: 'store-4',
-    name: 'Bookworm\'s Paradise',
-    address: '101 Knowledge St, Readington',
-    logoUrl: 'https://placehold.co/128x128',
-    coverUrl: 'https://placehold.co/600x400'
-  },
-  {
-    id: 'store-5',
-    name: 'Home Comforts',
-    address: '212 Cozy Corner, Relaxville',
-    logoUrl: 'https://placehold.co/128x128',
-    coverUrl: 'https://placehold.co/600x400'
-  },
-  {
-    id: 'store-6',
-    name: 'Vintage Finds',
-    address: '333 Retro Row, Old Town',
-    logoUrl: 'https://placehold.co/128x128',
-    coverUrl: 'https://placehold.co/600x400'
-  }
 ];
 
 export const categories: Category[] = [
@@ -110,7 +92,7 @@ export const products: Product[] = [
     price: 189.99,
     imageUrl: 'https://placehold.co/400x400',
     stock: 50,
-    storeId: 'store-2', // Changed to Lojista's store
+    storeId: '2', // Changed to Lojista's store
     categoryId: 'cat-1',
     unit: 'unidade'
   },
@@ -121,7 +103,7 @@ export const products: Product[] = [
     price: 79.50,
     imageUrl: 'https://placehold.co/400x400',
     stock: 120,
-    storeId: 'store-2', // Changed to Lojista's store
+    storeId: '2', // Changed to Lojista's store
     categoryId: 'cat-1',
     unit: 'unidade'
   },
@@ -132,7 +114,7 @@ export const products: Product[] = [
     price: 42.00,
     imageUrl: 'https://placehold.co/400x400',
     stock: 200,
-    storeId: 'store-2',
+    storeId: '2',
     categoryId: 'cat-2',
     unit: 'kilo'
   },
@@ -143,7 +125,7 @@ export const products: Product[] = [
     price: 8.50,
     imageUrl: 'https://placehold.co/400x400',
     stock: 15,
-    storeId: 'store-2',
+    storeId: '2',
     categoryId: 'cat-2',
     unit: 'grama'
   },
@@ -154,7 +136,7 @@ export const products: Product[] = [
     price: 65.75,
     imageUrl: 'https://placehold.co/400x400',
     stock: 75,
-    storeId: 'store-2', // Changed to Lojista's store
+    storeId: '2', // Changed to Lojista's store
     categoryId: 'cat-3',
     unit: 'unidade'
   },
@@ -165,7 +147,7 @@ export const products: Product[] = [
     price: 249.99,
     imageUrl: 'https://placehold.co/400x400',
     stock: 30,
-    storeId: 'store-2', // Changed to Lojista's store
+    storeId: '2', // Changed to Lojista's store
     categoryId: 'cat-3',
     unit: 'unidade'
   },

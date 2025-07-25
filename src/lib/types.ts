@@ -11,12 +11,22 @@ export interface User {
   whatsapp: string;
 }
 
+export interface DeliveryOption {
+    type: 'Entrega' | 'Retirada';
+    enabled: boolean;
+    price?: number;
+    details?: string;
+}
+
 export interface Store {
     id: string;
     name: string;
-    address: string;
+    slug: string;
+    description?: string;
+    contactWhatsapp?: string;
     logoUrl: string;
     coverUrl: string;
+    deliveryOptions: DeliveryOption[];
 }
 
 export interface Category {

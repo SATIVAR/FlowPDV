@@ -2,7 +2,7 @@
 'use client';
 
 import Link from 'next/link';
-import { LogOut, User as UserIcon, ArrowRight } from 'lucide-react';
+import { LogOut, User as UserIcon, ArrowRight, Store } from 'lucide-react';
 import { useAuth } from '@/hooks/use-auth';
 import { Button } from '@/components/ui/button';
 import {
@@ -49,6 +49,7 @@ export function Header() {
               <Link href="/dashboard/pedidos" className="transition-colors hover:text-foreground/80 text-foreground/60 font-medium">Pedidos</Link>
               <Link href="/dashboard/produtos" className="transition-colors hover:text-foreground/80 text-foreground/60 font-medium">Produtos</Link>
               <Link href="/dashboard/relatorios" className="transition-colors hover:text-foreground/80 text-foreground/60 font-medium">Relatórios</Link>
+              <Link href="/dashboard/minha-loja" className="transition-colors hover:text-foreground/80 text-foreground/60 font-medium">Minha Loja</Link>
             </>
           )}
         </nav>
