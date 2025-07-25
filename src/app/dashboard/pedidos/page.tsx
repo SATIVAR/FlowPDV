@@ -1,23 +1,33 @@
 
 'use client';
 
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import Link from 'next/link';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { MoreHorizontal, Eye, PlusCircle, Edit } from 'lucide-react';
+import { Dialog, DialogTrigger, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { MoreHorizontal, Eye, PlusCircle, Edit, Search } from 'lucide-react';
 import { orders as initialOrders } from '@/lib/data';
 import type { Order, OrderStatus } from '@/lib/types';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
+import { Input } from '@/components/ui/input';
 
 export default function PedidosPage() {
     const [orders, setOrders] = useState<Order[]>(() => initialOrders.filter(o => o.storeId === '2'));
     const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
+    const [searchTerm, setSearchTerm] = useState('');
+
+    const filteredOrders = useMemo(() => {
+        if (!searchTerm) return orders;
+        return orders.filter(order => 
+            order.customerName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            order.id.slice(-6).toLowerCase().includes(searchTerm.toLowerCase())
+        );
+    }, [orders, searchTerm]);
 
     const handleStatusChange = (orderId: string, status: OrderStatus) => {
         setOrders(prevOrders =>
@@ -63,17 +73,28 @@ export default function PedidosPage() {
 
     return (
         <div className="container mx-auto px-4 py-8">
-            <div className="flex items-center justify-between mb-8">
-              <div>
+            <div className="flex flex-col md:flex-row items-center justify-between gap-4 mb-8">
+              <div className="flex-1">
                 <h1 className="font-headline text-4xl font-bold">Pedidos</h1>
                 <p className="text-muted-foreground">Gerencie todos os pedidos da sua loja.</p>
               </div>
-              <Button asChild>
-                <Link href="/dashboard/pedidos/novo">
-                    <PlusCircle className="mr-2 h-4 w-4" />
-                    Novo Pedido
-                </Link>
-              </Button>
+              <div className="flex items-center gap-2">
+                 <div className="relative">
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                    <Input 
+                        placeholder="Buscar por cliente ou ID..." 
+                        className="pl-10 w-full md:w-64"
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                    />
+                 </div>
+                 <Button asChild>
+                    <Link href="/dashboard/pedidos/novo">
+                        <PlusCircle className="mr-0 md:mr-2 h-4 w-4" />
+                        <span className="hidden md:inline">Novo Pedido</span>
+                    </Link>
+                </Button>
+              </div>
             </div>
             <Card>
                 <CardHeader>
@@ -94,7 +115,7 @@ export default function PedidosPage() {
                             </TableRow>
                         </TableHeader>
                         <TableBody>
-                            {orders.map((order) => (
+                            {filteredOrders.map((order) => (
                                 <TableRow key={order.id}>
                                     <TableCell className="font-medium">#{order.id.slice(-6)}</TableCell>
                                     <TableCell>{order.customerName}</TableCell>
@@ -108,7 +129,7 @@ export default function PedidosPage() {
                                     <TableCell>{order.paymentMethod}</TableCell>
                                     <TableCell className="text-right">R$ {order.total.toFixed(2)}</TableCell>
                                     <TableCell className="text-center">
-                                        <Dialog>
+                                        <Dialog onOpenChange={(open) => !open && setSelectedOrder(null)} open={selectedOrder?.id === order.id}>
                                             <DropdownMenu>
                                                 <DropdownMenuTrigger asChild>
                                                     <Button variant="ghost" className="h-8 w-8 p-0">
@@ -122,7 +143,7 @@ export default function PedidosPage() {
                                                         Ver Detalhes
                                                       </DropdownMenuItem>
                                                     <DropdownMenuItem asChild>
-                                                        <Link href={`/dashboard/pedidos/${order.id}/editar`}>
+                                                        <Link href={`/dashboard/pedidos/editar?id=${order.id}`}>
                                                             <Edit className="mr-2 h-4 w-4" />
                                                             Editar Pedido
                                                         </Link>
@@ -181,6 +202,15 @@ export default function PedidosPage() {
                             ))}
                         </TableBody>
                     </Table>
+                     {filteredOrders.length === 0 && (
+                        <div className="text-center py-12 text-muted-foreground">
+                            <Search className="mx-auto h-12 w-12" />
+                            <p className="mt-4">Nenhum pedido encontrado.</p>
+                            {searchTerm && (
+                                <p className="text-sm">Tente ajustar seus termos de busca.</p>
+                            )}
+                        </div>
+                    )}
                 </CardContent>
             </Card>
         </div>

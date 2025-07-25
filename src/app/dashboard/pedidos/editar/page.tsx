@@ -3,7 +3,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { useRouter, useParams } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useForm, useFieldArray, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -57,8 +57,8 @@ const customProductSchema = z.object({
 
 export default function EditOrderPage() {
     const router = useRouter();
-    const params = useParams();
-    const { id: orderId } = params;
+    const searchParams = useSearchParams();
+    const orderId = searchParams.get('id');
     const { toast } = useToast();
 
     const [order, setOrder] = useState<Order | null>(null);
@@ -73,6 +73,10 @@ export default function EditOrderPage() {
     const customerType = form.watch('customerType');
 
     useEffect(() => {
+        if (!orderId) {
+             router.push('/dashboard/pedidos');
+             return;
+        }
         const foundOrder = initialOrders.find(o => o.id === orderId);
         if (foundOrder) {
             setOrder(foundOrder);
@@ -92,8 +96,15 @@ export default function EditOrderPage() {
                     unit: item.unit,
                 })),
             });
+        } else {
+            toast({
+                variant: 'destructive',
+                title: 'Erro',
+                description: 'Pedido não encontrado.',
+            });
+            router.push('/dashboard/pedidos');
         }
-    }, [orderId, form, paymentMethods]);
+    }, [orderId, form, paymentMethods, router, toast]);
 
     const { fields, append, remove, update } = useFieldArray({
         control: form.control,
