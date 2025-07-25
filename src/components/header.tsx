@@ -2,7 +2,7 @@
 'use client';
 
 import Link from 'next/link';
-import { LogOut, User as UserIcon, ArrowRight, Store } from 'lucide-react';
+import { LogOut, User as UserIcon, ArrowRight, Store, ChevronDown, ExternalLink, Settings } from 'lucide-react';
 import { useAuth } from '@/hooks/use-auth';
 import { Button } from '@/components/ui/button';
 import {
@@ -16,9 +16,24 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Icons } from './icons';
 import { ModeToggle } from './mode-toggle';
+import { stores } from '@/lib/data';
+import { useState, useEffect } from 'react';
 
 export function Header() {
   const { user, logout, hasRole } = useAuth();
+  const [storeSlug, setStoreSlug] = useState<string | null>(null);
+
+
+  useEffect(() => {
+    if (user && hasRole('Lojista')) {
+      // In a real app, you might fetch this based on user's storeId
+      const userStore = stores.find(s => s.id === '2');
+      if (userStore) {
+        setStoreSlug(userStore.slug);
+      }
+    }
+  }, [user, hasRole]);
+
 
   const getInitials = (name: string) => {
     const names = name.split(' ');
@@ -49,7 +64,31 @@ export function Header() {
               <Link href="/dashboard/pedidos" className="transition-colors hover:text-foreground/80 text-foreground/60 font-medium">Pedidos</Link>
               <Link href="/dashboard/produtos" className="transition-colors hover:text-foreground/80 text-foreground/60 font-medium">Produtos</Link>
               <Link href="/dashboard/relatorios" className="transition-colors hover:text-foreground/80 text-foreground/60 font-medium">Relatórios</Link>
-              <Link href="/dashboard/minha-loja" className="transition-colors hover:text-foreground/80 text-foreground/60 font-medium">Minha Loja</Link>
+              
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" className="px-2 text-foreground/60 font-medium hover:text-foreground/80">
+                    Minha Loja
+                    <ChevronDown className="ml-1 h-4 w-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="start">
+                  {storeSlug && (
+                    <DropdownMenuItem asChild>
+                       <a href={`/loja/${storeSlug}`} target="_blank" rel="noopener noreferrer">
+                        <ExternalLink className="mr-2 h-4 w-4" />
+                        Ver Loja
+                       </a>
+                    </DropdownMenuItem>
+                  )}
+                  <DropdownMenuItem asChild>
+                    <Link href="/dashboard/minha-loja">
+                      <Settings className="mr-2 h-4 w-4" />
+                      Configurações
+                    </Link>
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
             </>
           )}
         </nav>
