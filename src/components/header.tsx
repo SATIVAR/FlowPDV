@@ -2,7 +2,7 @@
 'use client';
 
 import Link from 'next/link';
-import { LogOut, User as UserIcon, ArrowRight, Store, ChevronDown, ExternalLink, Settings } from 'lucide-react';
+import { LogOut, User as UserIcon, ArrowRight, Store, ChevronDown, ExternalLink, Settings, Eye, PlusCircle } from 'lucide-react';
 import { useAuth } from '@/hooks/use-auth';
 import { Button } from '@/components/ui/button';
 import {
@@ -61,7 +61,32 @@ export function Header() {
           )}
            {user && hasRole('Lojista') && (
             <>
-              <Link href="/dashboard/pedidos" className="transition-colors hover:text-foreground/80 text-foreground/60 font-medium">Pedidos</Link>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                   <Button
+                      variant="ghost"
+                      className="px-2 text-foreground/60 font-medium transition-colors hover:bg-transparent hover:text-foreground/80 focus-visible:ring-0 focus-visible:ring-offset-0 data-[state=open]:text-foreground/80"
+                    >
+                    Pedidos
+                    <ChevronDown className="ml-1 h-4 w-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="start">
+                  <DropdownMenuItem asChild>
+                    <Link href="/dashboard/pedidos">
+                      <Eye className="mr-2 h-4 w-4" />
+                      Ver Pedidos
+                    </Link>
+                  </DropdownMenuItem>
+                   <DropdownMenuItem asChild>
+                    <Link href="/dashboard/pedidos/novo">
+                      <PlusCircle className="mr-2 h-4 w-4" />
+                      Novo Pedido
+                    </Link>
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+
               <Link href="/dashboard/produtos" className="transition-colors hover:text-foreground/80 text-foreground/60 font-medium">Produtos</Link>
               <Link href="/dashboard/relatorios" className="transition-colors hover:text-foreground/80 text-foreground/60 font-medium">Relatórios</Link>
               
