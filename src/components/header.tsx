@@ -42,102 +42,113 @@ export function Header() {
     return name.substring(0, 2).toUpperCase();
   };
 
-  const LojistaNavLinks = () => (
+  const LojistaNavLinks = ({ isMobile = false }: { isMobile?: boolean }) => {
+    const Wrapper = isMobile ? SheetClose : 'div';
+    
+    return (
     <>
-      <Accordion type="single" collapsible className="w-full md:hidden">
-        <AccordionItem value="pedidos">
-          <AccordionTrigger className="py-2 text-foreground/60 hover:text-foreground/80 font-medium hover:no-underline">Pedidos</AccordionTrigger>
-          <AccordionContent className="pl-4">
-             <SheetClose asChild>
-                <Link href="/dashboard/pedidos" className="flex items-center gap-2 py-2 text-foreground/80">
-                  <Eye className="mr-2 h-4 w-4" /> Ver Pedidos
-                </Link>
-             </SheetClose>
-             <SheetClose asChild>
-                <Link href="/dashboard/pedidos/novo" className="flex items-center gap-2 py-2 text-foreground/80">
-                  <PlusCircle className="mr-2 h-4 w-4" /> Novo Pedido
-                </Link>
-             </SheetClose>
-          </AccordionContent>
-        </AccordionItem>
-      </Accordion>
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-           <Button
-              variant="ghost"
-              className="px-2 text-foreground/60 font-medium transition-colors hover:bg-transparent hover:text-foreground/80 focus-visible:ring-0 focus-visible:ring-offset-0 data-[state=open]:text-foreground/80 hidden md:flex"
-            >
-            Pedidos
-            <ChevronDown className="ml-1 h-4 w-4" />
-          </Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent align="start">
-          <DropdownMenuItem asChild>
-            <Link href="/dashboard/pedidos">
-              <Eye className="mr-2 h-4 w-4" /> Ver Pedidos
-            </Link>
-          </DropdownMenuItem>
-           <DropdownMenuItem asChild>
-            <Link href="/dashboard/pedidos/novo">
-              <PlusCircle className="mr-2 h-4 w-4" /> Novo Pedido
-            </Link>
-          </DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
-
-      <SheetClose asChild>
-        <Link href="/dashboard/produtos" className="py-2 md:py-0 transition-colors hover:text-foreground/80 text-foreground/60 font-medium">Produtos</Link>
-      </SheetClose>
-      <SheetClose asChild>
-        <Link href="/dashboard/relatorios" className="py-2 md:py-0 transition-colors hover:text-foreground/80 text-foreground/60 font-medium">Relatórios</Link>
-      </SheetClose>
-      
-      <Accordion type="single" collapsible className="w-full md:hidden">
-        <AccordionItem value="loja">
-            <AccordionTrigger className="py-2 text-foreground/60 hover:text-foreground/80 font-medium hover:no-underline">Minha Loja</AccordionTrigger>
-            <AccordionContent className="pl-4">
-              {storeSlug && (
-                 <SheetClose asChild>
-                   <a href={`/loja/${storeSlug}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 py-2 text-foreground/80">
-                    <ExternalLink className="mr-2 h-4 w-4" /> Ver Loja
-                   </a>
-                 </SheetClose>
-              )}
-               <SheetClose asChild>
-                <Link href="/dashboard/minha-loja" className="flex items-center gap-2 py-2 text-foreground/80">
-                  <Settings className="mr-2 h-4 w-4" /> Configurações
-                </Link>
-               </SheetClose>
-            </AccordionContent>
-        </AccordionItem>
-      </Accordion>
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-           <Button
-              variant="ghost"
-              className="px-2 text-foreground/60 font-medium transition-colors hover:bg-transparent hover:text-foreground/80 focus-visible:ring-0 focus-visible:ring-offset-0 data-[state=open]:text-foreground/80 hidden md:flex"
-            >
-            Minha Loja
-            <ChevronDown className="ml-1 h-4 w-4" />
-          </Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent align="start">
-          {storeSlug && (
+      {isMobile ? (
+         <Accordion type="single" collapsible className="w-full">
+            <AccordionItem value="pedidos">
+                <AccordionTrigger className="py-2 text-foreground/60 hover:text-foreground/80 font-medium hover:no-underline">Pedidos</AccordionTrigger>
+                <AccordionContent className="pl-4">
+                    <SheetClose asChild>
+                        <Link href="/dashboard/pedidos" className="flex items-center gap-2 py-2 text-foreground/80">
+                            <Eye className="mr-2 h-4 w-4" /> Ver Pedidos
+                        </Link>
+                    </SheetClose>
+                    <SheetClose asChild>
+                        <Link href="/dashboard/pedidos/novo" className="flex items-center gap-2 py-2 text-foreground/80">
+                            <PlusCircle className="mr-2 h-4 w-4" /> Novo Pedido
+                        </Link>
+                    </SheetClose>
+                </AccordionContent>
+            </AccordionItem>
+         </Accordion>
+      ) : (
+         <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+            <Button
+                variant="ghost"
+                className="px-2 text-foreground/60 font-medium transition-colors hover:bg-transparent hover:text-foreground/80 focus-visible:ring-0 focus-visible:ring-offset-0 data-[state=open]:text-foreground/80"
+                >
+                Pedidos
+                <ChevronDown className="ml-1 h-4 w-4" />
+            </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="start">
             <DropdownMenuItem asChild>
-               <a href={`/loja/${storeSlug}`} target="_blank" rel="noopener noreferrer">
-                <ExternalLink className="mr-2 h-4 w-4" /> Ver Loja
-               </a>
+                <Link href="/dashboard/pedidos">
+                <Eye className="mr-2 h-4 w-4" /> Ver Pedidos
+                </Link>
             </DropdownMenuItem>
-          )}
-          <DropdownMenuItem asChild>
-            <Link href="/dashboard/minha-loja">
-              <Settings className="mr-2 h-4 w-4" /> Configurações
-            </Link>
-          </DropdownMenuItem>
-        </DropdownMenuContent>
+            <DropdownMenuItem asChild>
+                <Link href="/dashboard/pedidos/novo">
+                <PlusCircle className="mr-2 h-4 w-4" /> Novo Pedido
+                </Link>
+            </DropdownMenuItem>
+            </DropdownMenuContent>
       </DropdownMenu>
+      )}
+
+      <Wrapper asChild={isMobile}>
+        <Link href="/dashboard/produtos" className="py-2 md:py-0 transition-colors hover:text-foreground/80 text-foreground/60 font-medium">Produtos</Link>
+      </Wrapper>
+      <Wrapper asChild={isMobile}>
+        <Link href="/dashboard/relatorios" className="py-2 md:py-0 transition-colors hover:text-foreground/80 text-foreground/60 font-medium">Relatórios</Link>
+      </Wrapper>
+      
+      {isMobile ? (
+        <Accordion type="single" collapsible className="w-full">
+            <AccordionItem value="loja">
+                <AccordionTrigger className="py-2 text-foreground/60 hover:text-foreground/80 font-medium hover:no-underline">Minha Loja</AccordionTrigger>
+                <AccordionContent className="pl-4">
+                {storeSlug && (
+                    <SheetClose asChild>
+                    <a href={`/loja/${storeSlug}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 py-2 text-foreground/80">
+                        <ExternalLink className="mr-2 h-4 w-4" /> Ver Loja
+                    </a>
+                    </SheetClose>
+                )}
+                <SheetClose asChild>
+                    <Link href="/dashboard/minha-loja" className="flex items-center gap-2 py-2 text-foreground/80">
+                    <Settings className="mr-2 h-4 w-4" /> Configurações
+                    </Link>
+                </SheetClose>
+                </AccordionContent>
+            </AccordionItem>
+        </Accordion>
+      ) : (
+        <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+            <Button
+                variant="ghost"
+                className="px-2 text-foreground/60 font-medium transition-colors hover:bg-transparent hover:text-foreground/80 focus-visible:ring-0 focus-visible:ring-offset-0 data-[state=open]:text-foreground/80"
+                >
+                Minha Loja
+                <ChevronDown className="ml-1 h-4 w-4" />
+            </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="start">
+            {storeSlug && (
+                <DropdownMenuItem asChild>
+                <a href={`/loja/${storeSlug}`} target="_blank" rel="noopener noreferrer">
+                    <ExternalLink className="mr-2 h-4 w-4" /> Ver Loja
+                </a>
+                </DropdownMenuItem>
+            )}
+            <DropdownMenuItem asChild>
+                <Link href="/dashboard/minha-loja">
+                <Settings className="mr-2 h-4 w-4" /> Configurações
+                </Link>
+            </DropdownMenuItem>
+            </DropdownMenuContent>
+        </DropdownMenu>
+      )}
     </>
-  );
+    );
+  }
+
 
   return (
     <header className="sticky top-0 z-40 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -146,11 +157,11 @@ export function Header() {
           <Icons.Logo className="h-10 w-10 text-primary" />
           <span className="font-headline font-bold text-xl">FlowPDV</span>
         </Link>
-        <nav className="hidden md:flex items-center gap-6 text-sm flex-1">
+        <nav className="hidden md:flex items-center gap-1 text-sm flex-1">
           {user && (
             <Link
               href="/dashboard"
-              className="transition-colors hover:text-foreground/80 text-foreground/60 font-medium"
+              className="px-2 transition-colors hover:text-foreground/80 text-foreground/60 font-medium"
             >
               Dashboard
             </Link>
@@ -220,17 +231,19 @@ export function Header() {
                 </SheetTrigger>
                 <SheetContent>
                   <div className="p-4">
-                     <Link href="/" className="mr-6 flex items-center space-x-2 mb-6">
-                        <Icons.Logo className="h-10 w-10 text-primary" />
-                        <span className="font-headline font-bold text-xl">FlowPDV</span>
-                      </Link>
-                      <nav className="flex flex-col items-start gap-4 text-lg">
+                     <SheetClose asChild>
+                        <Link href="/" className="mr-6 flex items-center space-x-2 mb-6">
+                            <Icons.Logo className="h-10 w-10 text-primary" />
+                            <span className="font-headline font-bold text-xl">FlowPDV</span>
+                        </Link>
+                      </SheetClose>
+                      <nav className="flex flex-col items-start gap-1 text-lg">
                         {user ? (
                            <>
                              <SheetClose asChild>
                               <Link href="/dashboard" className="py-2 transition-colors hover:text-foreground/80 text-foreground/60 font-medium">Dashboard</Link>
                              </SheetClose>
-                             {hasRole('Lojista') && <LojistaNavLinks />}
+                             {hasRole('Lojista') && <LojistaNavLinks isMobile={true} />}
                            </>
                         ) : (
                           <>
@@ -256,5 +269,3 @@ export function Header() {
     </header>
   );
 }
-
-    
