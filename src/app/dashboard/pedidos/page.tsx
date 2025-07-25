@@ -74,16 +74,16 @@ export default function PedidosPage() {
     return (
         <div className="container mx-auto px-4 py-8">
             <div className="flex flex-col md:flex-row items-center justify-between gap-4 mb-8">
-              <div className="flex-1">
-                <h1 className="font-headline text-4xl font-bold">Pedidos</h1>
+              <div className="flex-1 w-full">
+                <h1 className="font-headline text-3xl md:text-4xl font-bold">Pedidos</h1>
                 <p className="text-muted-foreground">Gerencie todos os pedidos da sua loja.</p>
               </div>
-              <div className="flex items-center gap-2">
-                 <div className="relative">
+              <div className="flex items-center gap-2 w-full md:w-auto">
+                 <div className="relative flex-1">
                     <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                     <Input 
                         placeholder="Buscar por cliente ou ID..." 
-                        className="pl-10 w-full md:w-64"
+                        className="pl-10 w-full"
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
                     />
@@ -97,19 +97,16 @@ export default function PedidosPage() {
               </div>
             </div>
             <Card>
-                <CardHeader>
-                    <CardTitle>Histórico de Pedidos</CardTitle>
-                    <CardDescription>Visualize e gerencie os pedidos recebidos.</CardDescription>
-                </CardHeader>
-                <CardContent>
+                <CardContent className="p-0">
+                    <div className="overflow-x-auto">
                     <Table>
                         <TableHeader>
                             <TableRow>
-                                <TableHead>ID do Pedido</TableHead>
+                                <TableHead>ID</TableHead>
                                 <TableHead>Cliente</TableHead>
-                                <TableHead>Data</TableHead>
+                                <TableHead className="hidden md:table-cell">Data</TableHead>
                                 <TableHead>Status</TableHead>
-                                <TableHead>Pagamento</TableHead>
+                                <TableHead className="hidden sm:table-cell">Pagamento</TableHead>
                                 <TableHead className="text-right">Total</TableHead>
                                 <TableHead className="text-center">Ações</TableHead>
                             </TableRow>
@@ -119,14 +116,14 @@ export default function PedidosPage() {
                                 <TableRow key={order.id}>
                                     <TableCell className="font-medium">#{order.id.slice(-6)}</TableCell>
                                     <TableCell>{order.customerName}</TableCell>
-                                    <TableCell>{format(order.createdAt, "dd 'de' MMM, yyyy", { locale: ptBR })}</TableCell>
+                                    <TableCell className="hidden md:table-cell">{format(order.createdAt, "dd 'de' MMM, yyyy", { locale: ptBR })}</TableCell>
                                     <TableCell>
                                         <div className="flex items-center gap-2">
                                             <span className={`h-2 w-2 rounded-full ${getStatusDotClass(order.status)}`} />
-                                            <Badge variant={getStatusVariant(order.status)}>{order.status}</Badge>
+                                            <span className="hidden sm:inline"><Badge variant={getStatusVariant(order.status)}>{order.status}</Badge></span>
                                         </div>
                                     </TableCell>
-                                    <TableCell>{order.paymentMethod}</TableCell>
+                                    <TableCell className="hidden sm:table-cell">{order.paymentMethod}</TableCell>
                                     <TableCell className="text-right">R$ {order.total.toFixed(2)}</TableCell>
                                     <TableCell className="text-center">
                                         <Dialog onOpenChange={(open) => !open && setSelectedOrder(null)} open={selectedOrder?.id === order.id}>
@@ -202,6 +199,7 @@ export default function PedidosPage() {
                             ))}
                         </TableBody>
                     </Table>
+                    </div>
                      {filteredOrders.length === 0 && (
                         <div className="text-center py-12 text-muted-foreground">
                             <Search className="mx-auto h-12 w-12" />
@@ -216,3 +214,5 @@ export default function PedidosPage() {
         </div>
     );
 }
+
+    

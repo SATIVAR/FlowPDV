@@ -22,14 +22,14 @@ export default function Home() {
         {/* Hero Section */}
         <section className="relative pt-24 pb-12 md:pt-40 md:pb-20 text-center gradient-bg">
           <div className="container mx-auto px-4 z-10">
-            <h1 className="font-headline text-5xl md:text-7xl font-bold tracking-tighter mb-4 text-foreground">
+            <h1 className="font-headline text-4xl md:text-6xl lg:text-7xl font-bold tracking-tighter mb-4 text-foreground">
               A plataforma completa para <span className="gradient-text">o seu negócio</span>.
             </h1>
-            <p className="text-lg md:text-xl text-muted-foreground max-w-3xl mx-auto mb-8">
+            <p className="text-base md:text-lg lg:text-xl text-muted-foreground max-w-3xl mx-auto mb-8">
               Crie sua loja online, gerencie produtos e expanda suas vendas. Tudo que você precisa para decolar no digital, em um só lugar.
             </p>
-            <div className="flex justify-center items-center gap-4">
-              <Button asChild size="lg" className="gradient-cta text-primary-foreground border-none hover:opacity-90 transition-opacity">
+            <div className="flex flex-col sm:flex-row justify-center items-center gap-4">
+              <Button asChild size="lg" className="gradient-cta text-primary-foreground border-none hover:opacity-90 transition-opacity w-full sm:w-auto">
                 <Link href="/register">Quero Vender Agora</Link>
               </Button>
             </div>
@@ -44,7 +44,7 @@ export default function Home() {
                 className="rounded-xl shadow-2xl mx-auto relative z-10 opacity-80"
                 data-ai-hint="dashboard mockup"
               />
-               <Card className="absolute z-20 w-[90%] max-w-sm p-4 right-4 -bottom-8 sm:right-16 sm:-bottom-12 shadow-2xl animate-fade-in-up">
+               <Card className="absolute z-20 w-[80%] max-w-xs p-4 right-4 -bottom-8 sm:right-16 sm:-bottom-12 shadow-2xl animate-fade-in-up">
                   <CardContent className="p-0">
                       <p className="font-semibold mb-2 text-sm">✨ Nova venda realizada!</p>
                       <div className="flex items-center gap-3">
@@ -85,7 +85,7 @@ export default function Home() {
         <section id="features" className="py-16 md:py-24 bg-primary/5 dark:bg-primary/10">
           <div className="container mx-auto px-4">
             <div className="text-center mb-12">
-              <h2 className="font-headline text-4xl md:text-5xl font-bold tracking-tight">Tudo que você precisa. Sem complicação.</h2>
+              <h2 className="font-headline text-3xl md:text-5xl font-bold tracking-tight">Tudo que você precisa. Sem complicação.</h2>
               <p className="text-muted-foreground mt-4 max-w-2xl mx-auto text-lg">
                 Oferecemos as ferramentas certas para você focar no que realmente importa: o crescimento da sua loja.
               </p>
@@ -120,7 +120,7 @@ export default function Home() {
         <section className="py-16 md:py-24 bg-background">
           <div className="container mx-auto px-4">
             <div className="text-center mb-16">
-              <h2 className="font-headline text-4xl md:text-5xl font-bold tracking-tight">Começar a vender é fácil</h2>
+              <h2 className="font-headline text-3xl md:text-5xl font-bold tracking-tight">Começar a vender é fácil</h2>
               <p className="text-muted-foreground mt-4 max-w-2xl mx-auto text-lg">Siga estes 3 passos simples para lançar sua loja online.</p>
             </div>
             <div className="grid md:grid-cols-3 gap-8 md:gap-4 relative">
@@ -148,7 +148,7 @@ export default function Home() {
         {/* CTA Section */}
         <section className="py-20 md:py-32 gradient-bg">
           <div className="container mx-auto px-4 text-center">
-            <h2 className="font-headline text-4xl md:text-5xl font-bold tracking-tight mb-4">Pronto para transformar seu negócio?</h2>
+            <h2 className="font-headline text-3xl md:text-5xl font-bold tracking-tight mb-4">Pronto para transformar seu negócio?</h2>
             <p className="text-muted-foreground text-lg mb-8 max-w-2xl mx-auto">Junte-se à nossa comunidade de vendedores de sucesso e comece a construir sua presença online hoje mesmo.</p>
             <Button asChild size="lg" className="gradient-cta text-primary-foreground border-none hover:opacity-90 transition-opacity">
               <Link href="/register">Quero Vender Agora <ArrowRight className="ml-2 h-5 w-5" /></Link>
