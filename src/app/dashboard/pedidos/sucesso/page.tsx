@@ -1,26 +1,61 @@
 
 'use client';
 
-import { Suspense } from 'react';
+import { Suspense, useMemo } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { CheckCircle, QrCode } from 'lucide-react';
+import { CheckCircle, QrCode, Copy } from 'lucide-react';
+import { orders, stores } from '@/lib/data';
+import { useToast } from '@/hooks/use-toast';
 
 function SuccessContent() {
     const router = useRouter();
     const searchParams = useSearchParams();
+    const { toast } = useToast();
     const orderId = searchParams.get('orderId');
     const paymentMethod = searchParams.get('paymentMethod');
 
-    if (!orderId) {
-        // Redirect if the orderId is missing
+    const { order, store } = useMemo(() => {
+        if (!orderId) return { order: null, store: null };
+        const foundOrder = orders.find(o => o.id === orderId);
+        if (!foundOrder) return { order: null, store: null };
+        const foundStore = stores.find(s => s.id === foundOrder.storeId);
+        return { order: foundOrder, store: foundStore };
+    }, [orderId]);
+
+    if (!orderId || !order || !store) {
+        // Redirect if the orderId is missing or invalid
         if (typeof window !== 'undefined') {
             router.push('/dashboard/pedidos');
         }
         return null;
+    }
+    
+    const handleCopyPixInfo = () => {
+        if (!order || !store || !store.pixKey) return;
+        
+        const pixInfoText = `
+========================
+Nº do pedido: #${order.id.slice(-6)}
+========================
+Valor: R$ ${order.total.toFixed(2)}
+------------------------
+Chave PIX: ${store.pixKey}
+Dados da conta:
+Nome: ${store.name}
+Banco: N/A
+Conta: N/A
+========================
+        `.trim();
+
+        navigator.clipboard.writeText(pixInfoText);
+        toast({
+            title: "Informações Copiadas!",
+            description: "Os dados do Pix foram copiados para a área de transferência.",
+        });
     }
 
     const isPix = paymentMethod === 'pix';
@@ -46,18 +81,24 @@ function SuccessContent() {
                                     Pague com Pix
                                 </CardTitle>
                                 <CardDescription>
-                                    Escaneie o QR Code abaixo com o app do seu banco para pagar.
+                                    Escaneie o QR Code ou copie os dados para pagar.
                                 </CardDescription>
                             </CardHeader>
-                            <CardContent className="flex items-center justify-center">
+                            <CardContent className="flex flex-col items-center justify-center gap-4">
                                 <Image
-                                    src="https://placehold.co/256x256.png"
+                                    src={store.pixQrCodeUrl || 'https://placehold.co/256x256.png'}
                                     width={256}
                                     height={256}
                                     alt="Mock QR Code"
                                     className="rounded-md"
                                     data-ai-hint="qr code"
                                 />
+                                {store.pixKey && (
+                                     <Button variant="outline" className="w-full" onClick={handleCopyPixInfo}>
+                                        <Copy className="mr-2 h-4 w-4" />
+                                        Copiar Dados do Pix
+                                    </Button>
+                                )}
                             </CardContent>
                         </Card>
                     )}
@@ -82,5 +123,3 @@ export default function OrderSuccessPage() {
         </Suspense>
     );
 }
-
-    
