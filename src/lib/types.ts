@@ -14,6 +14,7 @@ export interface User {
 export interface DeliveryOption {
     type: 'Entrega' | 'Retirada';
     enabled: boolean;
+    feeType?: 'fixed' | 'variable';
     price?: number;
     details?: string;
 }
@@ -61,6 +62,11 @@ export interface PaymentMethod {
     name: string;
 }
 
+export interface DeliveryDetails {
+    address: string;
+    fee: number;
+}
+
 export interface Order {
   id:string;
   userId?: string; // Can be optional for unregistered customers
@@ -73,6 +79,8 @@ export interface Order {
   createdAt: Date;
   paymentMethod: string;
   observations?: string;
+  deliveryDetails?: DeliveryDetails;
 }
+
 
 

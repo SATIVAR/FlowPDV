@@ -6,7 +6,7 @@ import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { stores as initialStores } from '@/lib/data';
-import type { Store, DeliveryOption } from '@/lib/types';
+import type { Store } from '@/lib/types';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input, MaskedInput } from '@/components/ui/input';
@@ -16,7 +16,8 @@ import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import Image from 'next/image';
-import { Upload, Copy, ExternalLink, Trash2, PlusCircle, Store as StoreIcon } from 'lucide-react';
+import { Upload, Copy, ExternalLink, Store as StoreIcon } from 'lucide-react';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 
 const storeSettingsSchema = z.object({
   name: z.string().min(3, "O nome da loja deve ter pelo menos 3 caracteres."),
@@ -26,6 +27,7 @@ const storeSettingsSchema = z.object({
   deliveryOptions: z.array(z.object({
       type: z.enum(['Entrega', 'Retirada']),
       enabled: z.boolean(),
+      feeType: z.enum(['fixed', 'variable']).optional(),
       price: z.coerce.number().min(0).optional(),
       details: z.string().optional(),
   }))
@@ -43,7 +45,11 @@ export default function MinhaLojaPage() {
             slug: store.slug,
             description: store.description || '',
             contactWhatsapp: store.contactWhatsapp || '',
-            deliveryOptions: store.deliveryOptions
+            deliveryOptions: store.deliveryOptions.map(opt => ({
+                ...opt,
+                feeType: opt.feeType || 'fixed',
+                price: opt.price || 0,
+            }))
         },
     });
 
@@ -58,9 +64,10 @@ export default function MinhaLojaPage() {
             title: "Loja Atualizada!",
             description: "As configurações da sua loja foram salvas com sucesso.",
         });
+        console.log("Valores salvos:", values);
     };
     
-    const storeUrl = `${window.location.origin}/loja/${store.slug}`;
+    const storeUrl = typeof window !== 'undefined' ? `${window.location.origin}/loja/${store.slug}` : '';
 
     const handleCopyUrl = () => {
         navigator.clipboard.writeText(storeUrl);
@@ -231,18 +238,58 @@ export default function MinhaLojaPage() {
                                     {form.watch(`deliveryOptions.${index}.enabled`) && (
                                          <div className="space-y-4 pt-4 border-t">
                                             {option.type === 'Entrega' && (
-                                                <FormField
-                                                    control={form.control}
-                                                    name={`deliveryOptions.${index}.price`}
-                                                    render={({ field }) => (
-                                                        <FormItem>
-                                                            <FormLabel>Taxa de Entrega (R$)</FormLabel>
-                                                            <FormControl>
-                                                                <Input type="number" placeholder="7.00" {...field} />
-                                                            </FormControl>
-                                                        </FormItem>
+                                                <div className="space-y-4">
+                                                    <FormField
+                                                        control={form.control}
+                                                        name={`deliveryOptions.${index}.feeType`}
+                                                        render={({ field }) => (
+                                                            <FormItem className="space-y-3">
+                                                              <FormLabel>Tipo de Taxa de Entrega</FormLabel>
+                                                              <FormControl>
+                                                                <RadioGroup
+                                                                  onValueChange={field.onChange}
+                                                                  defaultValue={field.value}
+                                                                  className="flex flex-col sm:flex-row gap-4"
+                                                                >
+                                                                  <FormItem className="flex items-center space-x-3 space-y-0">
+                                                                    <FormControl>
+                                                                      <RadioGroupItem value="fixed" />
+                                                                    </FormControl>
+                                                                    <FormLabel className="font-normal">
+                                                                      Taxa Fixa
+                                                                    </FormLabel>
+                                                                  </FormItem>
+                                                                  <FormItem className="flex items-center space-x-3 space-y-0">
+                                                                    <FormControl>
+                                                                      <RadioGroupItem value="variable" />
+                                                                    </FormControl>
+                                                                    <FormLabel className="font-normal">
+                                                                      Variável / A combinar
+                                                                    </FormLabel>
+                                                                  </FormItem>
+                                                                </RadioGroup>
+                                                              </FormControl>
+                                                              <FormMessage />
+                                                            </FormItem>
+                                                          )}
+                                                    />
+
+                                                    {form.watch(`deliveryOptions.${index}.feeType`) === 'fixed' && (
+                                                        <FormField
+                                                            control={form.control}
+                                                            name={`deliveryOptions.${index}.price`}
+                                                            render={({ field }) => (
+                                                                <FormItem>
+                                                                    <FormLabel>Valor da Taxa Fixa (R$)</FormLabel>
+                                                                    <FormControl>
+                                                                        <Input type="number" placeholder="7.00" {...field} />
+                                                                    </FormControl>
+                                                                    <FormMessage />
+                                                                </FormItem>
+                                                            )}
+                                                        />
                                                     )}
-                                                />
+                                                </div>
                                             )}
                                              <FormField
                                                 control={form.control}

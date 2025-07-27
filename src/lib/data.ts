@@ -53,7 +53,7 @@ export const stores: Store[] = [
     logoUrl: 'https://placehold.co/128x128',
     coverUrl: 'https://placehold.co/600x400',
     deliveryOptions: [
-        { type: 'Entrega', enabled: true, price: 10, details: 'Entrega em toda a cidade.' },
+        { type: 'Entrega', enabled: true, feeType: 'fixed', price: 10, details: 'Entrega em toda a cidade.' },
         { type: 'Retirada', enabled: false }
     ]
   },
@@ -66,7 +66,7 @@ export const stores: Store[] = [
     logoUrl: 'https://placehold.co/128x128',
     coverUrl: 'https://placehold.co/600x400',
     deliveryOptions: [
-        { type: 'Entrega', enabled: true, price: 5, details: 'Entregamos em um raio de 5km.' },
+        { type: 'Entrega', enabled: true, feeType: 'fixed', price: 5, details: 'Entregamos em um raio de 5km.' },
         { type: 'Retirada', enabled: true, details: 'Retire na loja em até 30 minutos.' }
     ]
   },
@@ -168,7 +168,11 @@ export const orders: Order[] = [
         paymentStatus: 'Pendente',
         createdAt: new Date(2023, 10, 28),
         paymentMethod: 'Pix',
-        observations: 'Deixar na portaria com o João.'
+        observations: 'Deixar na portaria com o João.',
+        deliveryDetails: {
+            address: 'Rua das Flores, 123, Apto 45',
+            fee: 5.00
+        }
     },
     {
         id: 'order-2',
@@ -215,4 +219,3 @@ export const orders: Order[] = [
         paymentMethod: 'Pix'
     }
 ];
-
