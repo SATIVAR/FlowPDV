@@ -21,7 +21,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   const pathname = usePathname();
-  const isPublicStorePage = pathname.startsWith('/loja/');
+  const isAuthPage = pathname.startsWith('/loja/') || pathname.startsWith('/login-cliente') || pathname.startsWith('/register-customer');
+
 
   return (
     <html lang="pt-BR" className={`${inter.variable} ${spaceGrotesk.variable} h-full`} suppressHydrationWarning>
@@ -39,7 +40,7 @@ export default function RootLayout({
         >
           <AuthProvider>
             <div className="min-h-full flex flex-col">
-              {!isPublicStorePage && <Header />}
+              {!isAuthPage && <Header />}
               <main className="flex-grow">{children}</main>
             </div>
             <Toaster />

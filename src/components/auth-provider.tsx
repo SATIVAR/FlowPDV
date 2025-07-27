@@ -100,7 +100,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       return newSuperAdmin;
   }, []);
 
-  const registerCustomer = useCallback(async (name: string, whatsapp: string, password: string): Promise<User> => {
+  const registerCustomer = useCallback(async (name: string, whatsapp: string, password: string, deliveryAddress?: string, addressReference?: string): Promise<User> => {
       const users = getCombinedUsers();
       const existingUser = users.find((u) => u.whatsapp === whatsapp);
       if (existingUser) {
@@ -113,6 +113,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         password,
         role: 'Cliente',
         avatar: 'https://placehold.co/100x100',
+        deliveryAddress,
+        addressReference
       };
       initialUsers.push(newUser); // Note: In a real app, this would be a DB call.
       updateUserInStorage(newUser);

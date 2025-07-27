@@ -73,10 +73,10 @@ export default function LojaPage() {
                             <div className="flex items-center gap-2 pb-4">
                                 <ModeToggle />
                                 <Button asChild variant="ghost" size="sm" className="text-white hover:bg-white/20 hover:text-white">
-                                    <Link href="/login">Login</Link>
+                                    <Link href={`/login-cliente?loja=${store.slug}`}>Login</Link>
                                 </Button>
                                 <Button asChild size="sm" className="bg-white text-primary hover:bg-white/90">
-                                    <Link href="/register-customer">
+                                    <Link href={`/register-customer?loja=${store.slug}`}>
                                     <span>Cadastre-se</span>
                                     </Link>
                                 </Button>
@@ -155,5 +155,3 @@ export default function LojaPage() {
         </div>
     );
 }
-
-    
