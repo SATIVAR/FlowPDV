@@ -33,6 +33,12 @@ export interface Store {
     pixBankName?: string;
     pixAccountNumber?: string;
     deliveryOptions: DeliveryOption[];
+    address?: string;
+    socials?: {
+        instagram?: string;
+        tiktok?: string;
+        youtube?: string;
+    }
 }
 
 export interface Category {
@@ -96,3 +102,5 @@ export interface Order {
   isDelivery: boolean;
   deliveryDetails?: DeliveryDetails;
 }
+
+    

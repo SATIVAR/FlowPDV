@@ -10,6 +10,9 @@ import { ProductCard } from '@/components/product-card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from '@/components/ui/button';
 import { ModeToggle } from '@/components/mode-toggle';
+import { Card, CardContent } from '@/components/ui/card';
+import { MapPin, Phone, Instagram, Youtube } from 'lucide-react';
+import { Icons } from '@/components/icons';
 
 export default function LojaPage() {
     const params = useParams();
@@ -82,28 +85,66 @@ export default function LojaPage() {
                     </div>
                 </div>
 
-                <div className="container mx-auto px-4 py-8">
-                     <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full mb-8">
-                        <TabsList className="grid w-full grid-cols-2 md:grid-cols-4 lg:grid-cols-6">
-                            <TabsTrigger value="all">Todos</TabsTrigger>
-                            {storeCategories.map(category => (
-                                <TabsTrigger key={category.id} value={category.id}>{category.name}</TabsTrigger>
-                            ))}
-                        </TabsList>
-                    </Tabs>
+                <div className="container mx-auto px-4 py-8 grid grid-cols-1 lg:grid-cols-4 gap-8">
+                     <aside className="lg:col-span-1 space-y-6">
+                        <Card>
+                            <CardContent className="p-4 space-y-3">
+                                {store.address && (
+                                     <div className="flex items-start gap-3">
+                                        <MapPin className="h-5 w-5 text-muted-foreground mt-1" />
+                                        <p className="text-sm">{store.address}</p>
+                                     </div>
+                                )}
+                                {store.contactWhatsapp && (
+                                     <div className="flex items-center gap-3">
+                                        <Phone className="h-5 w-5 text-muted-foreground" />
+                                        <p className="text-sm">{store.contactWhatsapp}</p>
+                                     </div>
+                                )}
+                                {(store.socials?.instagram || store.socials?.tiktok || store.socials?.youtube) && (
+                                    <div className="flex items-center gap-4 pt-2">
+                                        {store.socials.instagram && (
+                                            <a href={`https://instagram.com/${store.socials.instagram.replace('@', '')}`} target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-primary">
+                                                <Instagram className="h-6 w-6" />
+                                            </a>
+                                        )}
+                                        {store.socials.tiktok && (
+                                             <a href={`https://tiktok.com/${store.socials.tiktok}`} target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-primary">
+                                                <Icons.Tiktok className="h-6 w-6" />
+                                             </a>
+                                        )}
+                                         {store.socials.youtube && (
+                                             <a href={`https://youtube.com/${store.socials.youtube}`} target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-primary">
+                                                <Youtube className="h-6 w-6" />
+                                             </a>
+                                        )}
+                                    </div>
+                                )}
+                            </CardContent>
+                        </Card>
+                     </aside>
+                     <div className="lg:col-span-3">
+                        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full mb-8">
+                            <TabsList className="grid w-full grid-cols-2 md:grid-cols-4 lg:grid-cols-6">
+                                <TabsTrigger value="all">Todos</TabsTrigger>
+                                {storeCategories.map(category => (
+                                    <TabsTrigger key={category.id} value={category.id}>{category.name}</TabsTrigger>
+                                ))}
+                            </TabsList>
+                        </Tabs>
 
-                    {filteredProducts.length > 0 ? (
-                         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6 animate-fade-in-up">
-                            {filteredProducts.map(product => (
-                                <ProductCard key={product.id} product={product} />
-                            ))}
-                        </div>
-                    ) : (
-                        <div className="text-center py-16 text-muted-foreground">
-                            <p>Nenhum produto encontrado nesta categoria.</p>
-                        </div>
-                    )}
-                   
+                        {filteredProducts.length > 0 ? (
+                            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 md:gap-6 animate-fade-in-up">
+                                {filteredProducts.map(product => (
+                                    <ProductCard key={product.id} product={product} />
+                                ))}
+                            </div>
+                        ) : (
+                            <div className="text-center py-16 text-muted-foreground">
+                                <p>Nenhum produto encontrado nesta categoria.</p>
+                            </div>
+                        )}
+                     </div>
                 </div>
            </main>
             <footer className="bg-background border-t mt-auto">
@@ -114,3 +155,5 @@ export default function LojaPage() {
         </div>
     );
 }
+
+    

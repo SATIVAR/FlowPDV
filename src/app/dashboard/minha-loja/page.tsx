@@ -16,14 +16,21 @@ import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import Image from 'next/image';
-import { Upload, Copy, ExternalLink, Store as StoreIcon } from 'lucide-react';
+import { Upload, Copy, ExternalLink, Store as StoreIcon, Instagram, Youtube } from 'lucide-react';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { Icons } from '@/components/icons';
 
 const storeSettingsSchema = z.object({
   name: z.string().min(3, "O nome da loja deve ter pelo menos 3 caracteres."),
   slug: z.string().min(3, "A URL amigável deve ter pelo menos 3 caracteres.").regex(/^[a-z0-9-]+$/, "Use apenas letras minúsculas, números e hífens."),
   description: z.string().max(200, "A descrição pode ter no máximo 200 caracteres.").optional(),
   contactWhatsapp: z.string().min(10, "WhatsApp inválido.").optional(),
+  address: z.string().optional(),
+  socials: z.object({
+      instagram: z.string().optional(),
+      tiktok: z.string().optional(),
+      youtube: z.string().optional(),
+  }).optional(),
   pixKey: z.string().optional(),
   pixAccountName: z.string().optional(),
   pixBankName: z.string().optional(),
@@ -49,6 +56,12 @@ export default function MinhaLojaPage() {
             slug: store.slug,
             description: store.description || '',
             contactWhatsapp: store.contactWhatsapp || '',
+            address: store.address || '',
+            socials: {
+                instagram: store.socials?.instagram || '',
+                tiktok: store.socials?.tiktok || '',
+                youtube: store.socials?.youtube || '',
+            },
             pixKey: store.pixKey || '',
             pixAccountName: store.pixAccountName || '',
             pixBankName: store.pixBankName || '',
@@ -171,6 +184,19 @@ export default function MinhaLojaPage() {
                             />
                             <FormField
                                 control={form.control}
+                                name="address"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>Endereço</FormLabel>
+                                        <FormControl>
+                                            <Input placeholder="Rua Exemplo, 123, Bairro, Cidade - Estado" {...field} />
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+                            <FormField
+                                control={form.control}
                                 name="contactWhatsapp"
                                 render={({ field }) => (
                                     <FormItem>
@@ -182,6 +208,56 @@ export default function MinhaLojaPage() {
                                     </FormItem>
                                 )}
                             />
+                             <div className="space-y-2 pt-4 border-t">
+                                <FormLabel>Redes Sociais (opcional)</FormLabel>
+                                <div className="grid md:grid-cols-3 gap-4">
+                                    <FormField
+                                        control={form.control}
+                                        name="socials.instagram"
+                                        render={({ field }) => (
+                                            <FormItem>
+                                                <FormControl>
+                                                     <div className="relative">
+                                                        <Instagram className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                                                        <Input placeholder="@seu-instagram" {...field} className="pl-9" />
+                                                     </div>
+                                                </FormControl>
+                                                <FormMessage />
+                                            </FormItem>
+                                        )}
+                                    />
+                                    <FormField
+                                        control={form.control}
+                                        name="socials.tiktok"
+                                        render={({ field }) => (
+                                            <FormItem>
+                                                <FormControl>
+                                                     <div className="relative">
+                                                        <Icons.Tiktok className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                                                        <Input placeholder="@seu-tiktok" {...field} className="pl-9" />
+                                                     </div>
+                                                </FormControl>
+                                                <FormMessage />
+                                            </FormItem>
+                                        )}
+                                    />
+                                     <FormField
+                                        control={form.control}
+                                        name="socials.youtube"
+                                        render={({ field }) => (
+                                            <FormItem>
+                                                <FormControl>
+                                                     <div className="relative">
+                                                        <Youtube className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                                                        <Input placeholder="/seu-canal" {...field} className="pl-9" />
+                                                     </div>
+                                                </FormControl>
+                                                <FormMessage />
+                                            </FormItem>
+                                        )}
+                                    />
+                                </div>
+                             </div>
                         </CardContent>
                     </Card>
 
@@ -405,3 +481,5 @@ export default function MinhaLojaPage() {
         </div>
     );
 }
+
+    

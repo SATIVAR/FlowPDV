@@ -54,6 +54,12 @@ export const stores: Store[] = [
     slug: 'loja-da-esquina',
     description: 'Sua loja de conveniência favorita, agora online! Peça e receba em casa.',
     contactWhatsapp: '11988887777',
+    address: 'Rua das Flores, 123, Bairro Jardim, Cidade Feliz - SP',
+    socials: {
+        instagram: '@loja_da_esquina',
+        tiktok: '@loja_da_esquina_tok',
+        youtube: '/c/LojaDaEsquina'
+    },
     logoUrl: 'https://placehold.co/128x128',
     coverUrl: 'https://placehold.co/600x400',
     pixQrCodeUrl: 'https://placehold.co/256x256.png',
@@ -228,3 +234,5 @@ export let orders: Order[] = [
         isDelivery: false,
     }
 ];
+
+    
