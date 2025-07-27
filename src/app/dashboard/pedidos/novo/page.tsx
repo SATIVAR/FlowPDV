@@ -17,10 +17,12 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { ChevronLeft, Trash2, PlusCircle } from 'lucide-react';
+import { ChevronLeft, Trash2, PlusCircle, Check } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { CustomerForm } from '@/components/customer-form';
 import { Textarea } from '@/components/ui/textarea';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { cn } from '@/lib/utils';
 
 const orderFormSchema = z.object({
   customerType: z.enum(['registered', 'unregistered'], { required_error: "Selecione o tipo de cliente."}),
@@ -285,26 +287,39 @@ export default function NewOrderPage() {
                                     </FormItem>
                                 )}
                                 />
-                             <FormField
-                                control={form.control}
-                                name="paymentMethodId"
-                                render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>Forma de Pagamento</FormLabel>
-                                    <Select onValueChange={field.onChange} defaultValue={field.value}>
-                                    <FormControl>
-                                        <SelectTrigger>
-                                            <SelectValue placeholder="Selecione" />
-                                        </SelectTrigger>
-                                    </FormControl>
-                                    <SelectContent>
-                                        {paymentMethods.map(pm => <SelectItem key={pm.id} value={pm.id}>{pm.name}</SelectItem>)}
-                                    </SelectContent>
-                                    </Select>
-                                    <FormMessage />
-                                </FormItem>
-                                )}
-                            />
+                             <div className="md:col-span-2">
+                                <FormField
+                                    control={form.control}
+                                    name="paymentMethodId"
+                                    render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>Forma de Pagamento</FormLabel>
+                                        <FormControl>
+                                             <RadioGroup
+                                                onValueChange={field.onChange}
+                                                defaultValue={field.value}
+                                                className="grid grid-cols-2 md:grid-cols-3 gap-4"
+                                            >
+                                                {paymentMethods.map((pm) => (
+                                                    <FormItem key={pm.id}>
+                                                        <FormControl>
+                                                             <RadioGroupItem value={pm.id} id={pm.id} className="peer sr-only" />
+                                                        </FormControl>
+                                                        <Label
+                                                          htmlFor={pm.id}
+                                                          className="flex flex-col items-center justify-between rounded-md border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary"
+                                                        >
+                                                          {pm.name}
+                                                        </Label>
+                                                    </FormItem>
+                                                ))}
+                                            </RadioGroup>
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                    )}
+                                />
+                            </div>
                             <div className="md:col-span-2">
                                 <FormField
                                     control={form.control}
@@ -452,3 +467,5 @@ export default function NewOrderPage() {
         </div>
     );
 }
+
+    
