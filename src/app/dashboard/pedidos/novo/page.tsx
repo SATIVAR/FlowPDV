@@ -17,7 +17,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { ChevronLeft, Trash2, PlusCircle, Check } from 'lucide-react';
+import { ChevronLeft, Trash2, PlusCircle, Check, CreditCard, DollarSign, Smartphone } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { CustomerForm } from '@/components/customer-form';
 import { Textarea } from '@/components/ui/textarea';
@@ -58,6 +58,15 @@ const customProductSchema = z.object({
   quantity: z.coerce.number().min(0.01, "A quantidade deve ser positiva."),
   unit: z.enum(['unidade', 'kilo', 'grama']),
 });
+
+const getPaymentMethodIcon = (name: string) => {
+    switch(name.toLowerCase()) {
+        case 'pix': return <Smartphone className="h-6 w-6 text-primary" />;
+        case 'cartão de crédito': return <CreditCard className="h-6 w-6 text-primary" />;
+        case 'dinheiro': return <DollarSign className="h-6 w-6 text-primary" />;
+        default: return <CreditCard className="h-6 w-6 text-primary" />;
+    }
+}
 
 export default function NewOrderPage() {
     const router = useRouter();
@@ -287,36 +296,42 @@ export default function NewOrderPage() {
                                     </FormItem>
                                 )}
                                 />
-                             <div className="md:col-span-2">
+                            <div className="md:col-span-2">
                                 <FormField
                                     control={form.control}
                                     name="paymentMethodId"
                                     render={({ field }) => (
-                                    <FormItem>
-                                        <FormLabel>Forma de Pagamento</FormLabel>
-                                        <FormControl>
-                                             <RadioGroup
-                                                onValueChange={field.onChange}
-                                                defaultValue={field.value}
-                                                className="grid grid-cols-2 md:grid-cols-3 gap-4"
-                                            >
-                                                {paymentMethods.map((pm) => (
-                                                    <FormItem key={pm.id}>
-                                                        <FormControl>
-                                                             <RadioGroupItem value={pm.id} id={pm.id} className="peer sr-only" />
-                                                        </FormControl>
-                                                        <Label
-                                                          htmlFor={pm.id}
-                                                          className="flex flex-col items-center justify-between rounded-md border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary"
-                                                        >
-                                                          {pm.name}
-                                                        </Label>
-                                                    </FormItem>
-                                                ))}
-                                            </RadioGroup>
-                                        </FormControl>
-                                        <FormMessage />
-                                    </FormItem>
+                                        <FormItem>
+                                            <FormLabel>Forma de Pagamento</FormLabel>
+                                            <FormControl>
+                                                <RadioGroup
+                                                    onValueChange={field.onChange}
+                                                    defaultValue={field.value}
+                                                    className="grid grid-cols-1 md:grid-cols-3 gap-4"
+                                                >
+                                                    {paymentMethods.map((pm) => (
+                                                        <FormItem key={pm.id} className="flex-1">
+                                                            <FormControl>
+                                                                <RadioGroupItem value={pm.id} id={pm.id} className="peer sr-only" />
+                                                            </FormControl>
+                                                            <Label
+                                                                htmlFor={pm.id}
+                                                                className="flex items-start gap-4 rounded-md border-2 border-muted bg-popover p-4 cursor-pointer hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary"
+                                                            >
+                                                                {getPaymentMethodIcon(pm.name)}
+                                                                <div className="flex-1 text-left">
+                                                                    <p className="font-semibold">{pm.name}</p>
+                                                                    <p className="text-xs text-muted-foreground">
+                                                                        Clique para selecionar
+                                                                    </p>
+                                                                </div>
+                                                            </Label>
+                                                        </FormItem>
+                                                    ))}
+                                                </RadioGroup>
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
                                     )}
                                 />
                             </div>
@@ -467,5 +482,7 @@ export default function NewOrderPage() {
         </div>
     );
 }
+
+    
 
     
