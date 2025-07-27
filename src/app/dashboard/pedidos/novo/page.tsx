@@ -141,7 +141,8 @@ export default function NewOrderPage() {
     const [customProduct, setCustomProduct] = useState<z.infer<typeof customProductSchema>>({ name: '', price: 0, quantity: 1, unit: 'unidade' });
     const [customProductErrors, setCustomProductErrors] = useState<any>({});
     
-    const itemsTotal = form.watch('items').reduce((acc, item) => acc + (item.price * item.quantity), 0);
+    const watchedItems = form.watch('items');
+    const itemsTotal = watchedItems.reduce((acc, item) => acc + (item.price * item.quantity), 0);
     const deliveryFee = form.watch('isDelivery') ? form.watch('deliveryFee') || 0 : 0;
     const total = itemsTotal + deliveryFee;
 
@@ -625,21 +626,23 @@ export default function NewOrderPage() {
                                     <TableHeader>
                                         <TableRow>
                                             <TableHead>Produto</TableHead>
+                                            <TableHead className="w-[120px]">Valor Unit.</TableHead>
                                             <TableHead className="w-[100px]">Qtd.</TableHead>
                                             <TableHead className="w-[120px]" align="right">Subtotal</TableHead>
                                             <TableHead className="w-[50px]"></TableHead>
                                         </TableRow>
                                     </TableHeader>
                                     <TableBody>
-                                        {fields.map((item, index) => (
-                                            <TableRow key={item.id}>
+                                        {watchedItems.map((item, index) => (
+                                            <TableRow key={item.productId}>
                                                 <TableCell className="font-medium">{item.name}</TableCell>
+                                                <TableCell>R$ {item.price.toFixed(2)}</TableCell>
                                                 <TableCell>
                                                     <Controller
                                                         control={form.control}
                                                         name={`items.${index}.quantity`}
                                                         render={({ field }) => (
-                                                            <Input type="number" {...field} className="h-8 w-20" />
+                                                            <Input type="number" {...field} className="h-8 w-20" min="0.01" step="any" />
                                                         )}
                                                     />
                                                 </TableCell>
@@ -683,3 +686,5 @@ export default function NewOrderPage() {
         </div>
     );
 }
+
+    
