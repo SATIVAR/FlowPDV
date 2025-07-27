@@ -14,6 +14,7 @@ import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/
 import { format, subDays, getMonth, getYear, startOfMonth, endOfMonth, subMonths, startOfYear, endOfYear, subYears } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { cn } from '@/lib/utils';
+import { Badge } from '@/components/ui/badge';
 
 const COLORS = ["hsl(var(--chart-1))", "hsl(var(--chart-2))", "hsl(var(--chart-3))", "hsl(var(--chart-4))", "hsl(var(--chart-5))"];
 
@@ -35,8 +36,10 @@ export default function RelatoriosPage() {
     const storeProducts = useMemo(() => products.filter(p => p.storeId === '2'), []);
 
     const [timeRange, setTimeRange] = useState('7d');
+    const [topProductsFilter, setTopProductsFilter] = useState<'revenue' | 'quantity'>('revenue');
     const monthOptions = useMemo(() => generateMonthOptions(), []);
     const [comparisonPeriod, setComparisonPeriod] = useState(monthOptions[0].value);
+    const [monthlyReportPeriod, setMonthlyReportPeriod] = useState(monthOptions[0].value);
 
     const mainReportData = useMemo(() => {
         const now = new Date();
@@ -69,7 +72,7 @@ export default function RelatoriosPage() {
             .reverse();
 
         const productSales: { [key: string]: { name: string; quantity: number; revenue: number } } = {};
-        storeOrders.forEach(order => {
+        filteredOrders.forEach(order => {
             order.items.forEach(item => {
                 if (!productSales[item.id]) {
                     productSales[item.id] = { name: item.name, quantity: 0, revenue: 0 };
@@ -80,11 +83,11 @@ export default function RelatoriosPage() {
         });
         
         const topProductsData = Object.values(productSales)
-            .sort((a, b) => b.revenue - a.revenue)
+            .sort((a, b) => topProductsFilter === 'revenue' ? b.revenue - a.revenue : b.quantity - a.quantity)
             .slice(0, 5);
 
         const categorySales: { [key: string]: number } = {};
-        storeOrders.forEach(order => {
+        filteredOrders.forEach(order => {
             order.items.forEach(item => {
                 const product = storeProducts.find(p => p.id === item.id);
                 if (product && product.categoryId) {
@@ -111,7 +114,7 @@ export default function RelatoriosPage() {
             salesByCategory: salesByCategoryData
         };
 
-    }, [timeRange, storeOrders, storeProducts]);
+    }, [timeRange, topProductsFilter, storeOrders, storeProducts]);
 
     const comparisonData = useMemo(() => {
         let currentPeriodRevenue = 0;
@@ -172,6 +175,34 @@ export default function RelatoriosPage() {
         }
 
     }, [comparisonPeriod, storeOrders]);
+    
+    const monthlyProductData = useMemo(() => {
+        const [year, month] = monthlyReportPeriod.split('-').map(Number);
+        const selectedMonthDate = new Date(year, month - 1);
+        const monthStart = startOfMonth(selectedMonthDate);
+        const monthEnd = endOfMonth(selectedMonthDate);
+        
+        const monthlyOrders = storeOrders.filter(o => o.createdAt >= monthStart && o.createdAt <= monthEnd);
+        
+        const productStats: { [key: string]: { name: string; quantity: number; revenue: number; prices: number[] } } = {};
+
+        monthlyOrders.forEach(order => {
+            order.items.forEach(item => {
+                if (!productStats[item.id]) {
+                     productStats[item.id] = { name: item.name, quantity: 0, revenue: 0, prices: [] };
+                }
+                productStats[item.id].quantity += item.quantity;
+                productStats[item.id].revenue += item.price * item.quantity;
+                productStats[item.id].prices.push(item.price);
+            });
+        });
+
+        return Object.values(productStats).map(p => ({
+            ...p,
+            avgPrice: p.prices.length > 0 ? p.prices.reduce((a, b) => a + b, 0) / p.prices.length : 0,
+        })).sort((a, b) => b.revenue - a.revenue);
+
+    }, [monthlyReportPeriod, storeOrders]);
 
 
     const chartConfig: ChartConfig = {
@@ -336,32 +367,94 @@ export default function RelatoriosPage() {
                 </Card>
             </div>
             
-            <Card>
-                <CardHeader>
-                    <CardTitle>Produtos Mais Vendidos</CardTitle>
-                    <CardDescription>Os 5 produtos que mais geraram receita no período.</CardDescription>
-                </CardHeader>
-                <CardContent>
-                    <Table>
-                        <TableHeader>
-                            <TableRow>
-                                <TableHead>Produto</TableHead>
-                                <TableHead className="text-center">Quantidade Vendida</TableHead>
-                                <TableHead className="text-right">Receita Gerada</TableHead>
-                            </TableRow>
-                        </TableHeader>
-                        <TableBody>
-                            {mainReportData.topProducts.map(product => (
-                                <TableRow key={product.name}>
-                                    <TableCell className="font-medium">{product.name}</TableCell>
-                                    <TableCell className="text-center">{product.quantity}</TableCell>
-                                    <TableCell className="text-right">R$ {product.revenue.toFixed(2)}</TableCell>
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <Card>
+                    <CardHeader className="flex-row items-center justify-between">
+                        <div>
+                            <CardTitle>Produtos Mais Vendidos</CardTitle>
+                            <CardDescription>Top 5 produtos no período selecionado.</CardDescription>
+                        </div>
+                        <Select value={topProductsFilter} onValueChange={(value) => setTopProductsFilter(value as any)}>
+                            <SelectTrigger className="w-[180px]">
+                                <SelectValue placeholder="Filtrar por" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="revenue">Receita</SelectItem>
+                                <SelectItem value="quantity">Quantidade</SelectItem>
+                            </SelectContent>
+                        </Select>
+                    </CardHeader>
+                    <CardContent>
+                        <Table>
+                            <TableHeader>
+                                <TableRow>
+                                    <TableHead>Produto</TableHead>
+                                    <TableHead className="text-center">Quantidade</TableHead>
+                                    <TableHead className="text-right">Receita</TableHead>
                                 </TableRow>
-                            ))}
-                        </TableBody>
-                    </Table>
-                </CardContent>
-            </Card>
+                            </TableHeader>
+                            <TableBody>
+                                {mainReportData.topProducts.map(product => (
+                                    <TableRow key={product.name}>
+                                        <TableCell className="font-medium">{product.name}</TableCell>
+                                        <TableCell className="text-center">{product.quantity}</TableCell>
+                                        <TableCell className="text-right">R$ {product.revenue.toFixed(2)}</TableCell>
+                                    </TableRow>
+                                ))}
+                            </TableBody>
+                        </Table>
+                    </CardContent>
+                </Card>
+                 <Card>
+                    <CardHeader className="flex-row items-center justify-between">
+                        <div>
+                            <CardTitle>Desempenho Mensal de Produtos</CardTitle>
+                            <CardDescription>Analise o desempenho de todos os produtos vendidos no mês.</CardDescription>
+                        </div>
+                        <Select value={monthlyReportPeriod} onValueChange={setMonthlyReportPeriod}>
+                            <SelectTrigger className="w-[200px]">
+                                <SelectValue placeholder="Selecione o mês" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                {monthOptions.map(option => (
+                                    <SelectItem key={option.value} value={option.value}>{option.label}</SelectItem>
+                                ))}
+                            </SelectContent>
+                        </Select>
+                    </CardHeader>
+                    <CardContent>
+                        <Table>
+                            <TableHeader>
+                                <TableRow>
+                                    <TableHead>Produto</TableHead>
+                                    <TableHead>Qtd.</TableHead>
+                                    <TableHead>Preço Médio</TableHead>
+                                    <TableHead className="text-right">Receita Total</TableHead>
+                                </TableRow>
+                            </TableHeader>
+                            <TableBody>
+                                {monthlyProductData.length === 0 ? (
+                                    <TableRow>
+                                        <TableCell colSpan={4} className="text-center h-24">Nenhuma venda neste mês.</TableCell>
+                                    </TableRow>
+                                ) : (
+                                    monthlyProductData.map((product, index) => (
+                                        <TableRow key={product.name}>
+                                            <TableCell className="font-medium flex items-center gap-2">
+                                                <Badge variant={index < 3 ? 'success' : 'default'} className="w-6 h-6 justify-center p-0">{index + 1}</Badge>
+                                                {product.name}
+                                            </TableCell>
+                                            <TableCell>{product.quantity}</TableCell>
+                                            <TableCell>R$ {product.avgPrice.toFixed(2)}</TableCell>
+                                            <TableCell className="text-right">R$ {product.revenue.toFixed(2)}</TableCell>
+                                        </TableRow>
+                                    ))
+                                )}
+                            </TableBody>
+                        </Table>
+                    </CardContent>
+                </Card>
+            </div>
 
             <Card>
                 <CardHeader className="flex-row items-center justify-between">
@@ -404,5 +497,4 @@ export default function RelatoriosPage() {
 
         </div>
     );
-
-    
+}
