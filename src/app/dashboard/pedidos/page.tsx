@@ -9,9 +9,9 @@ import { Badge, badgeVariants } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator } from '@/components/ui/dropdown-menu';
 import { Dialog, DialogTrigger, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { MoreHorizontal, Eye, PlusCircle, Edit, Search, CheckCircle, Trash2, XCircle, RefreshCw, Send } from 'lucide-react';
+import { MoreHorizontal, Eye, PlusCircle, Edit, Search, CheckCircle, Trash2, XCircle, RefreshCw, Send, CircleDollarSign, Clock } from 'lucide-react';
 import { orders as initialOrders } from '@/lib/data';
-import type { Order, OrderStatus } from '@/lib/types';
+import type { Order, OrderStatus, PaymentStatus } from '@/lib/types';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { Input } from '@/components/ui/input';
@@ -40,8 +40,20 @@ export default function PedidosPage() {
             )
         );
          toast({
-            title: "Status Atualizado!",
+            title: "Status do Pedido Atualizado!",
             description: `O pedido foi marcado como ${status}.`,
+        });
+    };
+
+    const handlePaymentStatusChange = (orderId: string, paymentStatus: PaymentStatus) => {
+        setOrders(prevOrders =>
+            prevOrders.map(order =>
+                order.id === orderId ? { ...order, paymentStatus } : order
+            )
+        );
+         toast({
+            title: "Status do Pagamento Atualizado!",
+            description: `O pagamento foi marcado como ${paymentStatus}.`,
         });
     };
     
@@ -54,7 +66,7 @@ export default function PedidosPage() {
         });
     }
 
-    const getStatusVariant = (status: OrderStatus): "default" | "secondary" | "destructive" | "outline" | "success" => {
+    const getOrderStatusVariant = (status: OrderStatus): "default" | "secondary" | "destructive" | "outline" | "success" => {
         switch (status) {
             case 'Pendente':
                 return 'default';
@@ -71,7 +83,7 @@ export default function PedidosPage() {
         }
     };
     
-    const getStatusDotClass = (status: OrderStatus) => {
+    const getOrderStatusDotClass = (status: OrderStatus) => {
         switch (status) {
             case 'Pendente':
                 return 'bg-yellow-500';
@@ -87,6 +99,19 @@ export default function PedidosPage() {
                 return 'bg-gray-500';
         }
     }
+    
+    const getPaymentStatusVariant = (status: PaymentStatus): "default" | "destructive" | "success" => {
+        switch (status) {
+            case 'Pendente':
+                return 'default';
+            case 'Pago':
+                return 'success';
+            case 'Rejeitado':
+                return 'destructive';
+            default:
+                return 'default';
+        }
+    };
 
     return (
         <div className="container mx-auto px-4 py-8">
@@ -122,8 +147,8 @@ export default function PedidosPage() {
                                 <TableHead>ID</TableHead>
                                 <TableHead>Cliente</TableHead>
                                 <TableHead className="hidden md:table-cell">Data</TableHead>
-                                <TableHead>Status</TableHead>
-                                <TableHead className="hidden sm:table-cell">Pagamento</TableHead>
+                                <TableHead>Status Pedido</TableHead>
+                                <TableHead>Pagamento</TableHead>
                                 <TableHead className="text-right">Total</TableHead>
                                 <TableHead className="text-center">Ações</TableHead>
                             </TableRow>
@@ -135,12 +160,19 @@ export default function PedidosPage() {
                                     <TableCell>{order.customerName}</TableCell>
                                     <TableCell className="hidden md:table-cell">{format(order.createdAt, "dd 'de' MMM, yyyy", { locale: ptBR })}</TableCell>
                                     <TableCell>
-                                        <Badge variant={getStatusVariant(order.status)} className="gap-1.5 pl-1.5">
-                                            <span className={`h-2 w-2 rounded-full ${getStatusDotClass(order.status)}`} />
+                                        <Badge variant={getOrderStatusVariant(order.status)} className="gap-1.5 pl-1.5">
+                                            <span className={`h-2 w-2 rounded-full ${getOrderStatusDotClass(order.status)}`} />
                                             {order.status}
                                         </Badge>
                                     </TableCell>
-                                    <TableCell className="hidden sm:table-cell">{order.paymentMethod}</TableCell>
+                                    <TableCell>
+                                        <div className="flex flex-col gap-1">
+                                             <span>{order.paymentMethod}</span>
+                                             <Badge variant={getPaymentStatusVariant(order.paymentStatus)} className="w-fit">
+                                                {order.paymentStatus}
+                                             </Badge>
+                                        </div>
+                                    </TableCell>
                                     <TableCell className="text-right">R$ {order.total.toFixed(2)}</TableCell>
                                     <TableCell className="text-center space-x-1">
                                          <Dialog onOpenChange={(open) => !open && setSelectedOrder(null)}>
@@ -186,6 +218,10 @@ export default function PedidosPage() {
                                                                 <span className="text-muted-foreground">Método de Pagamento</span>
                                                                 <span className="font-medium">{selectedOrder?.paymentMethod}</span>
                                                             </div>
+                                                            <div className="flex justify-between items-center mt-1">
+                                                                <span className="text-muted-foreground">Status do Pagamento</span>
+                                                                <span className="font-medium"><Badge variant={getPaymentStatusVariant(selectedOrder.paymentStatus)}>{selectedOrder.paymentStatus}</Badge></span>
+                                                            </div>
                                                             <div className="flex justify-between items-center mt-2 font-bold text-lg">
                                                                 <span>Total</span>
                                                                 <span>R$ {selectedOrder?.total.toFixed(2)}</span>
@@ -208,6 +244,15 @@ export default function PedidosPage() {
                                                 </Button>
                                             </DropdownMenuTrigger>
                                             <DropdownMenuContent align="end">
+                                                <DropdownMenuItem onSelect={() => handlePaymentStatusChange(order.id, 'Pago')} disabled={order.paymentStatus === 'Pago'}>
+                                                    <CircleDollarSign className="mr-2 h-4 w-4 text-green-500" />
+                                                    Marcar como Pago
+                                                </DropdownMenuItem>
+                                                <DropdownMenuItem onSelect={() => handlePaymentStatusChange(order.id, 'Pendente')} disabled={order.paymentStatus === 'Pendente'}>
+                                                    <Clock className="mr-2 h-4 w-4 text-yellow-500" />
+                                                    Marcar como Pendente
+                                                </DropdownMenuItem>
+                                                <DropdownMenuSeparator />
                                                 {order.status !== 'Entregue' && (
                                                   <DropdownMenuItem onSelect={() => handleStatusChange(order.id, 'Entregue')} disabled={order.status === 'Cancelado'}>
                                                       <CheckCircle className="mr-2 h-4 w-4 text-green-500" />
@@ -238,9 +283,7 @@ export default function PedidosPage() {
                                                 
                                                 <AlertDialog>
                                                     <AlertDialogTrigger asChild>
-                                                        <div className={`relative flex cursor-default select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none transition-colors focus:bg-accent focus:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50 ${order.status === 'Cancelado' ? 'text-muted-foreground' : 'text-destructive focus:text-destructive'}`}
-                                                             onClick={(e) => order.status === 'Cancelado' && e.stopPropagation()}
-                                                             aria-disabled={order.status === 'Cancelado'}
+                                                        <div className={`relative flex cursor-pointer select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none transition-colors focus:bg-accent focus:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50 text-red-500 focus:text-red-600`}
                                                              >
                                                            <XCircle className="mr-2 h-4 w-4" />
                                                             Cancelar Pedido

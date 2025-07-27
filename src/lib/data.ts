@@ -165,6 +165,7 @@ export const orders: Order[] = [
         ],
         total: products[0].price + (products[2].price * 2),
         status: 'Pendente',
+        paymentStatus: 'Pendente',
         createdAt: new Date(2023, 10, 28),
         paymentMethod: 'Pix'
     },
@@ -178,6 +179,7 @@ export const orders: Order[] = [
         ],
         total: products[4].price,
         status: 'Enviado',
+        paymentStatus: 'Pago',
         createdAt: new Date(2023, 10, 25),
         paymentMethod: 'Cartão de Crédito'
     },
@@ -192,6 +194,7 @@ export const orders: Order[] = [
         ],
         total: (products[3].price * 5) + products[5].price,
         status: 'Entregue',
+        paymentStatus: 'Pago',
         createdAt: new Date(2023, 10, 20),
         paymentMethod: 'Dinheiro'
     },
@@ -205,6 +208,7 @@ export const orders: Order[] = [
         ],
         total: products[1].price * 2,
         status: 'Cancelado',
+        paymentStatus: 'Rejeitado',
         createdAt: new Date(2023, 10, 15),
         paymentMethod: 'Pix'
     }

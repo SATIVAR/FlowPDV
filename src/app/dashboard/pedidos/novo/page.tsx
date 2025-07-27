@@ -34,6 +34,7 @@ const orderFormSchema = z.object({
     unit: z.enum(['unidade', 'kilo', 'grama']),
   })).min(1, "Adicione pelo menos um produto ao pedido."),
   status: z.enum(['Pendente', 'Processando', 'Enviado', 'Entregue', 'Cancelado']),
+  paymentStatus: z.enum(['Pendente', 'Pago', 'Rejeitado']),
 }).refine(data => {
     if (data.customerType === 'registered') {
         return !!data.customerId;
@@ -67,6 +68,7 @@ export default function NewOrderPage() {
             customerType: 'registered',
             items: [],
             status: 'Pendente',
+            paymentStatus: 'Pendente',
         },
     });
 
@@ -234,27 +236,6 @@ export default function NewOrderPage() {
                                 <FormMessage>{form.formState.errors.customerId?.message}</FormMessage>
 
                             </div>
-
-                             <FormField
-                                control={form.control}
-                                name="paymentMethodId"
-                                render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>Forma de Pagamento</FormLabel>
-                                    <Select onValueChange={field.onChange} defaultValue={field.value}>
-                                    <FormControl>
-                                        <SelectTrigger>
-                                            <SelectValue placeholder="Selecione" />
-                                        </SelectTrigger>
-                                    </FormControl>
-                                    <SelectContent>
-                                        {paymentMethods.map(pm => <SelectItem key={pm.id} value={pm.id}>{pm.name}</SelectItem>)}
-                                    </SelectContent>
-                                    </Select>
-                                    <FormMessage />
-                                </FormItem>
-                                )}
-                            />
                              <FormField
                                 control={form.control}
                                 name="status"
@@ -279,6 +260,48 @@ export default function NewOrderPage() {
                                     </FormItem>
                                 )}
                                 />
+                             <FormField
+                                control={form.control}
+                                name="paymentStatus"
+                                render={({ field }) => (
+                                    <FormItem>
+                                    <FormLabel>Status do Pagamento</FormLabel>
+                                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                        <FormControl>
+                                        <SelectTrigger>
+                                            <SelectValue placeholder="Selecione um status" />
+                                        </SelectTrigger>
+                                        </FormControl>
+                                        <SelectContent>
+                                        <SelectItem value="Pendente">Pendente</SelectItem>
+                                        <SelectItem value="Pago">Pago</SelectItem>
+                                        <SelectItem value="Rejeitado">Rejeitado</SelectItem>
+                                        </SelectContent>
+                                    </Select>
+                                    <FormMessage />
+                                    </FormItem>
+                                )}
+                                />
+                             <FormField
+                                control={form.control}
+                                name="paymentMethodId"
+                                render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Forma de Pagamento</FormLabel>
+                                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                    <FormControl>
+                                        <SelectTrigger>
+                                            <SelectValue placeholder="Selecione" />
+                                        </SelectTrigger>
+                                    </FormControl>
+                                    <SelectContent>
+                                        {paymentMethods.map(pm => <SelectItem key={pm.id} value={pm.id}>{pm.name}</SelectItem>)}
+                                    </SelectContent>
+                                    </Select>
+                                    <FormMessage />
+                                </FormItem>
+                                )}
+                            />
                         </CardContent>
                     </Card>
 
