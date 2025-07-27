@@ -182,14 +182,14 @@ export default function PedidosPage() {
                                                 </Button>
                                             </DialogTrigger>
                                              {selectedOrder?.id === order.id && (
-                                                <DialogContent className="sm:max-w-lg">
+                                                <DialogContent className="sm:max-w-lg flex flex-col h-full max-h-[90vh]">
                                                     <DialogHeader>
                                                         <DialogTitle>Detalhes do Pedido #{selectedOrder?.id.slice(-6)}</DialogTitle>
                                                         <DialogDescription>
                                                             Cliente: {selectedOrder?.customerName} - Data: {selectedOrder ? format(selectedOrder.createdAt, "dd 'de' MMM, yyyy", { locale: ptBR }) : ''}
                                                         </DialogDescription>
                                                     </DialogHeader>
-                                                    <div className="mt-4 space-y-4 max-h-[60vh] overflow-y-auto pr-2">
+                                                    <div className="flex-grow overflow-y-auto pr-4 -mr-4 space-y-4">
                                                         <div>
                                                             <h3 className="font-semibold mb-2">Itens do Pedido</h3>
                                                             <Table>
@@ -219,21 +219,31 @@ export default function PedidosPage() {
                                                                 <p className="text-sm text-muted-foreground bg-muted p-3 rounded-md">{selectedOrder.observations}</p>
                                                             </div>
                                                         )}
-                                                        <div className="border-t pt-4">
+                                                         {selectedOrder.isDelivery && selectedOrder.deliveryDetails && (
+                                                            <div className="border-t pt-4">
+                                                                <h3 className="font-semibold mb-2">Detalhes da Entrega</h3>
+                                                                <div className="text-sm text-muted-foreground bg-muted p-3 rounded-md space-y-2">
+                                                                    <p><strong>Endereço:</strong> {selectedOrder.deliveryDetails.address}</p>
+                                                                    {selectedOrder.deliveryDetails.addressReference && <p><strong>Referência:</strong> {selectedOrder.deliveryDetails.addressReference}</p>}
+                                                                    <p><strong>Taxa de Entrega:</strong> R$ {selectedOrder.deliveryDetails.fee.toFixed(2)}</p>
+                                                                </div>
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                     <div className="mt-auto pt-4 border-t space-y-2">
                                                             <div className="flex justify-between items-center">
                                                                 <span className="text-muted-foreground">Método de Pagamento</span>
                                                                 <span className="font-medium">{selectedOrder?.paymentMethod}</span>
                                                             </div>
-                                                            <div className="flex justify-between items-center mt-1">
+                                                            <div className="flex justify-between items-center">
                                                                 <span className="text-muted-foreground">Status do Pagamento</span>
                                                                 <span className="font-medium"><Badge variant={getPaymentStatusVariant(selectedOrder.paymentStatus)}>{selectedOrder.paymentStatus}</Badge></span>
                                                             </div>
-                                                            <div className="flex justify-between items-center mt-2 font-bold text-lg">
-                                                                <span>Total</span>
+                                                            <div className="flex justify-between items-center font-bold text-lg">
+                                                                <span>Total do Pedido</span>
                                                                 <span>R$ {selectedOrder?.total.toFixed(2)}</span>
                                                             </div>
                                                         </div>
-                                                    </div>
                                                 </DialogContent>
                                              )}
                                         </Dialog>
