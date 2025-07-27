@@ -8,6 +8,7 @@ interface AuthContextType {
   logout: () => void;
   register: (name: string, whatsapp: string, password: string) => Promise<User>;
   registerSuperAdmin: (email: string, whatsapp: string, password: string) => Promise<User>;
+  registerCustomer: (name: string, whatsapp: string, password: string) => Promise<User>;
   isAuthenticated: boolean;
   hasRole: (role: Role | Role[]) => boolean;
 }

@@ -100,6 +100,25 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       return newSuperAdmin;
   }, []);
 
+  const registerCustomer = useCallback(async (name: string, whatsapp: string, password: string): Promise<User> => {
+      const users = getCombinedUsers();
+      const existingUser = users.find((u) => u.whatsapp === whatsapp);
+      if (existingUser) {
+        throw new Error('Usuário com este WhatsApp já existe');
+      }
+      const newUser: User = {
+        id: `user-${Date.now()}`,
+        name,
+        whatsapp,
+        password,
+        role: 'Cliente',
+        avatar: 'https://placehold.co/100x100',
+      };
+      initialUsers.push(newUser); // Note: In a real app, this would be a DB call.
+      updateUserInStorage(newUser);
+      return newUser;
+  }, [getCombinedUsers]);
+
 
   const logout = useCallback(() => {
     updateUserInStorage(null);
@@ -119,6 +138,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     logout,
     register,
     registerSuperAdmin,
+    registerCustomer,
     isAuthenticated,
     hasRole,
   };
