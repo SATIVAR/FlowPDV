@@ -64,6 +64,7 @@ export interface PaymentMethod {
 
 export interface DeliveryDetails {
     address: string;
+    addressReference?: string;
     fee: number;
 }
 
@@ -79,8 +80,10 @@ export interface Order {
   createdAt: Date;
   paymentMethod: string;
   observations?: string;
+  isDelivery: boolean;
   deliveryDetails?: DeliveryDetails;
 }
+
 
 
 

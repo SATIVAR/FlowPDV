@@ -7,11 +7,11 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { useForm, useFieldArray, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
-import { products as initialProducts, users as initialCustomers, paymentMethods as initialPaymentMethods, orders as initialOrders } from '@/lib/data';
-import type { Product, User, PaymentMethod, ProductUnit, Order } from '@/lib/types';
+import { products as initialProducts, users as initialCustomers, paymentMethods as initialPaymentMethods, orders as initialOrders, stores } from '@/lib/data';
+import type { Product, User, PaymentMethod, ProductUnit, Order, Store } from '@/lib/types';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -22,6 +22,8 @@ import { useToast } from '@/hooks/use-toast';
 import { CustomerForm } from '@/components/customer-form';
 import { Textarea } from '@/components/ui/textarea';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { Switch } from '@/components/ui/switch';
+
 
 const orderFormSchema = z.object({
   customerType: z.enum(['registered', 'unregistered'], { required_error: "Selecione o tipo de cliente."}),
@@ -38,6 +40,10 @@ const orderFormSchema = z.object({
   status: z.enum(['Pendente', 'Processando', 'Enviado', 'Entregue', 'Cancelado']),
   paymentStatus: z.enum(['Pendente', 'Pago', 'Rejeitado']),
   observations: z.string().optional(),
+  isDelivery: z.boolean().default(false),
+  deliveryAddress: z.string().optional(),
+  deliveryAddressReference: z.string().optional(),
+  deliveryFee: z.coerce.number().optional(),
 }).refine(data => {
     if (data.customerType === 'registered') {
         return !!data.customerId;
@@ -49,6 +55,14 @@ const orderFormSchema = z.object({
 }, {
     message: "Selecione um cliente cadastrado ou insira o nome de um cliente avulso.",
     path: ["customerId"],
+}).refine(data => {
+    if (data.isDelivery) {
+        return !!data.deliveryAddress && data.deliveryAddress.length > 2;
+    }
+    return true;
+}, {
+    message: "O endereço de entrega é obrigatório.",
+    path: ["deliveryAddress"],
 });
 
 
@@ -75,15 +89,19 @@ export default function EditOrderPage() {
     const { toast } = useToast();
 
     const [order, setOrder] = useState<Order | null>(null);
+    const [store, setStore] = useState<Store>(() => stores.find(s => s.id === '2')!);
     const [products, setProducts] = useState<Product[]>(() => initialProducts.filter(p => p.storeId === '2'));
     const [customers, setCustomers] = useState<User[]>(() => initialCustomers.filter(u => u.role === 'Cliente'));
     const [paymentMethods, setPaymentMethods] = useState<PaymentMethod[]>(() => initialPaymentMethods);
+
+    const deliveryOption = store.deliveryOptions.find(opt => opt.type === 'Entrega' && opt.enabled);
 
     const form = useForm<z.infer<typeof orderFormSchema>>({
         resolver: zodResolver(orderFormSchema),
     });
     
     const customerType = form.watch('customerType');
+    const isDelivery = form.watch('isDelivery');
 
     useEffect(() => {
         if (!orderId) {
@@ -110,6 +128,10 @@ export default function EditOrderPage() {
                     unit: item.unit,
                 })),
                 observations: foundOrder.observations || '',
+                isDelivery: foundOrder.isDelivery,
+                deliveryAddress: foundOrder.deliveryDetails?.address || '',
+                deliveryAddressReference: foundOrder.deliveryDetails?.addressReference || '',
+                deliveryFee: foundOrder.deliveryDetails?.fee || 0,
             });
         } else {
             toast({
@@ -130,7 +152,9 @@ export default function EditOrderPage() {
     const [customProduct, setCustomProduct] = useState<z.infer<typeof customProductSchema>>({ name: '', price: 0, quantity: 1, unit: 'unidade' });
     const [customProductErrors, setCustomProductErrors] = useState<any>({});
     
-    const total = form.watch('items').reduce((acc, item) => acc + (item.price * item.quantity), 0);
+    const itemsTotal = form.watch('items').reduce((acc, item) => acc + (item.price * item.quantity), 0);
+    const deliveryFee = form.watch('isDelivery') ? form.watch('deliveryFee') || 0 : 0;
+    const total = itemsTotal + deliveryFee;
 
     const handleAddPredefinedProduct = () => {
         const product = products.find(p => p.id === selectedProductId);
@@ -395,6 +419,82 @@ export default function EditOrderPage() {
                         </CardContent>
                     </Card>
 
+                     {deliveryOption && (
+                        <Card>
+                             <CardHeader>
+                                <CardTitle>Entrega</CardTitle>
+                                <CardDescription>Configure os detalhes da entrega para este pedido.</CardDescription>
+                            </CardHeader>
+                            <CardContent className="space-y-6">
+                                <FormField
+                                    control={form.control}
+                                    name="isDelivery"
+                                    render={({ field }) => (
+                                        <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+                                            <div className="space-y-0.5">
+                                            <FormLabel className="text-base">
+                                                Enviar por delivery?
+                                            </FormLabel>
+                                            <FormDescription>
+                                                Ative se este pedido precisar ser entregue ao cliente.
+                                            </FormDescription>
+                                            </div>
+                                            <FormControl>
+                                                <Switch
+                                                    checked={field.value}
+                                                    onCheckedChange={field.onChange}
+                                                />
+                                            </FormControl>
+                                        </FormItem>
+                                    )}
+                                />
+                                {isDelivery && (
+                                    <div className="space-y-4">
+                                        <FormField
+                                            control={form.control}
+                                            name="deliveryAddress"
+                                            render={({ field }) => (
+                                                <FormItem>
+                                                    <FormLabel>Endereço de Entrega</FormLabel>
+                                                    <FormControl>
+                                                        <Input placeholder="Rua, Número, Bairro, Cidade" {...field} />
+                                                    </FormControl>
+                                                    <FormMessage />
+                                                </FormItem>
+                                            )}
+                                        />
+                                        <FormField
+                                            control={form.control}
+                                            name="deliveryAddressReference"
+                                            render={({ field }) => (
+                                                <FormItem>
+                                                    <FormLabel>Ponto de Referência</FormLabel>
+                                                    <FormControl>
+                                                        <Input placeholder="Ex: Próximo ao mercado X" {...field} />
+                                                    </FormControl>
+                                                    <FormMessage />
+                                                </FormItem>
+                                            )}
+                                        />
+                                         <FormField
+                                            control={form.control}
+                                            name="deliveryFee"
+                                            render={({ field }) => (
+                                                <FormItem>
+                                                    <FormLabel>Taxa de Entrega (R$)</FormLabel>
+                                                    <FormControl>
+                                                        <Input type="number" step="0.01" placeholder="7.00" {...field} disabled={deliveryOption.feeType === 'fixed'} />
+                                                    </FormControl>
+                                                    <FormMessage />
+                                                </FormItem>
+                                            )}
+                                        />
+                                    </div>
+                                )}
+                            </CardContent>
+                        </Card>
+                    )}
+
                     <Card>
                         <CardHeader>
                             <CardTitle>Adicionar Produtos</CardTitle>
@@ -507,10 +607,20 @@ export default function EditOrderPage() {
                                 </div>
                             )}
                         </CardContent>
-                        {fields.length > 0 && (
-                           <CardFooter className="flex justify-end items-center pt-4 border-t font-semibold">
-                                <span className="text-muted-foreground mr-2">Total do Pedido:</span>
-                                <span className="text-xl">R$ {total.toFixed(2)}</span>
+                         {fields.length > 0 && (
+                           <CardFooter className="flex-col items-end gap-2 pt-4 border-t">
+                                <div className="flex justify-between w-full max-w-[250px]">
+                                     <span className="text-muted-foreground">Subtotal:</span>
+                                     <span>R$ {itemsTotal.toFixed(2)}</span>
+                                </div>
+                                <div className="flex justify-between w-full max-w-[250px]">
+                                     <span className="text-muted-foreground">Taxa de Entrega:</span>
+                                     <span>R$ {deliveryFee.toFixed(2)}</span>
+                                </div>
+                                <div className="flex justify-between w-full max-w-[250px] font-bold text-lg">
+                                     <span className="text-muted-foreground">Total:</span>
+                                     <span>R$ {total.toFixed(2)}</span>
+                                </div>
                            </CardFooter>
                         )}
                     </Card>
@@ -524,7 +634,3 @@ export default function EditOrderPage() {
         </div>
     );
 }
-
-    
-
-    
