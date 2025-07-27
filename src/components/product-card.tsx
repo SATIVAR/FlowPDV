@@ -21,9 +21,11 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
+  DialogClose,
 } from '@/components/ui/dialog';
-import { ShoppingCart } from 'lucide-react';
+import { ShoppingCart, X } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { Badge } from './ui/badge';
 
 interface ProductCardProps {
   product: Product;
@@ -44,7 +46,7 @@ export function ProductCard({ product }: ProductCardProps) {
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <Card className="flex flex-col overflow-hidden transition-all duration-300 hover:shadow-lg hover:-translate-y-1 bg-card/80 backdrop-blur-sm border-border/50">
+      <Card className="flex flex-col overflow-hidden transition-all duration-300 hover:shadow-lg hover:-translate-y-1 bg-card border-border/50 group">
         <DialogTrigger asChild>
             <div className="aspect-video relative overflow-hidden cursor-pointer">
                 <Image
@@ -74,31 +76,41 @@ export function ProductCard({ product }: ProductCardProps) {
         </CardFooter>
       </Card>
 
-       <DialogContent className="sm:max-w-3xl grid-cols-1 md:grid-cols-2 grid p-0">
-          <div className="relative aspect-square md:aspect-auto h-64 md:h-full">
+       <DialogContent className="sm:max-w-3xl grid-cols-1 md:grid-cols-2 grid p-0 gap-0 max-h-[90vh]">
+          <div className="relative aspect-video md:aspect-auto">
             <Image
                 src={product.imageUrl}
                 alt={product.name}
                 fill
-                className="object-cover rounded-l-lg"
+                className="object-cover md:rounded-l-lg"
                 data-ai-hint="product image"
              />
           </div>
           <div className="flex flex-col">
-            <DialogHeader className="p-6">
+            <DialogHeader className="p-6 pb-4 border-b">
                 <DialogTitle className="font-headline text-2xl">{product.name}</DialogTitle>
                 <DialogDescription className="text-base text-muted-foreground">{product.description}</DialogDescription>
+                 <DialogClose className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-accent data-[state=open]:text-muted-foreground">
+                    <X className="h-4 w-4" />
+                    <span className="sr-only">Close</span>
+                </DialogClose>
             </DialogHeader>
-            <div className="flex-grow overflow-y-auto px-6 space-y-4">
-               {/* Could add more details here in the future */}
-                <p>Estoque: {product.stock} {product.unit}(s)</p>
+            <div className="flex-grow overflow-y-auto p-6 space-y-4">
+               <div className="space-y-2">
+                    <h4 className="font-medium text-sm text-muted-foreground">Detalhes</h4>
+                    <ul className="list-disc list-inside space-y-1 text-sm">
+                        <li>Estoque: <span className="font-semibold">{product.stock} {product.unit}(s)</span></li>
+                        <li>Vendido por: <span className="font-semibold">{product.unit}</span></li>
+                        {/* You can add more details here later */}
+                    </ul>
+               </div>
             </div>
-            <DialogFooter className="p-6 bg-muted/50 mt-auto">
-                 <div className="flex justify-between items-center w-full">
-                    <p className="text-3xl font-bold font-headline text-primary">
+            <DialogFooter className="p-6 bg-muted/50 mt-auto border-t">
+                 <div className="flex justify-between items-center w-full gap-4">
+                    <p className="text-3xl font-bold font-headline text-primary shrink-0">
                         R$ {product.price.toFixed(2)}
                     </p>
-                    <Button size="lg" onClick={handleAddToCart} disabled={product.stock === 0}>
+                    <Button size="lg" onClick={handleAddToCart} disabled={product.stock === 0} className="w-full">
                         <ShoppingCart className="mr-2 h-5 w-5" />
                         {product.stock > 0 ? 'Adicionar ao carrinho' : 'Indisponível' }
                     </Button>
@@ -109,3 +121,5 @@ export function ProductCard({ product }: ProductCardProps) {
     </Dialog>
   );
 }
+
+    
