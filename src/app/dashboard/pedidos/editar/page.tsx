@@ -7,7 +7,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { useForm, useFieldArray, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
-import { products as initialProducts, users as initialCustomers, paymentMethods as initialPaymentMethods, orders as initialOrders, stores } from '@/lib/data';
+import { products as initialProducts, users as initialCustomers, predefinedPaymentMethods, orders as initialOrders, stores } from '@/lib/data';
 import type { Product, User, PaymentMethod, ProductUnit, Order, Store } from '@/lib/types';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
@@ -92,7 +92,7 @@ export default function EditOrderPage() {
     const [store, setStore] = useState<Store>(() => stores.find(s => s.id === '2')!);
     const [products, setProducts] = useState<Product[]>(() => initialProducts.filter(p => p.storeId === '2'));
     const [customers, setCustomers] = useState<User[]>(() => initialCustomers.filter(u => u.role === 'Cliente'));
-    const [paymentMethods, setPaymentMethods] = useState<PaymentMethod[]>(() => initialPaymentMethods);
+    const [paymentMethods, setPaymentMethods] = useState<PaymentMethod[]>(() => predefinedPaymentMethods);
 
     const deliveryOption = store.deliveryOptions.find(opt => opt.type === 'Entrega' && opt.enabled);
 
@@ -388,7 +388,7 @@ export default function EditOrderPage() {
                                                                 <div className="flex-1 text-left">
                                                                     <p className="font-semibold">{pm.name}</p>
                                                                     <p className="text-xs text-muted-foreground">
-                                                                        Clique para selecionar
+                                                                        {pm.description}
                                                                     </p>
                                                                 </div>
                                                             </Label>

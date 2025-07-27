@@ -7,7 +7,7 @@ import { useRouter } from 'next/navigation';
 import { useForm, useFieldArray, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
-import { products as initialProducts, users as initialCustomers, paymentMethods as initialPaymentMethods, stores } from '@/lib/data';
+import { products as initialProducts, users as initialCustomers, predefinedPaymentMethods, stores } from '@/lib/data';
 import type { Product, User, PaymentMethod, ProductUnit, Store } from '@/lib/types';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
@@ -17,13 +17,12 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { ChevronLeft, Trash2, PlusCircle, Check, CreditCard, DollarSign, Smartphone } from 'lucide-react';
+import { ChevronLeft, Trash2, PlusCircle, CreditCard, DollarSign, Smartphone } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { CustomerForm } from '@/components/customer-form';
 import { Textarea } from '@/components/ui/textarea';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Switch } from '@/components/ui/switch';
-import { cn } from '@/lib/utils';
 
 const orderFormSchema = z.object({
   customerType: z.enum(['registered', 'unregistered'], { required_error: "Selecione o tipo de cliente."}),
@@ -87,7 +86,7 @@ export default function NewOrderPage() {
     const [store, setStore] = useState<Store>(() => stores.find(s => s.id === '2')!);
     const [products, setProducts] = useState<Product[]>(() => initialProducts.filter(p => p.storeId === '2'));
     const [customers, setCustomers] = useState<User[]>(() => initialCustomers.filter(u => u.role === 'Cliente'));
-    const [paymentMethods, setPaymentMethods] = useState<PaymentMethod[]>(() => initialPaymentMethods);
+    const [paymentMethods, setPaymentMethods] = useState<PaymentMethod[]>(() => predefinedPaymentMethods);
 
     const deliveryOption = store.deliveryOptions.find(opt => opt.type === 'Entrega' && opt.enabled);
     const fixedFee = deliveryOption?.feeType === 'fixed' ? deliveryOption.price : undefined;
@@ -345,7 +344,7 @@ export default function NewOrderPage() {
                                                                 <div className="flex-1 text-left">
                                                                     <p className="font-semibold">{pm.name}</p>
                                                                     <p className="text-xs text-muted-foreground">
-                                                                        Clique para selecionar
+                                                                        {pm.description}
                                                                     </p>
                                                                 </div>
                                                             </Label>
@@ -591,7 +590,3 @@ export default function NewOrderPage() {
         </div>
     );
 }
-
-    
-
-    

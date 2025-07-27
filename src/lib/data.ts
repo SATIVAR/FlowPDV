@@ -1,5 +1,4 @@
 
-
 import type { User, Product, Order, Store, Category, PaymentMethod } from './types';
 
 export const users: User[] = [
@@ -66,7 +65,7 @@ export const stores: Store[] = [
     logoUrl: 'https://placehold.co/128x128',
     coverUrl: 'https://placehold.co/600x400',
     deliveryOptions: [
-        { type: 'Entrega', enabled: true, feeType: 'fixed', price: 5, details: 'Entregamos em um raio de 5km.' },
+        { type: 'Entrega', enabled: true, feeType: 'variable', price: 5, details: 'Entregamos em um raio de 5km.' },
         { type: 'Retirada', enabled: true, details: 'Retire na loja em até 30 minutos.' }
     ]
   },
@@ -83,6 +82,15 @@ export const paymentMethods: PaymentMethod[] = [
     { id: 'pm-2', name: 'Cartão de Crédito' },
     { id: 'pm-3', name: 'Dinheiro' },
 ]
+
+export const predefinedPaymentMethods: PaymentMethod[] = [
+  { id: 'dinheiro', name: 'Dinheiro', description: "Receba pagamentos em espécie." },
+  { id: 'pix', name: 'Pix', description: "Receba transferências instantâneas." },
+  { id: 'cartao_credito', name: 'Cartão de Crédito', description: "Aceite as principais bandeiras." },
+  { id: 'cartao_debito', name: 'Cartão de Débito', description: "Venda com mais agilidade." },
+  { id: 'gateway', name: 'Gateway de Pagamento', description: "Integre com seu provedor." },
+  { id: 'dividido', name: 'Pagamento Dividido', description: "Permita dividir a conta." },
+];
 
 export const products: Product[] = [
   {
@@ -169,6 +177,7 @@ export const orders: Order[] = [
         createdAt: new Date(2023, 10, 28),
         paymentMethod: 'Pix',
         observations: 'Deixar na portaria com o João.',
+        isDelivery: true,
         deliveryDetails: {
             address: 'Rua das Flores, 123, Apto 45',
             fee: 5.00
@@ -186,7 +195,8 @@ export const orders: Order[] = [
         status: 'Enviado',
         paymentStatus: 'Pago',
         createdAt: new Date(2023, 10, 25),
-        paymentMethod: 'Cartão de Crédito'
+        paymentMethod: 'Cartão de Crédito',
+        isDelivery: false
     },
     {
         id: 'order-3',
@@ -202,7 +212,8 @@ export const orders: Order[] = [
         paymentStatus: 'Pago',
         createdAt: new Date(2023, 10, 20),
         paymentMethod: 'Dinheiro',
-        observations: 'Presente de aniversário, por favor embrulhar com cuidado.'
+        observations: 'Presente de aniversário, por favor embrulhar com cuidado.',
+        isDelivery: false
     },
     {
         id: 'order-4',
@@ -216,6 +227,7 @@ export const orders: Order[] = [
         status: 'Cancelado',
         paymentStatus: 'Rejeitado',
         createdAt: new Date(2023, 10, 15),
-        paymentMethod: 'Pix'
+        paymentMethod: 'Pix',
+        isDelivery: false,
     }
 ];

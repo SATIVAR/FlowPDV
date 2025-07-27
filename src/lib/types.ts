@@ -1,5 +1,4 @@
 
-
 export type Role = 'Super Admin' | 'Lojista' | 'Cliente';
 
 export interface User {
@@ -60,6 +59,7 @@ export type PaymentStatus = 'Pendente' | 'Pago' | 'Rejeitado';
 export interface PaymentMethod {
     id: string;
     name: string;
+    description?: string;
 }
 
 export interface DeliveryDetails {
@@ -83,7 +83,3 @@ export interface Order {
   isDelivery: boolean;
   deliveryDetails?: DeliveryDetails;
 }
-
-
-
-

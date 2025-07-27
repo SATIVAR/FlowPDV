@@ -5,7 +5,7 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/hooks/use-auth';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
-import { orders, products as initialProducts, users as initialUsers, categories as initialCategories, paymentMethods as initialPaymentMethods } from '@/lib/data';
+import { orders, products as initialProducts, users as initialUsers, categories as initialCategories, predefinedPaymentMethods } from '@/lib/data';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
 import { BarChart, Users, Package, ShoppingCart, DollarSign, Activity, PlusCircle, Edit, Trash2, CreditCard } from 'lucide-react';
@@ -257,15 +257,6 @@ function CategoryForm({ onSave, category, children }: { onSave: (data: Omit<Cate
         </Dialog>
     );
 }
-
-const predefinedPaymentMethods = [
-  { id: 'dinheiro', name: 'Dinheiro', description: "Receba pagamentos em espécie." },
-  { id: 'pix', name: 'Pix', description: "Receba transferências instantâneas." },
-  { id: 'cartao_credito', name: 'Cartão de Crédito', description: "Aceite as principais bandeiras." },
-  { id: 'cartao_debito', name: 'Cartão de Débito', description: "Venda com mais agilidade." },
-  { id: 'gateway', name: 'Gateway de Pagamento', description: "Integre com seu provedor de pagamento." },
-  { id: 'dividido', name: 'Pagamento Dividido', description: "Permita que o cliente divida a conta." },
-];
 
 function LojistaDashboard() {
   const [products, setProducts] = useState(() => initialProducts.filter(p => p.storeId === '2'));
@@ -631,7 +622,7 @@ function ClienteDashboard() {
                   <TableCell>{order.createdAt.toLocaleDateString()}</TableCell>
                   <TableCell>${order.total.toFixed(2)}</TableCell>
                   <TableCell>
-                    <Badge>{order.status}</Badge>
+                    {/* <Badge>{order.status}</Badge> */}
                   </TableCell>
                 </TableRow>
               ))}
