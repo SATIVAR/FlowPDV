@@ -7,6 +7,7 @@ interface AuthContextType {
   login: (whatsapp: string, password?: string) => Promise<User>;
   logout: () => void;
   register: (name: string, whatsapp: string, password: string) => Promise<User>;
+  registerSuperAdmin: (email: string, whatsapp: string, password: string) => Promise<User>;
   isAuthenticated: boolean;
   hasRole: (role: Role | Role[]) => boolean;
 }

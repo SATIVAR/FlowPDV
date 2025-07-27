@@ -3,14 +3,6 @@ import type { User, Product, Order, Store, Category, PaymentMethod } from './typ
 
 export const users: User[] = [
   {
-    id: '1',
-    name: 'Super Admin',
-    whatsapp: '85988776655',
-    password: 'adminsenha',
-    role: 'Super Admin',
-    avatar: 'https://placehold.co/100x100'
-  },
-  {
     id: '2',
     name: 'Loja da Esquina',
     whatsapp: '11988887777',
@@ -64,8 +56,8 @@ export const stores: Store[] = [
     contactWhatsapp: '11988887777',
     logoUrl: 'https://placehold.co/128x128',
     coverUrl: 'https://placehold.co/600x400',
-    pixKey: '11988887777',
     pixQrCodeUrl: 'https://placehold.co/256x256.png',
+    pixKey: '11988887777',
     pixAccountName: 'Loja da Esquina LTDA',
     pixBankName: 'Banco Digital Exemplo',
     pixAccountNumber: '12345-6',
@@ -166,7 +158,7 @@ export const products: Product[] = [
   },
 ];
 
-export const orders: Order[] = [
+export let orders: Order[] = [
     {
         id: 'order-1',
         storeId: '2',
