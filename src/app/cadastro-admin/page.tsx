@@ -6,6 +6,7 @@ import { useForm } from 'react-hook-form';
 import * as z from 'zod';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { useState, useMemo } from 'react';
 
 import { Button } from '@/components/ui/button';
 import {
@@ -22,26 +23,63 @@ import { useAuth } from '@/hooks/use-auth';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Shield } from 'lucide-react';
+import { Progress } from '@/components/ui/progress';
 
 const formSchema = z.object({
   email: z.string().email({ message: 'E-mail inválido.' }),
   whatsapp: z.string().min(10, { message: 'Número de WhatsApp inválido.' }),
   password: z.string().min(8, { message: 'A senha deve ter pelo menos 8 caracteres.' }),
+  confirmPassword: z.string(),
+}).refine(data => data.password === data.confirmPassword, {
+    message: "As senhas não coincidem.",
+    path: ['confirmPassword'],
 });
+
+const PasswordStrengthIndicator = ({ password }: { password?: string }) => {
+    const strength = useMemo(() => {
+        if (!password) return { score: 0, label: '', color: 'bg-transparent' };
+        
+        let score = 0;
+        if (password.length >= 8) score++;
+        if (/[A-Z]/.test(password)) score++;
+        if (/[0-9]/.test(password)) score++;
+        if (/[^A-Za-z0-9]/.test(password)) score++;
+
+        switch (score) {
+            case 1: return { score: 25, label: 'Fraca', color: 'bg-red-500' };
+            case 2: return { score: 50, label: 'Média', color: 'bg-yellow-500' };
+            case 3: return { score: 75, label: 'Forte', color: 'bg-blue-500' };
+            case 4: return { score: 100, label: 'Muito Forte', color: 'bg-green-500' };
+            default: return { score: 0, label: '', color: 'bg-transparent' };
+        }
+    }, [password]);
+
+    if (!password) return null;
+
+    return (
+        <div className="space-y-1">
+            <Progress value={strength.score} className={`h-2 ${strength.color}`} />
+            <p className="text-xs text-muted-foreground">{strength.label}</p>
+        </div>
+    );
+};
 
 export default function RegisterAdminPage() {
   const router = useRouter();
   const { toast } = useToast();
   const { registerSuperAdmin, user } = useAuth();
-
+  
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       email: '',
       whatsapp: '',
       password: '',
+      confirmPassword: '',
     },
   });
+
+  const watchedPassword = form.watch('password');
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
@@ -123,7 +161,21 @@ export default function RegisterAdminPage() {
                   <FormItem>
                     <FormLabel>Senha</FormLabel>
                     <FormControl>
-                      <Input type="password" placeholder="••••••••" />
+                      <Input type="password" placeholder="••••••••" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                     <PasswordStrengthIndicator password={watchedPassword} />
+                  </FormItem>
+                )}
+              />
+               <FormField
+                control={form.control}
+                name="confirmPassword"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Confirme a Senha</FormLabel>
+                    <FormControl>
+                      <Input type="password" placeholder="••••••••" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
