@@ -5,7 +5,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/hooks/use-auth';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { orders, products as initialProducts, users as initialUsers, categories as initialCategories, paymentMethods as initialPaymentMethods } from '@/lib/data';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
@@ -21,6 +21,8 @@ import type { Product, User, Category, PaymentMethod } from '@/lib/types';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { CustomerForm } from '@/components/customer-form';
+import { Label } from '@/components/ui/label';
+import { Switch } from '@/components/ui/switch';
 
 
 function SuperAdminDashboard() {
@@ -257,62 +259,34 @@ function CategoryForm({ onSave, category, children }: { onSave: (data: Omit<Cate
     );
 }
 
-const paymentMethodFormSchema = z.object({
-  name: z.string().min(2, { message: "O nome é obrigatório." }),
-});
-
-function PaymentMethodForm({ onSave, paymentMethod, children }: { onSave: (data: Omit<PaymentMethod, 'id'>, id?: string) => void, paymentMethod?: PaymentMethod, children: React.ReactNode }) {
-    const [open, setOpen] = useState(false);
-    const form = useForm<z.infer<typeof paymentMethodFormSchema>>({
-        resolver: zodResolver(paymentMethodFormSchema),
-        defaultValues: {
-            name: paymentMethod?.name || '',
-        },
-    });
-
-    const onSubmit = (values: z.infer<typeof paymentMethodFormSchema>) => {
-        onSave(values, paymentMethod?.id);
-        setOpen(false);
-        form.reset();
-    };
-
-    return (
-        <Dialog open={open} onOpenChange={setOpen}>
-            <DialogTrigger asChild>{children}</DialogTrigger>
-            <DialogContent className="sm:max-w-[425px]">
-                <DialogHeader>
-                    <DialogTitle>{paymentMethod ? 'Editar Forma de Pagamento' : 'Nova Forma de Pagamento'}</DialogTitle>
-                </DialogHeader>
-                <Form {...form}>
-                    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-                        <FormField
-                            control={form.control}
-                            name="name"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>Nome</FormLabel>
-                                    <FormControl>
-                                        <Input placeholder="Ex: Pix" {...field} />
-                                    </FormControl>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        />
-                        <DialogFooter>
-                            <Button type="submit">Salvar</Button>
-                        </DialogFooter>
-                    </form>
-                </Form>
-            </DialogContent>
-        </Dialog>
-    );
-}
+const predefinedPaymentMethods = [
+  { id: 'dinheiro', name: 'Dinheiro', description: "Receba pagamentos em espécie." },
+  { id: 'pix', name: 'Pix', description: "Receba transferências instantâneas." },
+  { id: 'cartao_credito', name: 'Cartão de Crédito', description: "Aceite as principais bandeiras." },
+  { id: 'cartao_debito', name: 'Cartão de Débito', description: "Venda com mais agilidade." },
+  { id: 'gateway', name: 'Gateway de Pagamento', description: "Integre com seu provedor de pagamento." },
+  { id: 'dividido', name: 'Pagamento Dividido', description: "Permita que o cliente divida a conta." },
+];
 
 function LojistaDashboard() {
   const [products, setProducts] = useState(() => initialProducts.filter(p => p.storeId === '2'));
   const [customers, setCustomers] = useState(() => initialUsers.filter(u => u.role === 'Cliente'));
   const [categories, setCategories] = useState(() => initialCategories);
-  const [paymentMethods, setPaymentMethods] = useState(() => initialPaymentMethods);
+  const [enabledPaymentMethods, setEnabledPaymentMethods] = useState<Record<string, boolean>>({
+    'dinheiro': true,
+    'pix': true,
+    'cartao_credito': true,
+    'cartao_debito': false,
+    'gateway': false,
+    'dividido': false,
+  });
+
+  const handleTogglePaymentMethod = (id: string) => {
+    setEnabledPaymentMethods(prev => ({
+      ...prev,
+      [id]: !prev[id],
+    }));
+  };
 
   const handleSaveProduct = (productData: Product) => {
     setProducts(prev => {
@@ -354,20 +328,6 @@ function LojistaDashboard() {
 
   const handleDeleteCategory = (categoryId: string) => {
     setCategories(prev => prev.filter(c => c.id !== categoryId));
-  };
-
-  const handleSavePaymentMethod = (paymentMethodData: Omit<PaymentMethod, 'id'>, id?: string) => {
-     setPaymentMethods(prev => {
-        if (id) {
-          return prev.map(p => p.id === id ? { ...p, ...paymentMethodData } : p);
-        }
-        const newPaymentMethod = { ...paymentMethodData, id: `pm-${Date.now()}` };
-        return [newPaymentMethod, ...prev];
-    });
-  };
-
-  const handleDeletePaymentMethod = (paymentMethodId: string) => {
-    setPaymentMethods(prev => prev.filter(p => p.id !== paymentMethodId));
   };
 
   return (
@@ -615,62 +575,29 @@ function LojistaDashboard() {
         
         <TabsContent value="paymentMethods">
             <Card className="bg-card/80 backdrop-blur-sm">
-                <CardHeader className="flex flex-row items-center justify-between">
-                    <div>
-                        <CardTitle>Formas de Pagamento</CardTitle>
-                        <CardDescription>Gerencie as formas de pagamento aceitas.</CardDescription>
-                    </div>
-                     <PaymentMethodForm onSave={handleSavePaymentMethod}>
-                        <Button size="sm">
-                            <PlusCircle className="mr-2 h-4 w-4" />
-                            Adicionar Forma de Pagamento
-                        </Button>
-                    </PaymentMethodForm>
+                <CardHeader>
+                    <CardTitle>Formas de Pagamento</CardTitle>
+                    <CardDescription>Habilite ou desabilite as formas de pagamento que você aceita na sua loja.</CardDescription>
                 </CardHeader>
-                <CardContent>
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead>Nome</TableHead>
-                        <TableHead className="text-right">Ações</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {paymentMethods.map(pm => (
-                        <TableRow key={pm.id}>
-                          <TableCell className="font-medium">{pm.name}</TableCell>
-                          <TableCell className="text-right space-x-2">
-                             <PaymentMethodForm onSave={handleSavePaymentMethod} paymentMethod={pm}>
-                                <Button variant="ghost" size="icon">
-                                  <Edit className="h-4 w-4" />
-                                </Button>
-                             </PaymentMethodForm>
-                             <AlertDialog>
-                              <AlertDialogTrigger asChild>
-                                 <Button variant="ghost" size="icon" className="text-destructive hover:text-destructive">
-                                    <Trash2 className="h-4 w-4" />
-                                  </Button>
-                              </AlertDialogTrigger>
-                              <AlertDialogContent>
-                                <AlertDialogHeader>
-                                  <AlertDialogTitle>Você tem certeza?</AlertDialogTitle>
-                                  <AlertDialogDescription>
-                                    Essa ação não pode ser desfeita. Isso excluirá permanentemente a forma de pagamento.
-                                  </AlertDialogDescription>
-                                </AlertDialogHeader>
-                                <AlertDialogFooter>
-                                  <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                                  <AlertDialogAction onClick={() => handleDeletePaymentMethod(pm.id)} className="bg-destructive hover:bg-destructive/90">Excluir</AlertDialogAction>
-                                </AlertDialogFooter>
-                              </AlertDialogContent>
-                            </AlertDialog>
-                          </TableCell>
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
+                <CardContent className="space-y-4">
+                  {predefinedPaymentMethods.map((method) => (
+                    <div key={method.id} className="flex items-center justify-between p-4 border rounded-lg">
+                      <div className="space-y-0.5">
+                          <Label htmlFor={`pm-${method.id}`} className="text-base font-medium">{method.name}</Label>
+                          <p className="text-sm text-muted-foreground">{method.description}</p>
+                      </div>
+                       <Switch
+                          id={`pm-${method.id}`}
+                          checked={enabledPaymentMethods[method.id]}
+                          onCheckedChange={() => handleTogglePaymentMethod(method.id)}
+                        />
+                    </div>
+                  ))}
                 </CardContent>
-              </Card>
+                <CardFooter>
+                    <Button>Salvar Alterações</Button>
+                </CardFooter>
+            </Card>
         </TabsContent>
       </Tabs>
     </div>
