@@ -5,18 +5,22 @@ import { useState, useMemo } from 'react';
 import Link from 'next/link';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Badge } from '@/components/ui/badge';
+import { Badge, badgeVariants } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator } from '@/components/ui/dropdown-menu';
 import { Dialog, DialogTrigger, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { MoreHorizontal, Eye, PlusCircle, Edit, Search } from 'lucide-react';
+import { MoreHorizontal, Eye, PlusCircle, Edit, Search, CheckCircle, Trash2 } from 'lucide-react';
 import { orders as initialOrders } from '@/lib/data';
 import type { Order, OrderStatus } from '@/lib/types';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { Input } from '@/components/ui/input';
+import { useToast } from '@/hooks/use-toast';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
+
 
 export default function PedidosPage() {
+    const { toast } = useToast();
     const [orders, setOrders] = useState<Order[]>(() => initialOrders.filter(o => o.storeId === '2'));
     const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
     const [searchTerm, setSearchTerm] = useState('');
@@ -35,9 +39,22 @@ export default function PedidosPage() {
                 order.id === orderId ? { ...order, status } : order
             )
         );
+         toast({
+            title: "Status Atualizado!",
+            description: `O pedido foi marcado como ${status}.`,
+        });
     };
+    
+    const handleDeleteOrder = (orderId: string) => {
+        setOrders(prev => prev.filter(p => p.id !== orderId));
+         toast({
+            variant: 'destructive',
+            title: "Pedido Excluído!",
+            description: "O pedido foi removido com sucesso.",
+        });
+    }
 
-    const getStatusVariant = (status: OrderStatus) => {
+    const getStatusVariant = (status: OrderStatus): "default" | "secondary" | "destructive" | "outline" | "success" => {
         switch (status) {
             case 'Pendente':
                 return 'default';
@@ -46,7 +63,7 @@ export default function PedidosPage() {
             case 'Enviado':
                 return 'outline';
             case 'Entregue':
-                return 'default'; // Success variant could be added to Badge component
+                return 'success';
             case 'Cancelado':
                 return 'destructive';
             default:
@@ -113,51 +130,33 @@ export default function PedidosPage() {
                         </TableHeader>
                         <TableBody>
                             {filteredOrders.map((order) => (
-                                <TableRow key={order.id}>
+                                <TableRow key={order.id} className={order.status === 'Entregue' ? 'bg-green-500/10' : ''}>
                                     <TableCell className="font-medium">#{order.id.slice(-6)}</TableCell>
                                     <TableCell>{order.customerName}</TableCell>
                                     <TableCell className="hidden md:table-cell">{format(order.createdAt, "dd 'de' MMM, yyyy", { locale: ptBR })}</TableCell>
                                     <TableCell>
                                         <div className="flex items-center gap-2">
                                             <span className={`h-2 w-2 rounded-full ${getStatusDotClass(order.status)}`} />
-                                            <span className="hidden sm:inline"><Badge variant={getStatusVariant(order.status)}>{order.status}</Badge></span>
+                                            <Badge variant={getStatusVariant(order.status)}>{order.status}</Badge>
                                         </div>
                                     </TableCell>
                                     <TableCell className="hidden sm:table-cell">{order.paymentMethod}</TableCell>
                                     <TableCell className="text-right">R$ {order.total.toFixed(2)}</TableCell>
-                                    <TableCell className="text-center">
-                                        <Dialog onOpenChange={(open) => !open && setSelectedOrder(null)} open={selectedOrder?.id === order.id}>
-                                            <DropdownMenu>
-                                                <DropdownMenuTrigger asChild>
-                                                    <Button variant="ghost" className="h-8 w-8 p-0">
-                                                        <span className="sr-only">Abrir menu</span>
-                                                        <MoreHorizontal className="h-4 w-4" />
-                                                    </Button>
-                                                </DropdownMenuTrigger>
-                                                <DropdownMenuContent align="end">
-                                                     <DropdownMenuItem onSelect={() => setSelectedOrder(order)}>
-                                                        <Eye className="mr-2 h-4 w-4" />
-                                                        Ver Detalhes
-                                                      </DropdownMenuItem>
-                                                    <DropdownMenuItem asChild>
-                                                        <Link href={`/dashboard/pedidos/editar?id=${order.id}`}>
-                                                            <Edit className="mr-2 h-4 w-4" />
-                                                            Editar Pedido
-                                                        </Link>
-                                                    </DropdownMenuItem>
-                                                    <DropdownMenuItem onSelect={() => handleStatusChange(order.id, 'Pendente')}>Marcar como Pendente</DropdownMenuItem>
-                                                    <DropdownMenuItem onSelect={() => handleStatusChange(order.id, 'Processando')}>Marcar como Processando</DropdownMenuItem>
-                                                    <DropdownMenuItem onSelect={() => handleStatusChange(order.id, 'Cancelado')} className="text-destructive">Cancelar Pedido</DropdownMenuItem>
-                                                </DropdownMenuContent>
-                                            </DropdownMenu>
-                                             <DialogContent className="sm:max-w-lg">
+                                    <TableCell className="text-center space-x-1">
+                                         <Dialog onOpenChange={(open) => !open && setSelectedOrder(null)} open={selectedOrder?.id === order.id}>
+                                            <DialogTrigger asChild>
+                                                <Button variant="ghost" size="icon" onClick={() => setSelectedOrder(order)}>
+                                                    <Eye className="h-4 w-4" />
+                                                </Button>
+                                            </DialogTrigger>
+                                            <DialogContent className="sm:max-w-lg">
                                                 <DialogHeader>
                                                     <DialogTitle>Detalhes do Pedido #{selectedOrder?.id.slice(-6)}</DialogTitle>
                                                     <DialogDescription>
                                                         Cliente: {selectedOrder?.customerName} - Data: {selectedOrder ? format(selectedOrder.createdAt, "dd 'de' MMM, yyyy", { locale: ptBR }) : ''}
                                                     </DialogDescription>
                                                 </DialogHeader>
-                                                <div className="mt-4 space-y-4">
+                                                <div className="mt-4 space-y-4 max-h-[60vh] overflow-y-auto pr-2">
                                                     <div>
                                                         <h3 className="font-semibold mb-2">Itens do Pedido</h3>
                                                         <Table>
@@ -181,19 +180,62 @@ export default function PedidosPage() {
                                                             </TableBody>
                                                         </Table>
                                                     </div>
-                                                    <div className="flex justify-between items-center pt-4 border-t">
-                                                        <div>
-                                                            <span className="text-muted-foreground mr-2">Pagamento:</span>
-                                                            <span className="font-semibold">{selectedOrder?.paymentMethod}</span>
+                                                    <div className="border-t pt-4">
+                                                        <div className="flex justify-between items-center">
+                                                            <span className="text-muted-foreground">Método de Pagamento</span>
+                                                            <span className="font-medium">{selectedOrder?.paymentMethod}</span>
                                                         </div>
-                                                        <div>
-                                                            <span className="text-muted-foreground mr-2">Total:</span>
-                                                            <span className="font-bold text-lg">R$ {selectedOrder?.total.toFixed(2)}</span>
+                                                        <div className="flex justify-between items-center mt-2 font-bold text-lg">
+                                                            <span>Total</span>
+                                                            <span>R$ {selectedOrder?.total.toFixed(2)}</span>
                                                         </div>
                                                     </div>
                                                 </div>
                                             </DialogContent>
                                         </Dialog>
+                                        <Button asChild variant="ghost" size="icon">
+                                            <Link href={`/dashboard/pedidos/editar?id=${order.id}`}>
+                                                <Edit className="h-4 w-4" />
+                                            </Link>
+                                        </Button>
+                                        <DropdownMenu>
+                                            <DropdownMenuTrigger asChild>
+                                                <Button variant="ghost" size="icon">
+                                                    <span className="sr-only">Abrir menu</span>
+                                                    <MoreHorizontal className="h-4 w-4" />
+                                                </Button>
+                                            </DropdownMenuTrigger>
+                                            <DropdownMenuContent align="end">
+                                                <DropdownMenuItem onSelect={() => handleStatusChange(order.id, 'Entregue')}>
+                                                    <CheckCircle className="mr-2 h-4 w-4 text-green-500" />
+                                                    Marcar como Entregue
+                                                </DropdownMenuItem>
+                                                <DropdownMenuSeparator />
+                                                <DropdownMenuItem onSelect={() => handleStatusChange(order.id, 'Pendente')}>Marcar como Pendente</DropdownMenuItem>
+                                                <DropdownMenuItem onSelect={() => handleStatusChange(order.id, 'Processando')}>Marcar como Processando</DropdownMenuItem>
+                                                <DropdownMenuSeparator />
+                                                <AlertDialog>
+                                                    <AlertDialogTrigger asChild>
+                                                        <div className="relative flex cursor-default select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none transition-colors focus:bg-accent focus:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50 text-destructive focus:text-destructive">
+                                                           <Trash2 className="mr-2 h-4 w-4" />
+                                                            Cancelar Pedido
+                                                        </div>
+                                                    </AlertDialogTrigger>
+                                                     <AlertDialogContent>
+                                                        <AlertDialogHeader>
+                                                        <AlertDialogTitle>Você tem certeza?</AlertDialogTitle>
+                                                        <AlertDialogDescription>
+                                                            Essa ação não pode ser desfeita. Isso marcará o pedido como cancelado.
+                                                        </AlertDialogDescription>
+                                                        </AlertDialogHeader>
+                                                        <AlertDialogFooter>
+                                                        <AlertDialogCancel>Voltar</AlertDialogCancel>
+                                                        <AlertDialogAction onClick={() => handleStatusChange(order.id, 'Cancelado')} className="bg-destructive hover:bg-destructive/90">Sim, Cancelar</AlertDialogAction>
+                                                        </AlertDialogFooter>
+                                                    </AlertDialogContent>
+                                                </AlertDialog>
+                                            </DropdownMenuContent>
+                                        </DropdownMenu>
                                     </TableCell>
                                 </TableRow>
                             ))}
@@ -214,5 +256,3 @@ export default function PedidosPage() {
         </div>
     );
 }
-
-    
