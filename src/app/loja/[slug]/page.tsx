@@ -1,28 +1,70 @@
 
 'use client';
 
-import { useState, useMemo } from 'react';
-import { useParams, notFound } from 'next/navigation';
+import { useState, useMemo, useReducer } from 'react';
+import { useParams, notFound, useRouter } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
-import { stores as initialStores, products as initialProducts, categories as initialCategories } from '@/lib/data';
-import type { Product, Category } from '@/lib/types';
+import { stores as initialStores, products as initialProducts, categories as initialCategories, users, orders } from '@/lib/data';
+import type { Product, Category, CartItem, Store } from '@/lib/types';
 import { ProductCard } from '@/components/product-card';
-import { Button, buttonVariants } from '@/components/ui/button';
+import { Button } from '@/components/ui/button';
 import { ModeToggle } from '@/components/mode-toggle';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { MapPin, Phone, Instagram, Youtube, Search } from 'lucide-react';
 import { Icons } from '@/components/icons';
 import { cn } from '@/lib/utils';
 import { Input } from '@/components/ui/input';
+import { useAuth } from '@/hooks/use-auth';
+import { useToast } from '@/hooks/use-toast';
+import { MiniCart } from '@/components/mini-cart';
+
+type CartAction = 
+    | { type: 'ADD_ITEM'; payload: { product: Product; quantity: number } }
+    | { type: 'UPDATE_QUANTITY'; payload: { productId: string; quantity: number } }
+    | { type: 'REMOVE_ITEM'; payload: { productId: string } }
+    | { type: 'CLEAR_CART' };
+    
+const cartReducer = (state: CartItem[], action: CartAction): CartItem[] => {
+    switch (action.type) {
+        case 'ADD_ITEM': {
+            const { product, quantity } = action.payload;
+            const existingItem = state.find(item => item.id === product.id);
+            if (existingItem) {
+                return state.map(item => 
+                    item.id === product.id ? { ...item, quantity: item.quantity + quantity } : item
+                );
+            }
+            return [...state, { ...product, quantity }];
+        }
+        case 'UPDATE_QUANTITY': {
+             return state.map(item =>
+                item.id === action.payload.productId ? { ...item, quantity: action.payload.quantity } : item
+             ).filter(item => item.quantity > 0);
+        }
+        case 'REMOVE_ITEM': {
+            return state.filter(item => item.id !== action.payload.productId);
+        }
+        case 'CLEAR_CART': {
+            return [];
+        }
+        default:
+            return state;
+    }
+};
+
 
 export default function LojaPage() {
     const params = useParams();
+    const router = useRouter();
     const { slug } = params;
+    const { isAuthenticated, user } = useAuth();
+    const { toast } = useToast();
+
+    const [cart, dispatch] = useReducer(cartReducer, []);
 
     const store = useMemo(() => initialStores.find(s => s.slug === slug), [slug]);
     
-    // Filter products and categories based on the current store
     const storeProducts = useMemo(() => initialProducts.filter(p => p.storeId === store?.id), [store]);
     const storeCategories = useMemo(() => {
         const productCategoryIds = new Set(storeProducts.map(p => p.categoryId));
@@ -41,6 +83,48 @@ export default function LojaPage() {
         const matchesSearch = searchTerm === '' || product.name.toLowerCase().includes(searchTerm.toLowerCase());
         return matchesCategory && matchesSearch;
     });
+
+    const handleAddToCart = (product: Product, quantity: number) => {
+        if (!isAuthenticated) {
+            router.push(`/login-cliente?loja=${slug}`);
+            return;
+        }
+        dispatch({ type: 'ADD_ITEM', payload: { product, quantity } });
+        toast({
+            title: "Produto adicionado!",
+            description: `${quantity}x ${product.name} foi adicionado ao carrinho.`,
+        });
+    }
+    
+     const handleFinalizeOrder = (finalCart: CartItem[], total: number, deliveryOption: 'delivery' | 'pickup', observations: string) => {
+        if (!user) return;
+
+        const deliveryFee = (deliveryOption === 'delivery' && store.deliveryOptions.find(opt => opt.type === 'Entrega')?.price) || 0;
+
+        const newOrder = {
+          id: `order-${Date.now()}`,
+          storeId: store.id,
+          userId: user.id,
+          customerName: user.name,
+          items: finalCart,
+          total: total,
+          status: 'Pendente' as const,
+          paymentStatus: 'Pendente' as const,
+          createdAt: new Date(),
+          paymentMethod: 'A definir', 
+          observations: observations,
+          isDelivery: deliveryOption === 'delivery',
+          deliveryDetails: deliveryOption === 'delivery' ? {
+            address: user.deliveryAddress || 'Não informado',
+            addressReference: user.addressReference,
+            fee: deliveryFee
+          } : undefined,
+        }
+        orders.push(newOrder);
+        dispatch({ type: 'CLEAR_CART' });
+        // In a real app, you would redirect to a success page or show a final confirmation.
+    };
+
 
     return (
         <div className="flex flex-col min-h-screen bg-muted/30 dark:bg-background">
@@ -76,14 +160,22 @@ export default function LojaPage() {
                             </div>
                             <div className="flex items-center gap-2 pb-4 self-start md:self-end">
                                 <ModeToggle />
-                                <Button asChild variant="secondary" size="sm">
-                                    <Link href={`/login-cliente?loja=${store.slug}`}>Login</Link>
-                                </Button>
-                                <Button asChild size="sm" className="bg-white text-primary hover:bg-white/90">
-                                    <Link href={`/register-customer?loja=${store.slug}`}>
-                                      <span>Cadastre-se</span>
-                                    </Link>
-                                </Button>
+                                {isAuthenticated ? (
+                                    <Button asChild variant="secondary" size="sm">
+                                        <Link href="/dashboard">Minha Conta</Link>
+                                    </Button>
+                                ) : (
+                                    <>
+                                        <Button asChild variant="secondary" size="sm">
+                                            <Link href={`/login-cliente?loja=${store.slug}`}>Login</Link>
+                                        </Button>
+                                        <Button asChild size="sm" className="bg-white text-primary hover:bg-white/90">
+                                            <Link href={`/register-customer?loja=${store.slug}`}>
+                                                <span>Cadastre-se</span>
+                                            </Link>
+                                        </Button>
+                                    </>
+                                )}
                             </div>
                         </div>
                     </CardContent>
@@ -174,9 +266,9 @@ export default function LojaPage() {
                          </div>
 
                         {filteredProducts.length > 0 ? (
-                            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 md:gap-6 animate-fade-in-up">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 md:gap-6">
                                 {filteredProducts.map(product => (
-                                    <ProductCard key={product.id} product={product} />
+                                    <ProductCard key={product.id} product={product} onAddToCart={handleAddToCart} />
                                 ))}
                             </div>
                         ) : (
@@ -189,6 +281,12 @@ export default function LojaPage() {
                      </div>
                 </div>
            </main>
+           <MiniCart 
+                cartItems={cart} 
+                store={store} 
+                dispatch={dispatch} 
+                onFinalizeOrder={handleFinalizeOrder}
+            />
             <footer className="bg-background border-t mt-auto">
                 <div className="container mx-auto px-4 py-6 text-center text-muted-foreground text-sm">
                     <p>&copy; {new Date().getFullYear()} {store.name}. Todos os direitos reservados.</p>
@@ -197,5 +295,3 @@ export default function LojaPage() {
         </div>
     );
 }
-
-    

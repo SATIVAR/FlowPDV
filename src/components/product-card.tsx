@@ -3,7 +3,7 @@
 
 import { useState } from 'react';
 import Image from 'next/image';
-import type { Product } from '@/lib/types';
+import type { Product, CartItem } from '@/lib/types';
 import { Button } from '@/components/ui/button';
 import {
   Card,
@@ -24,24 +24,19 @@ import {
   DialogClose,
 } from '@/components/ui/dialog';
 import { ShoppingCart, X } from 'lucide-react';
-import { useToast } from '@/hooks/use-toast';
-import { Badge } from './ui/badge';
 
 interface ProductCardProps {
   product: Product;
+  onAddToCart: (product: Product, quantity: number) => void;
 }
 
-export function ProductCard({ product }: ProductCardProps) {
-  const { toast } = useToast();
+export function ProductCard({ product, onAddToCart }: ProductCardProps) {
   const [open, setOpen] = useState(false);
+  const [quantity, setQuantity] = useState(1);
 
-  const handleAddToCart = () => {
-    // Mock add to cart logic
-    toast({
-        title: "Produto adicionado!",
-        description: `${product.name} foi adicionado ao seu carrinho.`,
-    })
-    setOpen(false); // Close modal on add
+  const handleAddToCartClick = () => {
+    onAddToCart(product, quantity);
+    setOpen(false); 
   }
 
   return (
@@ -101,7 +96,6 @@ export function ProductCard({ product }: ProductCardProps) {
                     <ul className="list-disc list-inside space-y-1 text-sm">
                         <li>Estoque: <span className="font-semibold">{product.stock} {product.unit}(s)</span></li>
                         <li>Vendido por: <span className="font-semibold">{product.unit}</span></li>
-                        {/* You can add more details here later */}
                     </ul>
                </div>
             </div>
@@ -110,7 +104,7 @@ export function ProductCard({ product }: ProductCardProps) {
                     <p className="text-3xl font-bold font-headline text-primary shrink-0">
                         R$ {product.price.toFixed(2)}
                     </p>
-                    <Button size="lg" onClick={handleAddToCart} disabled={product.stock === 0} className="w-full">
+                    <Button size="lg" onClick={handleAddToCartClick} disabled={product.stock === 0} className="w-full">
                         <ShoppingCart className="mr-2 h-5 w-5" />
                         {product.stock > 0 ? 'Adicionar ao carrinho' : 'Indisponível' }
                     </Button>
@@ -121,5 +115,3 @@ export function ProductCard({ product }: ProductCardProps) {
     </Dialog>
   );
 }
-
-    
