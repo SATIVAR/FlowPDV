@@ -166,7 +166,7 @@ export default function PedidosPage() {
                                         </Badge>
                                     </TableCell>
                                     <TableCell>
-                                        <div className="flex flex-col gap-1">
+                                        <div className="flex items-center gap-2">
                                              <span>{order.paymentMethod}</span>
                                              <Badge variant={getPaymentStatusVariant(order.paymentStatus)} className="w-fit">
                                                 {order.paymentStatus}
@@ -251,6 +251,10 @@ export default function PedidosPage() {
                                                 <DropdownMenuItem onSelect={() => handlePaymentStatusChange(order.id, 'Pendente')} disabled={order.paymentStatus === 'Pendente'}>
                                                     <Clock className="mr-2 h-4 w-4 text-yellow-500" />
                                                     Marcar como Pendente
+                                                </DropdownMenuItem>
+                                                <DropdownMenuItem onSelect={() => handlePaymentStatusChange(order.id, 'Rejeitado')} disabled={order.paymentStatus === 'Rejeitado'}>
+                                                    <XCircle className="mr-2 h-4 w-4 text-red-500" />
+                                                    Marcar como Rejeitado
                                                 </DropdownMenuItem>
                                                 <DropdownMenuSeparator />
                                                 {order.status !== 'Entregue' && (
