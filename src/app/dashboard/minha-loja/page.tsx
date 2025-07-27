@@ -24,6 +24,7 @@ const storeSettingsSchema = z.object({
   slug: z.string().min(3, "A URL amigável deve ter pelo menos 3 caracteres.").regex(/^[a-z0-9-]+$/, "Use apenas letras minúsculas, números e hífens."),
   description: z.string().max(200, "A descrição pode ter no máximo 200 caracteres.").optional(),
   contactWhatsapp: z.string().min(10, "WhatsApp inválido.").optional(),
+  pixKey: z.string().optional(),
   deliveryOptions: z.array(z.object({
       type: z.enum(['Entrega', 'Retirada']),
       enabled: z.boolean(),
@@ -45,6 +46,7 @@ export default function MinhaLojaPage() {
             slug: store.slug,
             description: store.description || '',
             contactWhatsapp: store.contactWhatsapp || '',
+            pixKey: store.pixKey || '',
             deliveryOptions: store.deliveryOptions.map(opt => ({
                 ...opt,
                 feeType: opt.feeType || 'fixed',
@@ -182,7 +184,7 @@ export default function MinhaLojaPage() {
                              <CardTitle>Identidade Visual</CardTitle>
                              <CardDescription>Faça o upload do logo e da imagem de capa da sua loja.</CardDescription>
                         </CardHeader>
-                        <CardContent className="grid md:grid-cols-2 gap-8">
+                        <CardContent className="grid md:grid-cols-3 gap-8">
                             <div className="space-y-2">
                                 <Label>Logo da Loja</Label>
                                 <div className="flex items-center gap-4">
@@ -205,6 +207,39 @@ export default function MinhaLojaPage() {
                                 </div>
                                  <p className="text-xs text-muted-foreground">Recomendado: 1200x400 pixels.</p>
                             </div>
+                             <div className="space-y-2">
+                                <Label>QR Code Chave Pix</Label>
+                                <div className="flex items-center gap-4">
+                                    <Image src={store.pixQrCodeUrl || 'https://placehold.co/256x256.png'} alt="QR Code Pix" width={80} height={80} className="rounded-lg border bg-muted" data-ai-hint="pix qr code" />
+                                    <Button type="button" variant="outline" onClick={() => alert('Funcionalidade de upload em breve!')}>
+                                        <Upload className="mr-2 h-4 w-4" />
+                                        Trocar QR Code
+                                    </Button>
+                                </div>
+                                 <p className="text-xs text-muted-foreground">Recomendado: 256x256 pixels.</p>
+                            </div>
+                        </CardContent>
+                    </Card>
+
+                     <Card>
+                        <CardHeader>
+                            <CardTitle>Opções de Pagamento</CardTitle>
+                            <CardDescription>Configure sua chave Pix para receber pagamentos.</CardDescription>
+                        </CardHeader>
+                        <CardContent>
+                             <FormField
+                                control={form.control}
+                                name="pixKey"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>Chave Pix</FormLabel>
+                                        <FormControl>
+                                            <Input placeholder="CPF, CNPJ, e-mail, celular ou chave aleatória" {...field} />
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
                         </CardContent>
                     </Card>
                     

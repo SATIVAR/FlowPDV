@@ -26,6 +26,8 @@ export interface Store {
     contactWhatsapp?: string;
     logoUrl: string;
     coverUrl: string;
+    pixQrCodeUrl?: string;
+    pixKey?: string;
     deliveryOptions: DeliveryOption[];
 }
 

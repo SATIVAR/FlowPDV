@@ -64,6 +64,8 @@ export const stores: Store[] = [
     contactWhatsapp: '11988887777',
     logoUrl: 'https://placehold.co/128x128',
     coverUrl: 'https://placehold.co/600x400',
+    pixKey: '11988887777',
+    pixQrCodeUrl: 'https://placehold.co/256x256.png',
     deliveryOptions: [
         { type: 'Entrega', enabled: true, feeType: 'variable', price: 5, details: 'Entregamos em um raio de 5km.' },
         { type: 'Retirada', enabled: true, details: 'Retire na loja em até 30 minutos.' }
