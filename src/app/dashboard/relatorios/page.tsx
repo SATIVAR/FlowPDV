@@ -6,7 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { BarChart, Users, DollarSign, ShoppingBag, ArrowUp, ArrowDown, PieChart as PieChartIcon, Calendar } from "lucide-react";
+import { BarChart, Users, DollarSign, ShoppingBag, ArrowUp, ArrowDown, PieChart as PieChartIcon, Calendar, Trophy } from "lucide-react";
 import { orders, products, categories, users } from '@/lib/data';
 import { Area, AreaChart, Bar, CartesianGrid, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Legend } from 'recharts';
 import type { ChartConfig } from '@/components/ui/chart';
@@ -15,6 +15,7 @@ import { format, subDays, getMonth, getYear, startOfMonth, endOfMonth, subMonths
 import { ptBR } from 'date-fns/locale';
 import { cn } from '@/lib/utils';
 import { Badge } from '@/components/ui/badge';
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 
 const COLORS = ["hsl(var(--chart-1))", "hsl(var(--chart-2))", "hsl(var(--chart-3))", "hsl(var(--chart-4))", "hsl(var(--chart-5))"];
 
@@ -29,6 +30,14 @@ const generateMonthOptions = () => {
         });
     }
     return options;
+};
+
+const getInitials = (name: string) => {
+    const names = name.split(' ');
+    if (names.length > 1) {
+      return `${names[0][0]}${names[names.length - 1][0]}`.toUpperCase();
+    }
+    return name.substring(0, 2).toUpperCase();
 };
 
 export default function RelatoriosPage() {
@@ -104,6 +113,27 @@ export default function RelatoriosPage() {
             .map(([name, value]) => ({ name, value }))
             .sort((a,b) => b.value - a.value);
 
+        const customerRanking: { [key: string]: { name: string; totalSpent: number; orderCount: number; } } = {};
+        filteredOrders.forEach(order => {
+            if (order.userId) {
+                if (!customerRanking[order.userId]) {
+                    const customer = users.find(u => u.id === order.userId);
+                    customerRanking[order.userId] = {
+                        name: customer?.name || 'Cliente Avulso',
+                        totalSpent: 0,
+                        orderCount: 0
+                    };
+                }
+                customerRanking[order.userId].totalSpent += order.total;
+                customerRanking[order.userId].orderCount += 1;
+            }
+        });
+
+        const topCustomersData = Object.values(customerRanking)
+            .sort((a, b) => b.totalSpent - a.totalSpent)
+            .slice(0, 5);
+
+
         return {
             totalRevenue: revenue,
             totalSales: salesCount,
@@ -111,7 +141,8 @@ export default function RelatoriosPage() {
             newCustomers: customersCount,
             salesByDay: salesByDayData,
             topProducts: topProductsData,
-            salesByCategory: salesByCategoryData
+            salesByCategory: salesByCategoryData,
+            topCustomers: topCustomersData
         };
 
     }, [timeRange, topProductsFilter, storeOrders, storeProducts]);
@@ -367,12 +398,12 @@ export default function RelatoriosPage() {
                 </Card>
             </div>
             
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                <Card>
+             <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">
+                 <Card className="lg:col-span-3">
                     <CardHeader className="flex-row items-center justify-between">
                         <div>
-                            <CardTitle>Produtos Mais Vendidos</CardTitle>
-                            <CardDescription>Top 5 produtos no período selecionado.</CardDescription>
+                            <CardTitle>Top 5 Produtos Mais Vendidos</CardTitle>
+                            <CardDescription>Produtos com melhor desempenho no período.</CardDescription>
                         </div>
                         <Select value={topProductsFilter} onValueChange={(value) => setTopProductsFilter(value as any)}>
                             <SelectTrigger className="w-[180px]">
@@ -405,6 +436,43 @@ export default function RelatoriosPage() {
                         </Table>
                     </CardContent>
                 </Card>
+                 <Card className="lg:col-span-2">
+                    <CardHeader>
+                        <CardTitle className="flex items-center gap-2">
+                            <Trophy className="h-5 w-5 text-amber-500" />
+                            Top 5 Clientes
+                        </CardTitle>
+                        <CardDescription>Clientes que mais compraram no período.</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                        <Table>
+                             <TableHeader>
+                                <TableRow>
+                                    <TableHead>Cliente</TableHead>
+                                    <TableHead className="text-center">Pedidos</TableHead>
+                                    <TableHead className="text-right">Total Gasto</TableHead>
+                                </TableRow>
+                            </TableHeader>
+                            <TableBody>
+                                {mainReportData.topCustomers.map((customer, index) => (
+                                    <TableRow key={index}>
+                                        <TableCell className="font-medium flex items-center gap-2">
+                                             <Avatar className="h-8 w-8">
+                                                <AvatarFallback>{getInitials(customer.name)}</AvatarFallback>
+                                             </Avatar>
+                                            {customer.name}
+                                        </TableCell>
+                                        <TableCell className="text-center">{customer.orderCount}</TableCell>
+                                        <TableCell className="text-right">R$ {customer.totalSpent.toFixed(2)}</TableCell>
+                                    </TableRow>
+                                ))}
+                            </TableBody>
+                        </Table>
+                    </CardContent>
+                </Card>
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                  <Card>
                     <CardHeader className="flex-row items-center justify-between">
                         <div>
@@ -454,9 +522,7 @@ export default function RelatoriosPage() {
                         </Table>
                     </CardContent>
                 </Card>
-            </div>
-
-            <Card>
+                 <Card>
                 <CardHeader className="flex-row items-center justify-between">
                     <div>
                         <CardTitle>Análise Comparativa</CardTitle>
@@ -494,7 +560,10 @@ export default function RelatoriosPage() {
                     </div>
                 </CardContent>
             </Card>
+            </div>
 
         </div>
     );
 }
+
+    
