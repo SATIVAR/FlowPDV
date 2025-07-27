@@ -9,6 +9,8 @@ export interface User {
   role: Role;
   avatar?: string;
   whatsapp: string;
+  deliveryAddress?: string;
+  addressReference?: string;
 }
 
 export interface DeliveryOption {
@@ -102,5 +104,3 @@ export interface Order {
   isDelivery: boolean;
   deliveryDetails?: DeliveryDetails;
 }
-
-    

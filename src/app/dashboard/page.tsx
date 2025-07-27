@@ -292,13 +292,21 @@ function LojistaDashboard() {
     setProducts(prev => prev.filter(p => p.id !== productId));
   };
 
-  const handleSaveCustomer = (customerData: User) => {
+  const handleSaveCustomer = (customerData: Partial<User>) => {
     setCustomers(prev => {
       const existing = prev.find(c => c.id === customerData.id);
       if (existing) {
-        return prev.map(c => c.id === customerData.id ? customerData : c);
+        return prev.map(c => c.id === customerData.id ? {...existing, ...customerData} : c);
       }
-      return [{...customerData, id: `user-${Date.now()}`, role: 'Cliente', avatar: 'https://placehold.co/100x100'}, ...prev];
+      const newCustomer: User = {
+        id: `user-${Date.now()}`,
+        role: 'Cliente',
+        avatar: 'https://placehold.co/100x100',
+        name: customerData.name || '',
+        whatsapp: customerData.whatsapp || '',
+        ...customerData,
+      };
+      return [newCustomer, ...prev];
     })
   };
 

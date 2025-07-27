@@ -10,10 +10,13 @@ import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input, MaskedInput } from '@/components/ui/input';
+import { Textarea } from './ui/textarea';
 
 const customerFormSchema = z.object({
   name: z.string().min(2, { message: "O nome é obrigatório." }),
   whatsapp: z.string().min(10, { message: "Número de WhatsApp inválido." }),
+  deliveryAddress: z.string().optional(),
+  addressReference: z.string().optional(),
 });
 
 export function CustomerForm({ onSave, customer, children }: { onSave: (data: any) => void, customer?: User, children: React.ReactNode }) {
@@ -23,6 +26,8 @@ export function CustomerForm({ onSave, customer, children }: { onSave: (data: an
     defaultValues: {
       name: customer?.name || '',
       whatsapp: customer?.whatsapp || '',
+      deliveryAddress: customer?.deliveryAddress || '',
+      addressReference: customer?.addressReference || '',
     },
   });
 
@@ -70,6 +75,32 @@ export function CustomerForm({ onSave, customer, children }: { onSave: (data: an
                   <FormLabel>WhatsApp</FormLabel>
                   <FormControl>
                     <MaskedInput mask="(00) 00000-0000" placeholder="+55 (11) 99999-9999" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+             <FormField
+              control={form.control}
+              name="deliveryAddress"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Endereço de Entrega (Opcional)</FormLabel>
+                  <FormControl>
+                    <Textarea placeholder="Rua, Número, Bairro, Cidade" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+             <FormField
+              control={form.control}
+              name="addressReference"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Ponto de Referência (Opcional)</FormLabel>
+                  <FormControl>
+                    <Input placeholder="Ex: Próximo ao mercado X" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
