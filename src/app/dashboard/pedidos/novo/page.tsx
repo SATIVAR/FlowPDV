@@ -7,7 +7,7 @@ import { useRouter } from 'next/navigation';
 import { useForm, useFieldArray, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
-import { products as initialProducts, users as initialCustomers, predefinedPaymentMethods, stores } from '@/lib/data';
+import { products as initialProducts, users as initialCustomers, predefinedPaymentMethods, stores, orders } from '@/lib/data';
 import type { Product, User, PaymentMethod, ProductUnit, Store } from '@/lib/types';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
@@ -23,7 +23,6 @@ import { CustomerForm } from '@/components/customer-form';
 import { Textarea } from '@/components/ui/textarea';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Switch } from '@/components/ui/switch';
-import { Separator } from '@/components/ui/separator';
 
 const orderFormSchema = z.object({
   customerType: z.enum(['registered', 'unregistered'], { required_error: "Selecione o tipo de cliente."}),
@@ -202,13 +201,46 @@ export default function NewOrderPage() {
     }
 
     const onSubmit = (values: z.infer<typeof orderFormSchema>) => {
-        // Here you would typically send the data to your API
-        console.log("New Order Submitted:", values);
+        const newOrderId = `order-${Date.now()}`;
+        const paymentMethod = predefinedPaymentMethods.find(pm => pm.id === values.paymentMethodId);
+        
+        // This is where you would normally save to a database.
+        // For this mock, we just add it to our in-memory array.
+        const newOrder = {
+          id: newOrderId,
+          storeId: '2',
+          userId: values.customerId,
+          customerName: values.customerType === 'registered' 
+            ? customers.find(c => c.id === values.customerId)?.name || 'Cliente'
+            : values.customerName || 'Cliente Avulso',
+          items: values.items.map(item => ({...item, id: item.productId})), // mapping to CartItem
+          total,
+          status: values.status,
+          paymentStatus: values.paymentStatus,
+          createdAt: new Date(),
+          paymentMethod: paymentMethod?.name || 'Não definido',
+          paymentGateway: values.gatewayName,
+          splitPayments: values.splitPayments?.map(sp => ({
+              method: predefinedPaymentMethods.find(pm => pm.id === sp.methodId)?.name || 'Não definido',
+              amount: sp.amount,
+          })),
+          observations: values.observations,
+          isDelivery: values.isDelivery,
+          deliveryDetails: values.isDelivery ? {
+            address: values.deliveryAddress || '',
+            addressReference: values.deliveryAddressReference,
+            fee: values.deliveryFee || 0
+          } : undefined,
+        }
+        orders.push(newOrder);
+
+
         toast({
             title: "Pedido Criado!",
             description: "O novo pedido foi salvo com sucesso.",
         });
-        router.push('/dashboard/pedidos');
+
+        router.push(`/dashboard/pedidos/sucesso?orderId=${newOrderId}&paymentMethod=${values.paymentMethodId}`);
     };
 
     return (
