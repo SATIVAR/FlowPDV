@@ -1,5 +1,4 @@
 
-
 'use client';
 
 import { useEffect, useState } from 'react';
@@ -276,9 +275,9 @@ function LojistaDashboard() {
     'dinheiro': true,
     'pix': true,
     'cartao_credito': true,
-    'cartao_debito': false,
-    'gateway': false,
-    'dividido': false,
+    'cartao_debito': true,
+    'gateway': true,
+    'dividido': true,
   });
 
   const handleTogglePaymentMethod = (id: string) => {
