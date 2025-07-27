@@ -1,35 +1,34 @@
 
-import type { Metadata } from 'next';
+'use client';
+
 import './globals.css';
 import { Toaster } from '@/components/ui/toaster';
 import { AuthProvider } from '@/components/auth-provider';
 import { Header } from '@/components/header';
 import { ThemeProvider } from '@/components/theme-provider';
+import { usePathname } from 'next/navigation';
+import { Inter, Space_Grotesk } from 'next/font/google';
 
-export const metadata: Metadata = {
-  title: 'FlowPDV - O marketplace para todos',
-  description: 'Uma plataforma completa para você criar sua loja, gerenciar seus produtos e alcançar mais clientes. Simples, rápido e sem taxas escondidas.',
-  keywords: ['marketplace', 'e-commerce', 'vendas online', 'loja virtual'],
-};
+// Metadata is handled dynamically or in server components
+// when using 'use client'.
+
+const inter = Inter({ subsets: ['latin'], variable: '--font-body' });
+const spaceGrotesk = Space_Grotesk({ subsets: ['latin'], variable: '--font-headline' });
 
 export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const pathname = usePathname();
+  const isPublicStorePage = pathname.startsWith('/loja/');
+
   return (
-    <html lang="en" className="h-full" suppressHydrationWarning>
+    <html lang="pt-BR" className={`${inter.variable} ${spaceGrotesk.variable} h-full`} suppressHydrationWarning>
       <head>
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link
-          rel="preconnect"
-          href="https://fonts.gstatic.com"
-          crossOrigin="anonymous"
-        />
-        <link
-          href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap"
-          rel="stylesheet"
-        />
+        {/* You can add Head tags here if needed, for example: */}
+        <title>FlowPDV - O marketplace para todos</title>
+        <meta name="description" content="Uma plataforma completa para você criar sua loja, gerenciar seus produtos e alcançar mais clientes. Simples, rápido e sem taxas escondidas." />
       </head>
       <body className="font-body antialiased h-full">
         <ThemeProvider
@@ -40,7 +39,7 @@ export default function RootLayout({
         >
           <AuthProvider>
             <div className="min-h-full flex flex-col">
-              <Header />
+              {!isPublicStorePage && <Header />}
               <main className="flex-grow">{children}</main>
             </div>
             <Toaster />

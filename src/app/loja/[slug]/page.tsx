@@ -4,11 +4,12 @@
 import { useState, useMemo } from 'react';
 import { useParams, notFound } from 'next/navigation';
 import Image from 'next/image';
+import Link from 'next/link';
 import { stores as initialStores, products as initialProducts, categories as initialCategories } from '@/lib/data';
 import { ProductCard } from '@/components/product-card';
-import { PublicHeader } from '@/components/public-header';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Phone, Info } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { ModeToggle } from '@/components/mode-toggle';
 
 export default function LojaPage() {
     const params = useParams();
@@ -36,7 +37,6 @@ export default function LojaPage() {
 
     return (
         <div className="flex flex-col min-h-screen bg-muted/20 dark:bg-muted/50">
-           <PublicHeader storeName={store.name} />
            <main className="flex-grow">
                 <div className="relative">
                     <div className="h-48 md:h-64 lg:h-80 w-full relative">
@@ -51,19 +51,32 @@ export default function LojaPage() {
                          <div className="absolute inset-0 bg-black/30" />
                     </div>
                     <div className="container mx-auto px-4 -mt-16 md:-mt-24 relative z-10">
-                        <div className="flex items-end gap-4">
-                            <div className="w-32 h-32 md:w-48 md:h-48 rounded-full border-4 border-background bg-muted relative overflow-hidden shadow-lg">
-                                <Image
-                                    src={store.logoUrl}
-                                    alt={`${store.name} logo`}
-                                    fill
-                                    className="object-cover"
-                                    data-ai-hint="company logo"
-                                />
+                         <div className="flex flex-col md:flex-row md:items-end md:justify-between">
+                            <div className="flex items-end gap-4">
+                                <div className="w-32 h-32 md:w-48 md:h-48 rounded-full border-4 border-background bg-muted relative overflow-hidden shadow-lg">
+                                    <Image
+                                        src={store.logoUrl}
+                                        alt={`${store.name} logo`}
+                                        fill
+                                        className="object-cover"
+                                        data-ai-hint="company logo"
+                                    />
+                                </div>
+                                <div className="pb-4">
+                                    <h1 className="text-2xl md:text-4xl font-bold font-headline text-background/90 drop-shadow-md">{store.name}</h1>
+                                    <p className="text-sm md:text-base text-background/80 drop-shadow">{store.description}</p>
+                                </div>
                             </div>
-                            <div className="pb-4">
-                                <h1 className="text-2xl md:text-4xl font-bold font-headline text-background/90 drop-shadow-md">{store.name}</h1>
-                                <p className="text-sm md:text-base text-background/80 drop-shadow">{store.description}</p>
+                            <div className="flex items-center gap-2 pb-4">
+                                <ModeToggle />
+                                <Button asChild variant="ghost" size="sm" className="text-white hover:bg-white/20 hover:text-white">
+                                    <Link href="/login">Login</Link>
+                                </Button>
+                                <Button asChild size="sm" className="bg-white text-primary hover:bg-white/90">
+                                    <Link href="/register-customer">
+                                    <span>Cadastre-se</span>
+                                    </Link>
+                                </Button>
                             </div>
                         </div>
                     </div>
