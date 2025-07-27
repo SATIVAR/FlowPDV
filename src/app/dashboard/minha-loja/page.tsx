@@ -25,6 +25,9 @@ const storeSettingsSchema = z.object({
   description: z.string().max(200, "A descrição pode ter no máximo 200 caracteres.").optional(),
   contactWhatsapp: z.string().min(10, "WhatsApp inválido.").optional(),
   pixKey: z.string().optional(),
+  pixAccountName: z.string().optional(),
+  pixBankName: z.string().optional(),
+  pixAccountNumber: z.string().optional(),
   deliveryOptions: z.array(z.object({
       type: z.enum(['Entrega', 'Retirada']),
       enabled: z.boolean(),
@@ -47,6 +50,9 @@ export default function MinhaLojaPage() {
             description: store.description || '',
             contactWhatsapp: store.contactWhatsapp || '',
             pixKey: store.pixKey || '',
+            pixAccountName: store.pixAccountName || '',
+            pixBankName: store.pixBankName || '',
+            pixAccountNumber: store.pixAccountNumber || '',
             deliveryOptions: store.deliveryOptions.map(opt => ({
                 ...opt,
                 feeType: opt.feeType || 'fixed',
@@ -224,9 +230,9 @@ export default function MinhaLojaPage() {
                      <Card>
                         <CardHeader>
                             <CardTitle>Opções de Pagamento</CardTitle>
-                            <CardDescription>Configure sua chave Pix para receber pagamentos.</CardDescription>
+                            <CardDescription>Configure suas informações de Pix para receber pagamentos.</CardDescription>
                         </CardHeader>
-                        <CardContent>
+                        <CardContent className="space-y-4">
                              <FormField
                                 control={form.control}
                                 name="pixKey"
@@ -240,6 +246,47 @@ export default function MinhaLojaPage() {
                                     </FormItem>
                                 )}
                             />
+                            <div className="grid md:grid-cols-3 gap-4">
+                                <FormField
+                                    control={form.control}
+                                    name="pixAccountName"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>Nome da Conta</FormLabel>
+                                            <FormControl>
+                                                <Input placeholder="Nome completo do titular" {...field} />
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                                <FormField
+                                    control={form.control}
+                                    name="pixBankName"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>Nome do Banco</FormLabel>
+                                            <FormControl>
+                                                <Input placeholder="Ex: Banco do Brasil" {...field} />
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                                <FormField
+                                    control={form.control}
+                                    name="pixAccountNumber"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>Número da Conta</FormLabel>
+                                            <FormControl>
+                                                <Input placeholder="Ex: 12345-6" {...field} />
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                            </div>
                         </CardContent>
                     </Card>
                     

@@ -28,6 +28,9 @@ export interface Store {
     coverUrl: string;
     pixQrCodeUrl?: string;
     pixKey?: string;
+    pixAccountName?: string;
+    pixBankName?: string;
+    pixAccountNumber?: string;
     deliveryOptions: DeliveryOption[];
 }
 

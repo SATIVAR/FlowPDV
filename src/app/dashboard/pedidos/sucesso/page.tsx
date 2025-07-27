@@ -45,9 +45,9 @@ Valor: R$ ${order.total.toFixed(2)}
 ------------------------
 Chave PIX: ${store.pixKey}
 Dados da conta:
-Nome: ${store.name}
-Banco: N/A
-Conta: N/A
+Nome: ${store.pixAccountName || 'Não informado'}
+Banco: ${store.pixBankName || 'Não informado'}
+Conta: ${store.pixAccountNumber || 'Não informada'}
 ========================
         `.trim();
 

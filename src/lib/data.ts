@@ -66,6 +66,9 @@ export const stores: Store[] = [
     coverUrl: 'https://placehold.co/600x400',
     pixKey: '11988887777',
     pixQrCodeUrl: 'https://placehold.co/256x256.png',
+    pixAccountName: 'Loja da Esquina LTDA',
+    pixBankName: 'Banco Digital Exemplo',
+    pixAccountNumber: '12345-6',
     deliveryOptions: [
         { type: 'Entrega', enabled: true, feeType: 'variable', price: 5, details: 'Entregamos em um raio de 5km.' },
         { type: 'Retirada', enabled: true, details: 'Retire na loja em até 30 minutos.' }
