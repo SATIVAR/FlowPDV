@@ -68,6 +68,11 @@ export interface DeliveryDetails {
     fee: number;
 }
 
+export interface SplitPayment {
+    method: string; // The name of the payment method, e.g., 'Pix'
+    amount: number;
+}
+
 export interface Order {
   id:string;
   userId?: string; // Can be optional for unregistered customers
@@ -79,6 +84,8 @@ export interface Order {
   paymentStatus: PaymentStatus;
   createdAt: Date;
   paymentMethod: string;
+  paymentGateway?: string; // For gateway payments
+  splitPayments?: SplitPayment[]; // For split payments
   observations?: string;
   isDelivery: boolean;
   deliveryDetails?: DeliveryDetails;

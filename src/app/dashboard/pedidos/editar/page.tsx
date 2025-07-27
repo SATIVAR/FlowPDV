@@ -30,6 +30,11 @@ const orderFormSchema = z.object({
   customerId: z.string().optional(),
   customerName: z.string().optional(),
   paymentMethodId: z.string({ required_error: "Selecione uma forma de pagamento." }),
+  gatewayName: z.string().optional(),
+  splitPayments: z.array(z.object({
+      methodId: z.string(),
+      amount: z.coerce.number().min(0.01),
+  })).optional(),
   items: z.array(z.object({
     productId: z.string(),
     name: z.string(),
@@ -63,6 +68,22 @@ const orderFormSchema = z.object({
 }, {
     message: "O endereço de entrega é obrigatório.",
     path: ["deliveryAddress"],
+}).refine(data => {
+    if (data.paymentMethodId === 'gateway' && (!data.gatewayName || data.gatewayName.length < 2)) {
+        return false;
+    }
+    return true;
+}, {
+    message: "O nome do gateway de pagamento é obrigatório.",
+    path: ["gatewayName"]
+}).refine(data => {
+    if (data.paymentMethodId === 'dividido' && (!data.splitPayments || data.splitPayments.length < 2)) {
+        return false;
+    }
+    return true;
+}, {
+    message: "Adicione pelo menos duas formas de pagamento para dividir a conta.",
+    path: ["splitPayments"]
 });
 
 
@@ -102,6 +123,8 @@ export default function EditOrderPage() {
     
     const customerType = form.watch('customerType');
     const isDelivery = form.watch('isDelivery');
+    const selectedPaymentMethodId = form.watch('paymentMethodId');
+    const availableSplitMethods = paymentMethods.filter(pm => pm.id !== 'gateway' && pm.id !== 'dividido');
 
     useEffect(() => {
         if (!orderId) {
@@ -113,11 +136,18 @@ export default function EditOrderPage() {
             setOrder(foundOrder);
             const isRegistered = !!foundOrder.userId;
 
+            const paymentMethodId = predefinedPaymentMethods.find(pm => pm.name === foundOrder.paymentMethod)?.id;
+
             form.reset({
                 customerType: isRegistered ? 'registered' : 'unregistered',
                 customerId: foundOrder.userId,
                 customerName: isRegistered ? undefined : foundOrder.customerName,
-                paymentMethodId: paymentMethods.find(pm => pm.name === foundOrder.paymentMethod)?.id || '',
+                paymentMethodId: paymentMethodId,
+                gatewayName: foundOrder.paymentGateway || '',
+                splitPayments: foundOrder.splitPayments?.map(sp => ({
+                    methodId: predefinedPaymentMethods.find(pm => pm.name === sp.method)?.id || '',
+                    amount: sp.amount,
+                })) || [],
                 status: foundOrder.status,
                 paymentStatus: foundOrder.paymentStatus,
                 items: foundOrder.items.map(item => ({
@@ -146,6 +176,11 @@ export default function EditOrderPage() {
     const { fields, append, remove, update } = useFieldArray({
         control: form.control,
         name: "items",
+    });
+
+    const { fields: splitFields, append: appendSplit, remove: removeSplit } = useFieldArray({
+        control: form.control,
+        name: "splitPayments",
     });
     
     const [selectedProductId, setSelectedProductId] = useState('');
@@ -362,7 +397,7 @@ export default function EditOrderPage() {
                                     </FormItem>
                                 )}
                                 />
-                             <div className="md:col-span-2">
+                             <div className="md:col-span-2 space-y-4">
                                 <FormField
                                     control={form.control}
                                     name="paymentMethodId"
@@ -400,6 +435,68 @@ export default function EditOrderPage() {
                                         </FormItem>
                                     )}
                                 />
+                                {selectedPaymentMethodId === 'gateway' && (
+                                     <FormField
+                                        control={form.control}
+                                        name="gatewayName"
+                                        render={({ field }) => (
+                                            <FormItem>
+                                                <FormLabel>Nome do Gateway de Pagamento</FormLabel>
+                                                <FormControl>
+                                                    <Input placeholder="Ex: Mercado Pago, PagSeguro" {...field} />
+                                                </FormControl>
+                                                <FormMessage />
+                                            </FormItem>
+                                        )}
+                                    />
+                                )}
+                                {selectedPaymentMethodId === 'dividido' && (
+                                    <div className="space-y-4 p-4 border rounded-md">
+                                        <h4 className="font-medium">Pagamento Dividido</h4>
+                                        {splitFields.map((field, index) => (
+                                            <div key={field.id} className="flex items-end gap-2">
+                                                <FormField
+                                                    control={form.control}
+                                                    name={`splitPayments.${index}.methodId`}
+                                                    render={({ field }) => (
+                                                        <FormItem className="flex-1">
+                                                            <FormLabel>Forma</FormLabel>
+                                                            <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                                                <FormControl>
+                                                                    <SelectTrigger>
+                                                                        <SelectValue placeholder="Selecione"/>
+                                                                    </SelectTrigger>
+                                                                </FormControl>
+                                                                <SelectContent>
+                                                                    {availableSplitMethods.map(pm => <SelectItem key={pm.id} value={pm.id}>{pm.name}</SelectItem>)}
+                                                                </SelectContent>
+                                                            </Select>
+                                                        </FormItem>
+                                                    )}
+                                                />
+                                                 <FormField
+                                                    control={form.control}
+                                                    name={`splitPayments.${index}.amount`}
+                                                    render={({ field }) => (
+                                                        <FormItem>
+                                                            <FormLabel>Valor (R$)</FormLabel>
+                                                            <FormControl>
+                                                                <Input type="number" step="0.01" {...field} />
+                                                            </FormControl>
+                                                        </FormItem>
+                                                    )}
+                                                />
+                                                <Button type="button" variant="ghost" size="icon" onClick={() => removeSplit(index)}>
+                                                    <Trash2 className="h-4 w-4 text-destructive" />
+                                                </Button>
+                                            </div>
+                                        ))}
+                                        <Button type="button" variant="outline" size="sm" onClick={() => appendSplit({ methodId: '', amount: 0})}>
+                                            <PlusCircle className="mr-2 h-4 w-4" /> Adicionar Pagamento
+                                        </Button>
+                                        <FormMessage>{form.formState.errors.splitPayments?.message}</FormMessage>
+                                    </div>
+                                )}
                             </div>
                              <div className="md:col-span-2">
                                 <FormField
