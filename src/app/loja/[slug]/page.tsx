@@ -6,6 +6,7 @@ import { useParams, notFound } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
 import { stores as initialStores, products as initialProducts, categories as initialCategories } from '@/lib/data';
+import type { Product } from '@/lib/types';
 import { ProductCard } from '@/components/product-card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from '@/components/ui/button';
@@ -51,12 +52,12 @@ export default function LojaPage() {
                             priority
                             data-ai-hint="store cover"
                         />
-                         <div className="absolute inset-0 bg-black/30" />
+                         <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/30 to-transparent" />
                     </div>
                     <div className="container mx-auto px-4 -mt-16 md:-mt-24 relative z-10">
-                         <div className="flex flex-col md:flex-row md:items-end md:justify-between">
+                         <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4">
                             <div className="flex items-end gap-4">
-                                <div className="w-32 h-32 md:w-48 md:h-48 rounded-full border-4 border-background bg-muted relative overflow-hidden shadow-lg">
+                                <div className="w-32 h-32 md:w-48 md:h-48 rounded-full border-4 border-background bg-muted relative overflow-hidden shadow-lg shrink-0">
                                     <Image
                                         src={store.logoUrl}
                                         alt={`${store.name} logo`}
@@ -66,11 +67,11 @@ export default function LojaPage() {
                                     />
                                 </div>
                                 <div className="pb-4">
-                                    <h1 className="text-2xl md:text-4xl font-bold font-headline text-background/90 drop-shadow-md">{store.name}</h1>
-                                    <p className="text-sm md:text-base text-background/80 drop-shadow">{store.description}</p>
+                                    <h1 className="text-2xl md:text-4xl font-bold font-headline text-white drop-shadow-md">{store.name}</h1>
+                                    <p className="text-sm md:text-base text-gray-200 drop-shadow">{store.description}</p>
                                 </div>
                             </div>
-                            <div className="flex items-center gap-2 pb-4">
+                            <div className="flex items-center gap-2 pb-4 self-start md:self-end">
                                 <ModeToggle />
                                 <Button asChild variant="ghost" size="sm" className="text-white hover:bg-white/20 hover:text-white">
                                     <Link href={`/login-cliente?loja=${store.slug}`}>Login</Link>
@@ -85,43 +86,47 @@ export default function LojaPage() {
                     </div>
                 </div>
 
-                <div className="container mx-auto px-4 py-8 grid grid-cols-1 lg:grid-cols-4 gap-8">
-                     <aside className="lg:col-span-1 space-y-6">
+                <div className="container mx-auto px-4 py-8 grid grid-cols-1 lg:grid-cols-4 gap-8 items-start">
+                     <aside className="lg:col-span-1 space-y-6 lg:sticky lg:top-24">
                         <Card>
                             <CardContent className="p-4 space-y-3">
                                 {store.address && (
                                      <div className="flex items-start gap-3">
-                                        <MapPin className="h-5 w-5 text-muted-foreground mt-1" />
+                                        <MapPin className="h-5 w-5 text-muted-foreground mt-1 shrink-0" />
                                         <p className="text-sm">{store.address}</p>
                                      </div>
                                 )}
                                 {store.contactWhatsapp && (
                                      <div className="flex items-center gap-3">
-                                        <Phone className="h-5 w-5 text-muted-foreground" />
+                                        <Phone className="h-5 w-5 text-muted-foreground shrink-0" />
                                         <p className="text-sm">{store.contactWhatsapp}</p>
                                      </div>
                                 )}
-                                {(store.socials?.instagram || store.socials?.tiktok || store.socials?.youtube) && (
-                                    <div className="flex items-center gap-4 pt-2">
+                            </CardContent>
+                        </Card>
+                         {(store.socials?.instagram || store.socials?.tiktok || store.socials?.youtube) && (
+                            <Card>
+                                <CardContent className="p-4">
+                                    <div className="flex items-center justify-around gap-4">
                                         {store.socials.instagram && (
-                                            <a href={`https://instagram.com/${store.socials.instagram.replace('@', '')}`} target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-primary">
-                                                <Instagram className="h-6 w-6" />
+                                            <a href={`https://instagram.com/${store.socials.instagram.replace('@', '')}`} target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-primary transition-colors">
+                                                <Instagram className="h-7 w-7" />
                                             </a>
                                         )}
                                         {store.socials.tiktok && (
-                                             <a href={`https://tiktok.com/${store.socials.tiktok}`} target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-primary">
-                                                <Icons.Tiktok className="h-6 w-6" />
+                                             <a href={`https://tiktok.com/${store.socials.tiktok}`} target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-primary transition-colors">
+                                                <Icons.Tiktok className="h-7 w-7" />
                                              </a>
                                         )}
                                          {store.socials.youtube && (
-                                             <a href={`https://youtube.com/${store.socials.youtube}`} target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-primary">
-                                                <Youtube className="h-6 w-6" />
+                                             <a href={`https://youtube.com/${store.socials.youtube}`} target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-primary transition-colors">
+                                                <Youtube className="h-7 w-7" />
                                              </a>
                                         )}
                                     </div>
-                                )}
-                            </CardContent>
-                        </Card>
+                                </CardContent>
+                            </Card>
+                        )}
                      </aside>
                      <div className="lg:col-span-3">
                         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full mb-8">
