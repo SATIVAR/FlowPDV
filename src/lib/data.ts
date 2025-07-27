@@ -167,7 +167,8 @@ export const orders: Order[] = [
         status: 'Pendente',
         paymentStatus: 'Pendente',
         createdAt: new Date(2023, 10, 28),
-        paymentMethod: 'Pix'
+        paymentMethod: 'Pix',
+        observations: 'Deixar na portaria com o João.'
     },
     {
         id: 'order-2',
@@ -196,7 +197,8 @@ export const orders: Order[] = [
         status: 'Entregue',
         paymentStatus: 'Pago',
         createdAt: new Date(2023, 10, 20),
-        paymentMethod: 'Dinheiro'
+        paymentMethod: 'Dinheiro',
+        observations: 'Presente de aniversário, por favor embrulhar com cuidado.'
     },
     {
         id: 'order-4',
@@ -213,3 +215,4 @@ export const orders: Order[] = [
         paymentMethod: 'Pix'
     }
 ];
+

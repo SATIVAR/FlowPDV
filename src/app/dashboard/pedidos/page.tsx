@@ -213,6 +213,12 @@ export default function PedidosPage() {
                                                                 </TableBody>
                                                             </Table>
                                                         </div>
+                                                        {selectedOrder.observations && (
+                                                            <div className="border-t pt-4">
+                                                                <h3 className="font-semibold mb-2">Observações</h3>
+                                                                <p className="text-sm text-muted-foreground bg-muted p-3 rounded-md">{selectedOrder.observations}</p>
+                                                            </div>
+                                                        )}
                                                         <div className="border-t pt-4">
                                                             <div className="flex justify-between items-center">
                                                                 <span className="text-muted-foreground">Método de Pagamento</span>

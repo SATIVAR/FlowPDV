@@ -20,6 +20,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { ChevronLeft, Trash2, PlusCircle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { CustomerForm } from '@/components/customer-form';
+import { Textarea } from '@/components/ui/textarea';
 
 const orderFormSchema = z.object({
   customerType: z.enum(['registered', 'unregistered'], { required_error: "Selecione o tipo de cliente."}),
@@ -35,6 +36,7 @@ const orderFormSchema = z.object({
   })).min(1, "Adicione pelo menos um produto ao pedido."),
   status: z.enum(['Pendente', 'Processando', 'Enviado', 'Entregue', 'Cancelado']),
   paymentStatus: z.enum(['Pendente', 'Pago', 'Rejeitado']),
+  observations: z.string().optional(),
 }).refine(data => {
     if (data.customerType === 'registered') {
         return !!data.customerId;
@@ -69,6 +71,7 @@ export default function NewOrderPage() {
             items: [],
             status: 'Pendente',
             paymentStatus: 'Pendente',
+            observations: '',
         },
     });
 
@@ -302,6 +305,21 @@ export default function NewOrderPage() {
                                 </FormItem>
                                 )}
                             />
+                            <div className="md:col-span-2">
+                                <FormField
+                                    control={form.control}
+                                    name="observations"
+                                    render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>Observações</FormLabel>
+                                        <FormControl>
+                                            <Textarea placeholder="Ex: Deixar na portaria, troco para R$50, etc." {...field} />
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                    )}
+                                />
+                            </div>
                         </CardContent>
                     </Card>
 

@@ -72,5 +72,7 @@ export interface Order {
   paymentStatus: PaymentStatus;
   createdAt: Date;
   paymentMethod: string;
+  observations?: string;
 }
+
 
