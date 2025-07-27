@@ -9,7 +9,7 @@ import { Badge, badgeVariants } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator } from '@/components/ui/dropdown-menu';
 import { Dialog, DialogTrigger, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { MoreHorizontal, Eye, PlusCircle, Edit, Search, CheckCircle, Trash2 } from 'lucide-react';
+import { MoreHorizontal, Eye, PlusCircle, Edit, Search, CheckCircle, Trash2, XCircle, RefreshCw, Send } from 'lucide-react';
 import { orders as initialOrders } from '@/lib/data';
 import type { Order, OrderStatus } from '@/lib/types';
 import { format } from 'date-fns';
@@ -130,68 +130,70 @@ export default function PedidosPage() {
                         </TableHeader>
                         <TableBody>
                             {filteredOrders.map((order) => (
-                                <TableRow key={order.id} className={order.status === 'Entregue' ? 'bg-green-500/10' : ''}>
+                                <TableRow key={order.id}>
                                     <TableCell className="font-medium">#{order.id.slice(-6)}</TableCell>
                                     <TableCell>{order.customerName}</TableCell>
                                     <TableCell className="hidden md:table-cell">{format(order.createdAt, "dd 'de' MMM, yyyy", { locale: ptBR })}</TableCell>
                                     <TableCell>
-                                        <div className="flex items-center gap-2">
+                                        <Badge variant={getStatusVariant(order.status)} className="gap-1.5 pl-1.5">
                                             <span className={`h-2 w-2 rounded-full ${getStatusDotClass(order.status)}`} />
-                                            <Badge variant={getStatusVariant(order.status)}>{order.status}</Badge>
-                                        </div>
+                                            {order.status}
+                                        </Badge>
                                     </TableCell>
                                     <TableCell className="hidden sm:table-cell">{order.paymentMethod}</TableCell>
                                     <TableCell className="text-right">R$ {order.total.toFixed(2)}</TableCell>
                                     <TableCell className="text-center space-x-1">
-                                         <Dialog onOpenChange={(open) => !open && setSelectedOrder(null)} open={selectedOrder?.id === order.id}>
+                                         <Dialog onOpenChange={(open) => !open && setSelectedOrder(null)}>
                                             <DialogTrigger asChild>
                                                 <Button variant="ghost" size="icon" onClick={() => setSelectedOrder(order)}>
                                                     <Eye className="h-4 w-4" />
                                                 </Button>
                                             </DialogTrigger>
-                                            <DialogContent className="sm:max-w-lg">
-                                                <DialogHeader>
-                                                    <DialogTitle>Detalhes do Pedido #{selectedOrder?.id.slice(-6)}</DialogTitle>
-                                                    <DialogDescription>
-                                                        Cliente: {selectedOrder?.customerName} - Data: {selectedOrder ? format(selectedOrder.createdAt, "dd 'de' MMM, yyyy", { locale: ptBR }) : ''}
-                                                    </DialogDescription>
-                                                </DialogHeader>
-                                                <div className="mt-4 space-y-4 max-h-[60vh] overflow-y-auto pr-2">
-                                                    <div>
-                                                        <h3 className="font-semibold mb-2">Itens do Pedido</h3>
-                                                        <Table>
-                                                            <TableHeader>
-                                                                <TableRow>
-                                                                    <TableHead>Produto</TableHead>
-                                                                    <TableHead>Qtd.</TableHead>
-                                                                    <TableHead className="text-right">Preço Unit.</TableHead>
-                                                                    <TableHead className="text-right">Subtotal</TableHead>
-                                                                </TableRow>
-                                                            </TableHeader>
-                                                            <TableBody>
-                                                                {selectedOrder?.items.map(item => (
-                                                                    <TableRow key={item.id}>
-                                                                        <TableCell>{item.name}</TableCell>
-                                                                        <TableCell>{item.quantity}{item.unit !== 'unidade' && ` ${item.unit}`}</TableCell>
-                                                                        <TableCell className="text-right">R$ {item.price.toFixed(2)}</TableCell>
-                                                                        <TableCell className="text-right">R$ {(item.price * item.quantity).toFixed(2)}</TableCell>
+                                             {selectedOrder?.id === order.id && (
+                                                <DialogContent className="sm:max-w-lg">
+                                                    <DialogHeader>
+                                                        <DialogTitle>Detalhes do Pedido #{selectedOrder?.id.slice(-6)}</DialogTitle>
+                                                        <DialogDescription>
+                                                            Cliente: {selectedOrder?.customerName} - Data: {selectedOrder ? format(selectedOrder.createdAt, "dd 'de' MMM, yyyy", { locale: ptBR }) : ''}
+                                                        </DialogDescription>
+                                                    </DialogHeader>
+                                                    <div className="mt-4 space-y-4 max-h-[60vh] overflow-y-auto pr-2">
+                                                        <div>
+                                                            <h3 className="font-semibold mb-2">Itens do Pedido</h3>
+                                                            <Table>
+                                                                <TableHeader>
+                                                                    <TableRow>
+                                                                        <TableHead>Produto</TableHead>
+                                                                        <TableHead>Qtd.</TableHead>
+                                                                        <TableHead className="text-right">Preço Unit.</TableHead>
+                                                                        <TableHead className="text-right">Subtotal</TableHead>
                                                                     </TableRow>
-                                                                ))}
-                                                            </TableBody>
-                                                        </Table>
-                                                    </div>
-                                                    <div className="border-t pt-4">
-                                                        <div className="flex justify-between items-center">
-                                                            <span className="text-muted-foreground">Método de Pagamento</span>
-                                                            <span className="font-medium">{selectedOrder?.paymentMethod}</span>
+                                                                </TableHeader>
+                                                                <TableBody>
+                                                                    {selectedOrder?.items.map(item => (
+                                                                        <TableRow key={item.id}>
+                                                                            <TableCell>{item.name}</TableCell>
+                                                                            <TableCell>{item.quantity}{item.unit !== 'unidade' && ` ${item.unit}`}</TableCell>
+                                                                            <TableCell className="text-right">R$ {item.price.toFixed(2)}</TableCell>
+                                                                            <TableCell className="text-right">R$ {(item.price * item.quantity).toFixed(2)}</TableCell>
+                                                                        </TableRow>
+                                                                    ))}
+                                                                </TableBody>
+                                                            </Table>
                                                         </div>
-                                                        <div className="flex justify-between items-center mt-2 font-bold text-lg">
-                                                            <span>Total</span>
-                                                            <span>R$ {selectedOrder?.total.toFixed(2)}</span>
+                                                        <div className="border-t pt-4">
+                                                            <div className="flex justify-between items-center">
+                                                                <span className="text-muted-foreground">Método de Pagamento</span>
+                                                                <span className="font-medium">{selectedOrder?.paymentMethod}</span>
+                                                            </div>
+                                                            <div className="flex justify-between items-center mt-2 font-bold text-lg">
+                                                                <span>Total</span>
+                                                                <span>R$ {selectedOrder?.total.toFixed(2)}</span>
+                                                            </div>
                                                         </div>
                                                     </div>
-                                                </div>
-                                            </DialogContent>
+                                                </DialogContent>
+                                             )}
                                         </Dialog>
                                         <Button asChild variant="ghost" size="icon">
                                             <Link href={`/dashboard/pedidos/editar?id=${order.id}`}>
@@ -206,18 +208,41 @@ export default function PedidosPage() {
                                                 </Button>
                                             </DropdownMenuTrigger>
                                             <DropdownMenuContent align="end">
-                                                <DropdownMenuItem onSelect={() => handleStatusChange(order.id, 'Entregue')}>
-                                                    <CheckCircle className="mr-2 h-4 w-4 text-green-500" />
-                                                    Marcar como Entregue
-                                                </DropdownMenuItem>
+                                                {order.status !== 'Entregue' && (
+                                                  <DropdownMenuItem onSelect={() => handleStatusChange(order.id, 'Entregue')} disabled={order.status === 'Cancelado'}>
+                                                      <CheckCircle className="mr-2 h-4 w-4 text-green-500" />
+                                                      Marcar como Entregue
+                                                  </DropdownMenuItem>
+                                                )}
+                                                {order.status !== 'Enviado' && (
+                                                  <DropdownMenuItem onSelect={() => handleStatusChange(order.id, 'Enviado')} disabled={order.status === 'Cancelado' || order.status === 'Entregue'}>
+                                                      <Send className="mr-2 h-4 w-4 text-purple-500" />
+                                                      Marcar como Enviado
+                                                  </DropdownMenuItem>
+                                                )}
+                                                {order.status !== 'Processando' && (
+                                                  <DropdownMenuItem onSelect={() => handleStatusChange(order.id, 'Processando')} disabled={order.status === 'Cancelado' || order.status === 'Entregue'}>
+                                                      <RefreshCw className="mr-2 h-4 w-4 text-blue-500" />
+                                                      Marcar como Processando
+                                                  </DropdownMenuItem>
+                                                )}
+
+                                                {(order.status === 'Cancelado' || order.status === 'Entregue') && (
+                                                    <DropdownMenuItem onSelect={() => handleStatusChange(order.id, 'Pendente')}>
+                                                        <RefreshCw className="mr-2 h-4 w-4 text-yellow-500" />
+                                                        Reativar para Pendente
+                                                    </DropdownMenuItem>
+                                                )}
+
                                                 <DropdownMenuSeparator />
-                                                <DropdownMenuItem onSelect={() => handleStatusChange(order.id, 'Pendente')}>Marcar como Pendente</DropdownMenuItem>
-                                                <DropdownMenuItem onSelect={() => handleStatusChange(order.id, 'Processando')}>Marcar como Processando</DropdownMenuItem>
-                                                <DropdownMenuSeparator />
+                                                
                                                 <AlertDialog>
                                                     <AlertDialogTrigger asChild>
-                                                        <div className="relative flex cursor-default select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none transition-colors focus:bg-accent focus:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50 text-destructive focus:text-destructive">
-                                                           <Trash2 className="mr-2 h-4 w-4" />
+                                                        <div className={`relative flex cursor-default select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none transition-colors focus:bg-accent focus:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50 ${order.status === 'Cancelado' ? 'text-muted-foreground' : 'text-destructive focus:text-destructive'}`}
+                                                             onClick={(e) => order.status === 'Cancelado' && e.stopPropagation()}
+                                                             aria-disabled={order.status === 'Cancelado'}
+                                                             >
+                                                           <XCircle className="mr-2 h-4 w-4" />
                                                             Cancelar Pedido
                                                         </div>
                                                     </AlertDialogTrigger>
@@ -225,7 +250,7 @@ export default function PedidosPage() {
                                                         <AlertDialogHeader>
                                                         <AlertDialogTitle>Você tem certeza?</AlertDialogTitle>
                                                         <AlertDialogDescription>
-                                                            Essa ação não pode ser desfeita. Isso marcará o pedido como cancelado.
+                                                            Essa ação não pode ser desfeita. Isso marcará o pedido como cancelado e não poderá ser revertido.
                                                         </AlertDialogDescription>
                                                         </AlertDialogHeader>
                                                         <AlertDialogFooter>
