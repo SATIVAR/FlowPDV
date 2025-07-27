@@ -6,48 +6,50 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { BarChart, Users, DollarSign, ShoppingBag, ArrowUp, ArrowDown, PieChart as PieChartIcon } from "lucide-react";
+import { BarChart, Users, DollarSign, ShoppingBag, ArrowUp, ArrowDown, PieChart as PieChartIcon, Calendar } from "lucide-react";
 import { orders, products, categories, users } from '@/lib/data';
 import { Area, AreaChart, Bar, CartesianGrid, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Legend } from 'recharts';
 import type { ChartConfig } from '@/components/ui/chart';
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
-import { format, subDays } from 'date-fns';
+import { format, subDays, getMonth, getYear, startOfMonth, endOfMonth, subMonths, startOfYear, endOfYear, subYears } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
+import { cn } from '@/lib/utils';
 
 const COLORS = ["hsl(var(--chart-1))", "hsl(var(--chart-2))", "hsl(var(--chart-3))", "hsl(var(--chart-4))", "hsl(var(--chart-5))"];
 
+const generateMonthOptions = () => {
+    const options = [];
+    const now = new Date();
+    for (let i = 0; i < 12; i++) {
+        const date = subMonths(now, i);
+        options.push({
+            value: format(date, 'yyyy-MM'),
+            label: format(date, "MMMM 'de' yyyy", { locale: ptBR })
+        });
+    }
+    return options;
+};
+
 export default function RelatoriosPage() {
-    // Note: In a real app, this data would be fetched and filtered based on the logged-in user's store.
-    // For this mock, we assume all data belongs to store '2'.
     const storeOrders = useMemo(() => orders.filter(o => o.storeId === '2'), []);
     const storeProducts = useMemo(() => products.filter(p => p.storeId === '2'), []);
 
     const [timeRange, setTimeRange] = useState('7d');
+    const monthOptions = useMemo(() => generateMonthOptions(), []);
+    const [comparisonPeriod, setComparisonPeriod] = useState(monthOptions[0].value);
 
-    const {
-        totalRevenue,
-        totalSales,
-        avgTicket,
-        newCustomers,
-        salesByDay,
-        topProducts,
-        salesByCategory
-    } = useMemo(() => {
+    const mainReportData = useMemo(() => {
         const now = new Date();
-        const daysToFilter = timeRange === '7d' ? 7 : 30;
+        const daysToFilter = timeRange === '7d' ? 7 : timeRange === '15d' ? 15 : 30;
         const startDate = subDays(now, daysToFilter);
 
         const filteredOrders = storeOrders.filter(o => o.createdAt >= startDate);
 
-        // KPI Calculations
         const revenue = filteredOrders.reduce((acc, order) => acc + order.total, 0);
         const salesCount = filteredOrders.length;
         const average = salesCount > 0 ? revenue / salesCount : 0;
-        
-        // This is a mock. In a real app, you'd check creation dates.
         const customersCount = new Set(filteredOrders.map(o => o.userId)).size; 
 
-        // Sales by Day (for line chart)
         const dailySales: { [key: string]: number } = {};
         for (let i = 0; i < daysToFilter; i++) {
             const date = subDays(now, i);
@@ -66,7 +68,6 @@ export default function RelatoriosPage() {
             .map(([date, total]) => ({ date, "Receita": total }))
             .reverse();
 
-        // Top Selling Products
         const productSales: { [key: string]: { name: string; quantity: number; revenue: number } } = {};
         storeOrders.forEach(order => {
             order.items.forEach(item => {
@@ -82,7 +83,6 @@ export default function RelatoriosPage() {
             .sort((a, b) => b.revenue - a.revenue)
             .slice(0, 5);
 
-        // Sales by Category
         const categorySales: { [key: string]: number } = {};
         storeOrders.forEach(order => {
             order.items.forEach(item => {
@@ -101,7 +101,6 @@ export default function RelatoriosPage() {
             .map(([name, value]) => ({ name, value }))
             .sort((a,b) => b.value - a.value);
 
-
         return {
             totalRevenue: revenue,
             totalSales: salesCount,
@@ -114,6 +113,67 @@ export default function RelatoriosPage() {
 
     }, [timeRange, storeOrders, storeProducts]);
 
+    const comparisonData = useMemo(() => {
+        let currentPeriodRevenue = 0;
+        let previousPeriodRevenue = 0;
+        let currentLabel = '';
+        let previousLabel = '';
+
+        if (comparisonPeriod === 'last_year') {
+            const currentYearStart = startOfYear(new Date());
+            const currentYearEnd = endOfYear(new Date());
+            const previousYearStart = startOfYear(subYears(new Date(), 1));
+            const previousYearEnd = endOfYear(subYears(new Date(), 1));
+
+            currentLabel = `Ano de ${getYear(new Date())}`;
+            previousLabel = `Ano de ${getYear(previousYearStart)}`;
+
+            storeOrders.forEach(order => {
+                if (order.createdAt >= currentYearStart && order.createdAt <= currentYearEnd) {
+                    currentPeriodRevenue += order.total;
+                }
+                if (order.createdAt >= previousYearStart && order.createdAt <= previousYearEnd) {
+                    previousPeriodRevenue += order.total;
+                }
+            });
+        } else {
+            const [year, month] = comparisonPeriod.split('-').map(Number);
+            const currentMonthDate = new Date(year, month - 1);
+            
+            const currentMonthStart = startOfMonth(currentMonthDate);
+            const currentMonthEnd = endOfMonth(currentMonthDate);
+
+            const previousMonthDate = subMonths(currentMonthDate, 1);
+            const previousMonthStart = startOfMonth(previousMonthDate);
+            const previousMonthEnd = endOfMonth(previousMonthDate);
+
+            currentLabel = format(currentMonthDate, "MMMM 'de' yyyy", { locale: ptBR });
+            previousLabel = format(previousMonthDate, "MMMM 'de' yyyy", { locale: ptBR });
+
+            storeOrders.forEach(order => {
+                 if (order.createdAt >= currentMonthStart && order.createdAt <= currentMonthEnd) {
+                    currentPeriodRevenue += order.total;
+                }
+                if (order.createdAt >= previousMonthStart && order.createdAt <= previousMonthEnd) {
+                    previousPeriodRevenue += order.total;
+                }
+            });
+        }
+        
+        const difference = currentPeriodRevenue - previousPeriodRevenue;
+        const percentageChange = previousPeriodRevenue > 0 ? (difference / previousPeriodRevenue) * 100 : currentPeriodRevenue > 0 ? 100 : 0;
+        
+        return {
+            currentLabel,
+            previousLabel,
+            currentPeriodRevenue,
+            previousPeriodRevenue,
+            percentageChange,
+        }
+
+    }, [comparisonPeriod, storeOrders]);
+
+
     const chartConfig: ChartConfig = {
         Receita: {
             label: 'Receita',
@@ -123,14 +183,14 @@ export default function RelatoriosPage() {
     
      const categoryChartConfig = useMemo(() => {
         const config: ChartConfig = {};
-        salesByCategory.forEach((item, index) => {
+        mainReportData.salesByCategory.forEach((item, index) => {
             config[item.name] = {
                 label: item.name,
                 color: COLORS[index % COLORS.length]
             }
         });
         return config;
-    }, [salesByCategory]);
+    }, [mainReportData.salesByCategory]);
 
     return (
         <div className="container mx-auto px-4 py-8 space-y-8">
@@ -145,6 +205,7 @@ export default function RelatoriosPage() {
                     </SelectTrigger>
                     <SelectContent>
                         <SelectItem value="7d">Últimos 7 dias</SelectItem>
+                        <SelectItem value="15d">Últimos 15 dias</SelectItem>
                         <SelectItem value="30d">Últimos 30 dias</SelectItem>
                     </SelectContent>
                 </Select>
@@ -157,8 +218,8 @@ export default function RelatoriosPage() {
                         <DollarSign className="h-5 w-5 text-muted-foreground" />
                     </CardHeader>
                     <CardContent>
-                        <div className="text-3xl font-bold font-headline">R$ {totalRevenue.toFixed(2)}</div>
-                        <p className="text-xs text-muted-foreground">+20.1% em relação ao mês passado</p>
+                        <div className="text-3xl font-bold font-headline">R$ {mainReportData.totalRevenue.toFixed(2)}</div>
+                        <p className="text-xs text-muted-foreground">+20.1% em relação ao período anterior</p>
                     </CardContent>
                 </Card>
                 <Card>
@@ -167,8 +228,8 @@ export default function RelatoriosPage() {
                         <ShoppingBag className="h-5 w-5 text-muted-foreground" />
                     </CardHeader>
                     <CardContent>
-                        <div className="text-3xl font-bold font-headline">{totalSales}</div>
-                        <p className="text-xs text-muted-foreground">+10.5% em relação ao mês passado</p>
+                        <div className="text-3xl font-bold font-headline">{mainReportData.totalSales}</div>
+                        <p className="text-xs text-muted-foreground">+10.5% em relação ao período anterior</p>
                     </CardContent>
                 </Card>
                 <Card>
@@ -177,8 +238,8 @@ export default function RelatoriosPage() {
                         <BarChart className="h-5 w-5 text-muted-foreground" />
                     </CardHeader>
                     <CardContent>
-                        <div className="text-3xl font-bold font-headline">R$ {avgTicket.toFixed(2)}</div>
-                        <p className="text-xs text-muted-foreground">-2.1% em relação ao mês passado</p>
+                        <div className="text-3xl font-bold font-headline">R$ {mainReportData.avgTicket.toFixed(2)}</div>
+                        <p className="text-xs text-muted-foreground">-2.1% em relação ao período anterior</p>
                     </CardContent>
                 </Card>
                 <Card>
@@ -187,7 +248,7 @@ export default function RelatoriosPage() {
                         <Users className="h-5 w-5 text-muted-foreground" />
                     </CardHeader>
                     <CardContent>
-                        <div className="text-3xl font-bold font-headline">+{newCustomers}</div>
+                        <div className="text-3xl font-bold font-headline">+{mainReportData.newCustomers}</div>
                         <p className="text-xs text-muted-foreground">no período selecionado</p>
                     </CardContent>
                 </Card>
@@ -197,11 +258,11 @@ export default function RelatoriosPage() {
                  <Card className="lg:col-span-2">
                     <CardHeader>
                         <CardTitle>Visão Geral da Receita</CardTitle>
-                        <CardDescription>Receita de vendas dos últimos {timeRange === '7d' ? '7' : '30'} dias.</CardDescription>
+                        <CardDescription>Receita de vendas dos últimos {timeRange === '7d' ? '7' : timeRange === '15d' ? '15' : '30'} dias.</CardDescription>
                     </CardHeader>
                     <CardContent className="h-[300px] w-full p-2">
                         <ChartContainer config={chartConfig} className="h-full w-full">
-                            <AreaChart data={salesByDay} margin={{ top: 5, right: 10, left: -20, bottom: 0 }}>
+                            <AreaChart data={mainReportData.salesByDay} margin={{ top: 5, right: 10, left: -20, bottom: 0 }}>
                                 <defs>
                                     <linearGradient id="colorReceita" x1="0" y1="0" x2="0" y2="1">
                                     <stop offset="5%" stopColor="var(--color-Receita)" stopOpacity={0.8}/>
@@ -243,7 +304,7 @@ export default function RelatoriosPage() {
                                     content={<ChartTooltipContent hideLabel indicator="dot" formatter={(value) => `R$ ${typeof value === 'number' ? value.toFixed(2) : '0.00'}`} />}
                                 />
                                 <Pie
-                                    data={salesByCategory}
+                                    data={mainReportData.salesByCategory}
                                     dataKey="value"
                                     nameKey="name"
                                     cx="50%"
@@ -253,7 +314,7 @@ export default function RelatoriosPage() {
                                     paddingAngle={5}
                                     labelLine={false}
                                 >
-                                    {salesByCategory.map((entry, index) => (
+                                    {mainReportData.salesByCategory.map((entry, index) => (
                                         <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                                     ))}
                                 </Pie>
@@ -290,7 +351,7 @@ export default function RelatoriosPage() {
                             </TableRow>
                         </TableHeader>
                         <TableBody>
-                            {topProducts.map(product => (
+                            {mainReportData.topProducts.map(product => (
                                 <TableRow key={product.name}>
                                     <TableCell className="font-medium">{product.name}</TableCell>
                                     <TableCell className="text-center">{product.quantity}</TableCell>
@@ -302,8 +363,46 @@ export default function RelatoriosPage() {
                 </CardContent>
             </Card>
 
+            <Card>
+                <CardHeader className="flex-row items-center justify-between">
+                    <div>
+                        <CardTitle>Análise Comparativa</CardTitle>
+                        <CardDescription>Compare o desempenho de diferentes períodos.</CardDescription>
+                    </div>
+                     <Select value={comparisonPeriod} onValueChange={setComparisonPeriod}>
+                        <SelectTrigger className="w-[280px]">
+                            <SelectValue placeholder="Selecione o período de comparação" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            {monthOptions.map(option => (
+                                <SelectItem key={option.value} value={option.value}>{option.label}</SelectItem>
+                            ))}
+                            <SelectItem value="last_year">Comparar Ano Passado</SelectItem>
+                        </SelectContent>
+                    </Select>
+                </CardHeader>
+                <CardContent className="grid md:grid-cols-2 gap-6 pt-6">
+                    <div className="flex flex-col justify-between space-y-2">
+                        <h3 className="text-lg font-medium text-muted-foreground">{comparisonData.currentLabel}</h3>
+                        <p className="text-4xl font-bold font-headline">R$ {comparisonData.currentPeriodRevenue.toFixed(2)}</p>
+                    </div>
+                     <div className="flex flex-col justify-between space-y-2">
+                        <h3 className="text-lg font-medium text-muted-foreground">vs. {comparisonData.previousLabel}</h3>
+                        <p className="text-4xl font-bold font-headline text-muted-foreground">R$ {comparisonData.previousPeriodRevenue.toFixed(2)}</p>
+                    </div>
+                    <div className="md:col-span-2 flex items-center justify-center text-center p-4 bg-muted/50 rounded-lg">
+                        <p className={cn(
+                            "text-xl font-bold flex items-center gap-2",
+                            comparisonData.percentageChange >= 0 ? 'text-green-600' : 'text-red-600'
+                        )}>
+                            {comparisonData.percentageChange >= 0 ? <ArrowUp className="h-6 w-6" /> : <ArrowDown className="h-6 w-6" />}
+                             {comparisonData.percentageChange.toFixed(2)}%
+                        </p>
+                    </div>
+                </CardContent>
+            </Card>
+
         </div>
     );
-}
 
     
