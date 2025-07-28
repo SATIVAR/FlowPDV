@@ -1,14 +1,14 @@
 
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/hooks/use-auth';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { orders, products as initialProducts, users as initialUsers, categories as initialCategories, predefinedPaymentMethods } from '@/lib/data';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
-import { BarChart, Users, Package, ShoppingCart, DollarSign, Activity, PlusCircle, Edit, Trash2, CreditCard, Upload, Image as ImageIcon, X } from 'lucide-react';
+import { BarChart, Users, Package, ShoppingCart, DollarSign, Activity, PlusCircle, Edit, Trash2, CreditCard, Upload, Image as ImageIcon, X, Search } from 'lucide-react';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { useForm } from 'react-hook-form';
@@ -343,6 +343,32 @@ function LojistaDashboard() {
     'dividido': true,
   });
 
+  const [customerSearchTerm, setCustomerSearchTerm] = useState('');
+  const [productSearchTerm, setProductSearchTerm] = useState('');
+  const [categorySearchTerm, setCategorySearchTerm] = useState('');
+
+  const filteredCustomers = useMemo(() => {
+    if (!customerSearchTerm) return customers;
+    return customers.filter(c => 
+      c.name.toLowerCase().includes(customerSearchTerm.toLowerCase())
+    );
+  }, [customers, customerSearchTerm]);
+
+  const filteredProducts = useMemo(() => {
+    if (!productSearchTerm) return products;
+    return products.filter(p => 
+      p.name.toLowerCase().includes(productSearchTerm.toLowerCase())
+    );
+  }, [products, productSearchTerm]);
+
+  const filteredCategories = useMemo(() => {
+    if (!categorySearchTerm) return categories;
+    return categories.filter(c => 
+      c.name.toLowerCase().includes(categorySearchTerm.toLowerCase())
+    );
+  }, [categories, categorySearchTerm]);
+
+
   const handleTogglePaymentMethod = (id: string) => {
     setEnabledPaymentMethods(prev => ({
       ...prev,
@@ -455,17 +481,28 @@ function LojistaDashboard() {
 
         <TabsContent value="customers">
              <Card className="bg-card/80 backdrop-blur-sm">
-                <CardHeader className="flex flex-row items-center justify-between">
-                    <div>
+                <CardHeader className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+                    <div className="flex-1">
                         <CardTitle>Seus Clientes</CardTitle>
                         <CardDescription>Gerencie os clientes da sua loja.</CardDescription>
                     </div>
-                    <CustomerForm onSave={handleSaveCustomer}>
-                       <Button size="sm">
-                          <PlusCircle className="mr-2 h-4 w-4" />
-                          Adicionar Cliente
-                       </Button>
-                    </CustomerForm>
+                    <div className="flex w-full md:w-auto items-center gap-2">
+                        <div className="relative flex-1 md:flex-initial">
+                            <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+                            <Input
+                                placeholder="Buscar por nome..."
+                                className="pl-8 sm:w-64"
+                                value={customerSearchTerm}
+                                onChange={(e) => setCustomerSearchTerm(e.target.value)}
+                            />
+                        </div>
+                        <CustomerForm onSave={handleSaveCustomer}>
+                           <Button size="sm">
+                              <PlusCircle className="mr-2 h-4 w-4" />
+                              Adicionar Cliente
+                           </Button>
+                        </CustomerForm>
+                    </div>
                 </CardHeader>
                 <CardContent>
                   <Table>
@@ -477,7 +514,7 @@ function LojistaDashboard() {
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {customers.map(customer => (
+                      {filteredCustomers.map(customer => (
                         <TableRow key={customer.id}>
                           <TableCell className="font-medium">{customer.name}</TableCell>
                           <TableCell>{customer.whatsapp}</TableCell>
@@ -517,17 +554,28 @@ function LojistaDashboard() {
 
         <TabsContent value="products">
             <Card className="bg-card/80 backdrop-blur-sm">
-                <CardHeader className="flex flex-row items-center justify-between">
-                    <div>
+                <CardHeader className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+                    <div className="flex-1">
                         <CardTitle>Seus Produtos</CardTitle>
                         <CardDescription>Gerencie o catálogo da sua loja.</CardDescription>
                     </div>
-                    <ProductForm onSave={handleSaveProduct} categories={categories}>
-                        <Button size="sm">
-                            <PlusCircle className="mr-2 h-4 w-4" />
-                            Adicionar Produto
-                        </Button>
-                    </ProductForm>
+                    <div className="flex w-full md:w-auto items-center gap-2">
+                        <div className="relative flex-1 md:flex-initial">
+                            <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+                            <Input
+                                placeholder="Buscar por produto..."
+                                className="pl-8 sm:w-64"
+                                value={productSearchTerm}
+                                onChange={(e) => setProductSearchTerm(e.target.value)}
+                            />
+                        </div>
+                        <ProductForm onSave={handleSaveProduct} categories={categories}>
+                            <Button size="sm">
+                                <PlusCircle className="mr-2 h-4 w-4" />
+                                Adicionar Produto
+                            </Button>
+                        </ProductForm>
+                    </div>
                 </CardHeader>
                 <CardContent>
                   <Table>
@@ -542,7 +590,7 @@ function LojistaDashboard() {
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {products.map(product => (
+                      {filteredProducts.map(product => (
                         <TableRow key={product.id}>
                           <TableCell className="font-medium">{product.name}</TableCell>
                           <TableCell>R$ {product.price.toFixed(2)}</TableCell>
@@ -585,17 +633,28 @@ function LojistaDashboard() {
         
          <TabsContent value="categories">
             <Card className="bg-card/80 backdrop-blur-sm">
-                <CardHeader className="flex flex-row items-center justify-between">
-                    <div>
+                <CardHeader className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+                    <div className="flex-1">
                         <CardTitle>Categorias de Produtos</CardTitle>
                         <CardDescription>Gerencie as categorias para seus produtos.</CardDescription>
                     </div>
-                     <CategoryForm onSave={handleSaveCategory}>
-                        <Button size="sm">
-                            <PlusCircle className="mr-2 h-4 w-4" />
-                            Adicionar Categoria
-                        </Button>
-                    </CategoryForm>
+                    <div className="flex w-full md:w-auto items-center gap-2">
+                        <div className="relative flex-1 md:flex-initial">
+                            <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+                            <Input
+                                placeholder="Buscar por categoria..."
+                                className="pl-8 sm:w-64"
+                                value={categorySearchTerm}
+                                onChange={(e) => setCategorySearchTerm(e.target.value)}
+                            />
+                        </div>
+                         <CategoryForm onSave={handleSaveCategory}>
+                            <Button size="sm">
+                                <PlusCircle className="mr-2 h-4 w-4" />
+                                Adicionar Categoria
+                            </Button>
+                        </CategoryForm>
+                    </div>
                 </CardHeader>
                 <CardContent>
                   <Table>
@@ -606,7 +665,7 @@ function LojistaDashboard() {
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {categories.map(category => (
+                      {filteredCategories.map(category => (
                         <TableRow key={category.id}>
                           <TableCell className="font-medium">{category.name}</TableCell>
                           <TableCell className="text-right space-x-2">
