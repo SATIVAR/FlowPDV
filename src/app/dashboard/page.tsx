@@ -8,7 +8,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter }
 import { orders, products as initialProducts, users as initialUsers, categories as initialCategories, predefinedPaymentMethods } from '@/lib/data';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
-import { BarChart, Users, Package, ShoppingCart, DollarSign, Activity, PlusCircle, Edit, Trash2, CreditCard } from 'lucide-react';
+import { BarChart, Users, Package, ShoppingCart, DollarSign, Activity, PlusCircle, Edit, Trash2, CreditCard, Upload, Image as ImageIcon, X } from 'lucide-react';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { useForm } from 'react-hook-form';
@@ -22,6 +22,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { CustomerForm } from '@/components/customer-form';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
+import Image from 'next/image';
+import { Textarea } from '@/components/ui/textarea';
 
 
 function SuperAdminDashboard() {
@@ -65,6 +67,7 @@ function SuperAdminDashboard() {
 
 const productFormSchema = z.object({
   name: z.string().min(2, { message: "O nome do produto é obrigatório." }),
+  description: z.string().optional(),
   price: z.coerce.number().min(0.01, { message: "O preço deve ser positivo." }),
   stock: z.coerce.number().int().min(0, { message: "O estoque não pode ser negativo." }),
   unit: z.enum(['unidade', 'kilo', 'grama'], { required_error: "A unidade é obrigatória." }),
@@ -73,10 +76,14 @@ const productFormSchema = z.object({
 
 function ProductForm({ onSave, product, categories, children }: { onSave: (data: Product) => void, product?: Product, categories: Category[], children: React.ReactNode }) {
   const [open, setOpen] = useState(false);
+  const [featuredImage, setFeaturedImage] = useState(product?.imageUrl || 'https://placehold.co/600x400');
+  const [galleryImages, setGalleryImages] = useState(product?.gallery || []);
+
   const form = useForm<z.infer<typeof productFormSchema>>({
     resolver: zodResolver(productFormSchema),
     defaultValues: {
       name: product?.name || '',
+      description: product?.description || '',
       price: product?.price || 0,
       stock: product?.stock || 0,
       unit: product?.unit || 'unidade',
@@ -88,118 +95,183 @@ function ProductForm({ onSave, product, categories, children }: { onSave: (data:
     onSave({
       id: product?.id || `prod-${Date.now()}`,
       storeId: product?.storeId || '2', // Mock storeId
-      description: product?.description || 'Nova descrição do produto',
-      imageUrl: product?.imageUrl || 'https://placehold.co/400x400',
+      imageUrl: featuredImage,
+      gallery: galleryImages,
       ...values,
     });
     setOpen(false);
     form.reset();
   };
+  
+  // Mock image upload handlers
+  const handleAddGalleryImage = () => {
+    setGalleryImages(prev => [...prev, `https://placehold.co/400x400`]);
+  }
+  const handleRemoveGalleryImage = (index: number) => {
+    setGalleryImages(prev => prev.filter((_, i) => i !== index));
+  }
+
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         {children}
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[425px]">
+      <DialogContent className="sm:max-w-3xl">
         <DialogHeader>
           <DialogTitle>{product ? 'Editar Produto' : 'Adicionar Produto'}</DialogTitle>
           <DialogDescription>
-            {product ? 'Edite as informações do seu produto.' : 'Preencha as informações do novo produto.'}
+            {product ? 'Edite as informações e imagens do seu produto.' : 'Preencha as informações do novo produto.'}
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-            <FormField
-              control={form.control}
-              name="name"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Nome</FormLabel>
-                  <FormControl>
-                    <Input placeholder="Nome do Produto" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <div className="grid grid-cols-2 gap-4">
-               <FormField
-                control={form.control}
-                name="price"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Preço</FormLabel>
-                    <FormControl>
-                      <Input type="number" step="0.01" placeholder="99.99" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-               <FormField
-                control={form.control}
-                name="stock"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Estoque</FormLabel>
-                    <FormControl>
-                      <Input type="number" placeholder="10" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
-            <div className="grid grid-cols-2 gap-4">
-                <FormField
+          <form onSubmit={form.handleSubmit(onSubmit)} className="grid md:grid-cols-2 gap-8">
+             <div className="space-y-4">
+                 <FormField
                   control={form.control}
-                  name="unit"
+                  name="name"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Unidade</FormLabel>
-                      <Select onValueChange={field.onChange} defaultValue={field.value}>
-                        <FormControl>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Selecione" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          <SelectItem value="unidade">Unidade</SelectItem>
-                          <SelectItem value="kilo">Kilo (kg)</SelectItem>
-                          <SelectItem value="grama">Grama (g)</SelectItem>
-                        </SelectContent>
-                      </Select>
+                      <FormLabel>Nome</FormLabel>
+                      <FormControl>
+                        <Input placeholder="Nome do Produto" {...field} />
+                      </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
                  <FormField
                   control={form.control}
-                  name="categoryId"
+                  name="description"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Categoria</FormLabel>
-                      <Select onValueChange={field.onChange} defaultValue={field.value}>
-                        <FormControl>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Selecione" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          {categories.map(category => (
-                            <SelectItem key={category.id} value={category.id}>{category.name}</SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
+                      <FormLabel>Descrição</FormLabel>
+                      <FormControl>
+                        <Textarea placeholder="Descreva seu produto..." {...field} />
+                      </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
-            </div>
-            <DialogFooter>
-              <Button type="submit">Salvar</Button>
-            </DialogFooter>
+                <div className="grid grid-cols-2 gap-4">
+                   <FormField
+                    control={form.control}
+                    name="price"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Preço</FormLabel>
+                        <FormControl>
+                          <Input type="number" step="0.01" placeholder="99.99" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                   <FormField
+                    control={form.control}
+                    name="stock"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Estoque</FormLabel>
+                        <FormControl>
+                          <Input type="number" placeholder="10" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                    <FormField
+                      control={form.control}
+                      name="unit"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Unidade</FormLabel>
+                          <Select onValueChange={field.onChange} defaultValue={field.value}>
+                            <FormControl>
+                              <SelectTrigger>
+                                <SelectValue placeholder="Selecione" />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              <SelectItem value="unidade">Unidade</SelectItem>
+                              <SelectItem value="kilo">Kilo (kg)</SelectItem>
+                              <SelectItem value="grama">Grama (g)</SelectItem>
+                            </SelectContent>
+                          </Select>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                     <FormField
+                      control={form.control}
+                      name="categoryId"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Categoria</FormLabel>
+                          <Select onValueChange={field.onChange} defaultValue={field.value}>
+                            <FormControl>
+                              <SelectTrigger>
+                                <SelectValue placeholder="Selecione" />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              {categories.map(category => (
+                                <SelectItem key={category.id} value={category.id}>{category.name}</SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                </div>
+             </div>
+             <div className="space-y-4">
+                <div>
+                  <FormLabel>Imagem Destacada</FormLabel>
+                  <Card className="mt-2">
+                    <CardContent className="p-2">
+                        <div className="aspect-video relative bg-muted rounded-md overflow-hidden">
+                             <Image src={featuredImage} alt="Imagem destacada" fill className="object-cover" data-ai-hint="product image" />
+                             <div className="absolute top-2 right-2">
+                                <Button type="button" size="icon" variant="secondary" onClick={() => alert('Upload simulado')}>
+                                    <Upload className="h-4 w-4" />
+                                </Button>
+                             </div>
+                        </div>
+                    </CardContent>
+                  </Card>
+                </div>
+                 <div>
+                  <FormLabel>Galeria de Imagens</FormLabel>
+                  <Card className="mt-2">
+                    <CardContent className="p-2">
+                        <div className="grid grid-cols-3 gap-2">
+                            {galleryImages.map((imgUrl, index) => (
+                                <div key={index} className="aspect-square relative bg-muted rounded-md overflow-hidden group">
+                                     <Image src={imgUrl} alt={`Imagem da galeria ${index + 1}`} fill className="object-cover" data-ai-hint="product image" />
+                                     <div className="absolute top-1 right-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                                        <Button type="button" size="icon" variant="destructive" className="h-6 w-6" onClick={() => handleRemoveGalleryImage(index)}>
+                                            <X className="h-3 w-3" />
+                                        </Button>
+                                     </div>
+                                </div>
+                            ))}
+                            <Button type="button" variant="outline" className="aspect-square w-full h-full flex items-center justify-center" onClick={handleAddGalleryImage}>
+                                <ImageIcon className="h-6 w-6 text-muted-foreground" />
+                            </Button>
+                        </div>
+                    </CardContent>
+                  </Card>
+                </div>
+             </div>
+             <div className="md:col-span-2">
+                <DialogFooter>
+                  <Button type="submit">Salvar Produto</Button>
+                </DialogFooter>
+             </div>
           </form>
         </Form>
       </DialogContent>

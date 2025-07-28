@@ -102,6 +102,7 @@ export const products: Product[] = [
     description: 'A mechanical keyboard that types in multiple dimensions.',
     price: 189.99,
     imageUrl: 'https://placehold.co/400x400',
+    gallery: ['https://placehold.co/400x400', 'https://placehold.co/400x400', 'https://placehold.co/400x400'],
     stock: 50,
     storeId: '2', // Changed to Lojista's store
     categoryId: 'cat-1',
@@ -113,6 +114,7 @@ export const products: Product[] = [
     description: 'Clicks so fast, it registers in the past.',
     price: 79.50,
     imageUrl: 'https://placehold.co/400x400',
+    gallery: [],
     stock: 120,
     storeId: '2', // Changed to Lojista's store
     categoryId: 'cat-1',
@@ -124,6 +126,7 @@ export const products: Product[] = [
     description: 'A fine selection of imported and local cheeses.',
     price: 42.00,
     imageUrl: 'https://placehold.co/400x400',
+    gallery: ['https://placehold.co/400x400'],
     stock: 200,
     storeId: '2',
     categoryId: 'cat-2',
@@ -234,5 +237,3 @@ export let orders: Order[] = [
         isDelivery: false,
     }
 ];
-
-    
