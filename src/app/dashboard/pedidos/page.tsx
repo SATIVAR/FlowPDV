@@ -8,7 +8,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Badge, badgeVariants } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator } from '@/components/ui/dropdown-menu';
-import { Dialog, DialogTrigger, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Dialog, DialogTrigger, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { MoreHorizontal, Eye, PlusCircle, Edit, Search, CheckCircle, Trash2, XCircle, RefreshCw, Send, CircleDollarSign, Clock } from 'lucide-react';
 import { orders as initialOrders } from '@/lib/data';
 import type { Order, OrderStatus, PaymentStatus } from '@/lib/types';
@@ -182,46 +182,46 @@ export default function PedidosPage() {
                                                 </Button>
                                             </DialogTrigger>
                                              {selectedOrder?.id === order.id && (
-                                                <DialogContent className="sm:max-w-lg flex flex-col h-full max-h-[90vh]">
-                                                    <DialogHeader>
-                                                        <DialogTitle>Detalhes do Pedido #{selectedOrder?.id.slice(-6)}</DialogTitle>
+                                                <DialogContent className="sm:max-w-lg flex flex-col p-0">
+                                                    <DialogHeader className="p-6 pb-4 border-b">
+                                                        <DialogTitle className="font-headline text-2xl">Pedido #{selectedOrder?.id.slice(-6)}</DialogTitle>
                                                         <DialogDescription>
-                                                            Cliente: {selectedOrder?.customerName} - Data: {selectedOrder ? format(selectedOrder.createdAt, "dd 'de' MMM, yyyy", { locale: ptBR }) : ''}
+                                                            <span className="font-medium">{selectedOrder?.customerName}</span>
+                                                            <span className="text-muted-foreground mx-2">•</span>
+                                                            <span>{selectedOrder ? format(selectedOrder.createdAt, "dd 'de' MMM, yyyy", { locale: ptBR }) : ''}</span>
                                                         </DialogDescription>
                                                     </DialogHeader>
-                                                    <div className="flex-grow overflow-y-auto pr-4 -mr-4 space-y-4">
+                                                    <div className="flex-grow overflow-y-auto p-6 space-y-4">
                                                         <div>
-                                                            <h3 className="font-semibold mb-2">Itens do Pedido</h3>
+                                                            <h3 className="font-semibold mb-2 text-base">Itens do Pedido</h3>
                                                             <Table>
                                                                 <TableHeader>
                                                                     <TableRow>
-                                                                        <TableHead>Produto</TableHead>
-                                                                        <TableHead>Qtd.</TableHead>
-                                                                        <TableHead className="text-right">Preço Unit.</TableHead>
-                                                                        <TableHead className="text-right">Subtotal</TableHead>
+                                                                        <TableHead className="h-10">Produto</TableHead>
+                                                                        <TableHead className="h-10">Qtd.</TableHead>
+                                                                        <TableHead className="text-right h-10">Subtotal</TableHead>
                                                                     </TableRow>
                                                                 </TableHeader>
                                                                 <TableBody>
                                                                     {selectedOrder?.items.map(item => (
-                                                                        <TableRow key={item.id}>
-                                                                            <TableCell>{item.name}</TableCell>
+                                                                        <TableRow key={item.id} className="h-12">
+                                                                            <TableCell className="font-medium">{item.name}</TableCell>
                                                                             <TableCell>{item.quantity}{item.unit !== 'unidade' && ` ${item.unit}`}</TableCell>
-                                                                            <TableCell className="text-right">R$ {item.price.toFixed(2)}</TableCell>
-                                                                            <TableCell className="text-right">R$ {(item.price * item.quantity).toFixed(2)}</TableCell>
+                                                                            <TableCell className="text-right font-medium">R$ {(item.price * item.quantity).toFixed(2)}</TableCell>
                                                                         </TableRow>
                                                                     ))}
                                                                 </TableBody>
                                                             </Table>
                                                         </div>
                                                         {selectedOrder.observations && (
-                                                            <div className="border-t pt-4">
-                                                                <h3 className="font-semibold mb-2">Observações</h3>
+                                                            <div className="pt-4 space-y-2">
+                                                                <h3 className="font-semibold text-base">Observações</h3>
                                                                 <p className="text-sm text-muted-foreground bg-muted p-3 rounded-md">{selectedOrder.observations}</p>
                                                             </div>
                                                         )}
                                                          {selectedOrder.isDelivery && selectedOrder.deliveryDetails && (
-                                                            <div className="border-t pt-4">
-                                                                <h3 className="font-semibold mb-2">Detalhes da Entrega</h3>
+                                                            <div className="pt-4 space-y-2">
+                                                                <h3 className="font-semibold text-base">Detalhes da Entrega</h3>
                                                                 <div className="text-sm text-muted-foreground bg-muted p-3 rounded-md space-y-2">
                                                                     <p><strong>Endereço:</strong> {selectedOrder.deliveryDetails.address}</p>
                                                                     {selectedOrder.deliveryDetails.addressReference && <p><strong>Referência:</strong> {selectedOrder.deliveryDetails.addressReference}</p>}
@@ -230,20 +230,19 @@ export default function PedidosPage() {
                                                             </div>
                                                         )}
                                                     </div>
-                                                     <div className="mt-auto pt-4 border-t space-y-2">
-                                                            <div className="flex justify-between items-center">
-                                                                <span className="text-muted-foreground">Método de Pagamento</span>
+                                                    <DialogFooter className="bg-muted/50 p-6 border-t flex-col items-stretch gap-2">
+                                                        <div className="flex justify-between items-center text-sm">
+                                                            <span className="text-muted-foreground">Pagamento</span>
+                                                            <div className="flex items-center gap-2">
                                                                 <span className="font-medium">{selectedOrder?.paymentMethod}</span>
-                                                            </div>
-                                                            <div className="flex justify-between items-center">
-                                                                <span className="text-muted-foreground">Status do Pagamento</span>
-                                                                <span className="font-medium"><Badge variant={getPaymentStatusVariant(selectedOrder.paymentStatus)}>{selectedOrder.paymentStatus}</Badge></span>
-                                                            </div>
-                                                            <div className="flex justify-between items-center font-bold text-lg">
-                                                                <span>Total do Pedido</span>
-                                                                <span>R$ {selectedOrder?.total.toFixed(2)}</span>
+                                                                <Badge variant={getPaymentStatusVariant(selectedOrder.paymentStatus)}>{selectedOrder.paymentStatus}</Badge>
                                                             </div>
                                                         </div>
+                                                        <div className="flex justify-between items-center font-bold text-lg">
+                                                            <span>Total do Pedido</span>
+                                                            <span>R$ {selectedOrder?.total.toFixed(2)}</span>
+                                                        </div>
+                                                    </DialogFooter>
                                                 </DialogContent>
                                              )}
                                         </Dialog>
@@ -344,3 +343,6 @@ export default function PedidosPage() {
         </div>
     );
 }
+
+
+    
