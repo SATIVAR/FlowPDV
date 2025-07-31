@@ -41,9 +41,9 @@ export function ProductCard({ product, onAddToCart }: ProductCardProps) {
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <Card className="flex flex-col overflow-hidden transition-all duration-300 hover:shadow-lg hover:-translate-y-1 bg-card border-border/50 group">
+      <Card className="flex flex-col overflow-hidden transition-all duration-300 hover:shadow-md hover:scale-105 bg-card border-border/50 group">
         <DialogTrigger asChild>
-            <div className="aspect-video relative overflow-hidden cursor-pointer">
+          <div className="aspect-video relative overflow-hidden cursor-pointer">
                 <Image
                 src={product.imageUrl}
                 alt={product.name}
@@ -59,15 +59,15 @@ export function ProductCard({ product, onAddToCart }: ProductCardProps) {
             </DialogTrigger>
             <CardDescription className="text-sm line-clamp-2 text-muted-foreground">{product.description}</CardDescription>
         </CardHeader>
-        <CardFooter className="p-4 flex justify-between items-center mt-auto">
-            <p className="text-2xl font-bold font-headline text-primary">
+        <CardFooter className="p-4 flex justify-between items-center mt-auto gap-2">
+          <p className="text-xl font-bold font-headline text-primary shrink-0">
             R$ {product.price.toFixed(2)}
-            </p>
-            <DialogTrigger asChild>
-                <Button size="sm" disabled={product.stock === 0}>
-                    {product.stock > 0 ? 'Comprar' : 'Indisponível' }
-                </Button>
-            </DialogTrigger>
+          </p>
+          <DialogTrigger asChild>
+            <Button size="sm" disabled={product.stock === 0}>
+              {product.stock > 0 ? 'Comprar' : 'Indisponível'}
+            </Button>
+          </DialogTrigger>
         </CardFooter>
       </Card>
 

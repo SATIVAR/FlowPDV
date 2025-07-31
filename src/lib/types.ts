@@ -40,7 +40,8 @@ export interface Store {
         instagram?: string;
         tiktok?: string;
         youtube?: string;
-    }
+    },
+    additionalInfo?: string;
 }
 
 export interface Category {

@@ -15,6 +15,7 @@ import { MapPin, Phone, Instagram, Youtube, Search } from 'lucide-react';
 import { Icons } from '@/components/icons';
 import { cn } from '@/lib/utils';
 import { Input } from '@/components/ui/input';
+import { Slider } from "@/components/ui/slider"
 import { useAuth } from '@/hooks/use-auth';
 import { useToast } from '@/hooks/use-toast';
 import { MiniCart } from '@/components/mini-cart';
@@ -73,15 +74,18 @@ export default function LojaPage() {
 
     const [activeCategory, setActiveCategory] = useState('all');
     const [searchTerm, setSearchTerm] = useState('');
-    
+    const [priceRange, setPriceRange] = useState<number[]>([0, 1000]);
+
     if (!store) {
         return notFound();
     }
 
+
     const filteredProducts = storeProducts.filter(product => {
         const matchesCategory = activeCategory === 'all' || product.categoryId === activeCategory;
         const matchesSearch = searchTerm === '' || product.name.toLowerCase().includes(searchTerm.toLowerCase());
-        return matchesCategory && matchesSearch;
+        const matchesPrice = product.price >= priceRange[0] && product.price <= priceRange[1];
+        return matchesCategory && matchesSearch && matchesPrice;
     });
 
     const handleAddToCart = (product: Product, quantity: number) => {
@@ -138,7 +142,7 @@ export default function LojaPage() {
                         priority
                         data-ai-hint="store cover"
                     />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/30 to-transparent" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/30 to-transparent blur-sm" />
                 </div>
                 <Card className="w-full rounded-t-none rounded-b-xl mb-8 shadow-sm">
                     <CardContent className="p-4">
@@ -154,8 +158,8 @@ export default function LojaPage() {
                                     />
                                 </div>
                                 <div className="pb-4">
-                                    <h1 className="text-2xl md:text-4xl font-bold font-headline text-white drop-shadow-lg">{store.name}</h1>
-                                    <p className="text-sm md:text-base text-gray-200 drop-shadow">{store.description}</p>
+                                    <h1 className="text-2xl md:text-4xl font-bold font-headline text-white drop-shadow-md">{store.name}</h1>
+                                    <p className="text-sm md:text-base text-gray-200 drop-shadow-sm">{store.description}</p>
                                 </div>
                             </div>
                             <div className="flex items-center gap-2 pb-4 self-start md:self-end">
@@ -200,6 +204,11 @@ export default function LojaPage() {
                                         <p className="text-muted-foreground">{store.contactWhatsapp}</p>
                                      </div>
                                 )}
+                                 {store.additionalInfo && (
+                                      <div className="flex items-start gap-3">
+                                         <p className="text-muted-foreground">{store.additionalInfo}</p>
+                                      </div>
+                                 )}
                             </CardContent>
                         </Card>
                         
@@ -255,6 +264,16 @@ export default function LojaPage() {
                         </Card>
                      </aside>
                      <div className="lg:col-span-3">
+                         <div className="mb-6">
+                           <Card>
+                               <CardHeader>
+                                   <CardTitle>Filtrar por Preço</CardTitle>
+                               </CardHeader>
+                               <CardContent>
+                                   {/* TODO: Implementar o slider de preço */}
+                               </CardContent>
+                           </Card>
+                         </div>
                          <div className="relative mb-6">
                             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                             <Input 
@@ -264,6 +283,19 @@ export default function LojaPage() {
                                 onChange={(e) => setSearchTerm(e.target.value)}
                             />
                          </div>
+                           <CardContent>
+                               <Slider
+                                   defaultValue={[0, 1000]}
+                                   max={1000}
+                                   step={10}
+                                   onValueChange={(value) => setPriceRange(value)}
+                                   aria-label="price"
+                               />
+                               <div className="flex justify-between text-sm text-muted-foreground mt-2">
+                                   <span>R$ {priceRange[0]}</span>
+                                   <span>R$ {priceRange[1]}</span>
+                               </div>
+                           </CardContent>
 
                         {filteredProducts.length > 0 ? (
                             <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 md:gap-6">

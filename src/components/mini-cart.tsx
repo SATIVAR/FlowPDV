@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useMemo, type Dispatch } from 'react';
@@ -37,7 +36,7 @@ export function MiniCart({ cartItems, store, dispatch, onFinalizeOrder }: MiniCa
     
     const deliveryFeeOption = store.deliveryOptions.find(opt => opt.type === 'Entrega' && opt.enabled);
     const pickupOption = store.deliveryOptions.find(opt => opt.type === 'Retirada' && opt.enabled);
-    const deliveryFee = deliveryOption && deliveryOption.price ? deliveryOption.price : 0;
+    const deliveryFee = deliveryFeeOption?.price || 0;
     
     const itemCount = useMemo(() => cartItems.reduce((sum, item) => sum + item.quantity, 0), [cartItems]);
     const subtotal = useMemo(() => cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0), [cartItems]);
@@ -107,8 +106,8 @@ export function MiniCart({ cartItems, store, dispatch, onFinalizeOrder }: MiniCa
                      transition={{ type: "spring", stiffness: 400, damping: 40 }}
                      className="fixed bottom-0 right-0 z-50 w-full max-w-md h-[90vh] "
                 >
-                    <Card className="h-full flex flex-col rounded-b-none shadow-2xl">
-                        <CardHeader className="flex flex-row items-center justify-between">
+                    <Card className="h-full flex flex-col rounded-b-none shadow-lg">
+                        <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
                              <AnimatePresence mode="wait">
                                 <motion.div
                                     key={cartStep}
@@ -118,7 +117,7 @@ export function MiniCart({ cartItems, store, dispatch, onFinalizeOrder }: MiniCa
                                     transition={{ duration: 0.2 }}
                                     className="flex-1"
                                 >
-                                    <CardTitle>
+                                    <CardTitle className="text-xl">
                                         {cartStep === 'cart' && 'Seu Carrinho'}
                                         {cartStep === 'checkout' && 'Finalizar Pedido'}
                                         {cartStep === 'success' && 'Pedido Enviado!'}
@@ -130,7 +129,7 @@ export function MiniCart({ cartItems, store, dispatch, onFinalizeOrder }: MiniCa
                                     </CardDescription>
                                 </motion.div>
                             </AnimatePresence>
-                            <Button variant="ghost" size="icon" className="rounded-full" onClick={handleCloseAndReset}>
+                            <Button variant="ghost" size="icon" className="rounded-full hover:bg-accent hover:text-accent-foreground" onClick={handleCloseAndReset}>
                                 <X className="h-5 w-5" />
                             </Button>
                         </CardHeader>
@@ -223,7 +222,7 @@ export function MiniCart({ cartItems, store, dispatch, onFinalizeOrder }: MiniCa
                                         <p className="text-muted-foreground">Seu pedido foi enviado para a loja. Você receberá atualizações em breve.</p>
                                          <Button className="mt-6 w-full" onClick={handleCloseAndReset}>Voltar para a Loja</Button>
                                     </div>
-                                )}
+                                 )}
                                 </motion.div>
                             </AnimatePresence>
                         </div>
@@ -265,4 +264,3 @@ export function MiniCart({ cartItems, store, dispatch, onFinalizeOrder }: MiniCa
         </AnimatePresence>
     );
 }
-

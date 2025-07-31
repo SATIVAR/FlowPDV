@@ -70,7 +70,8 @@ export const stores: Store[] = [
     deliveryOptions: [
         { type: 'Entrega', enabled: true, feeType: 'variable', price: 5, details: 'Entregamos em um raio de 5km.' },
         { type: 'Retirada', enabled: true, details: 'Retire na loja em até 30 minutos.' }
-    ]
+    ],
+    additionalInfo: 'Horário de Funcionamento: Segunda a Sexta, das 8h às 18h. Formas de Pagamento: Pix, Cartão de Crédito/Débito e Dinheiro. Política de Troca: Até 7 dias após a compra.'
   },
 ];
 
