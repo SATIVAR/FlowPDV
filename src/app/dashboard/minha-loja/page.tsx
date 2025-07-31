@@ -24,6 +24,7 @@ const storeSettingsSchema = z.object({
   name: z.string().min(3, "O nome da loja deve ter pelo menos 3 caracteres."),
   slug: z.string().min(3, "A URL amigável deve ter pelo menos 3 caracteres.").regex(/^[a-z0-9-]+$/, "Use apenas letras minúsculas, números e hífens."),
   description: z.string().max(200, "A descrição pode ter no máximo 200 caracteres.").optional(),
+  additionalInfo: z.string().max(500, "As informações podem ter no máximo 500 caracteres.").optional(),
   contactWhatsapp: z.string().min(10, "WhatsApp inválido.").optional(),
   address: z.string().optional(),
   socials: z.object({
@@ -55,6 +56,7 @@ export default function MinhaLojaPage() {
             name: store.name,
             slug: store.slug,
             description: store.description || '',
+            additionalInfo: store.additionalInfo || '',
             contactWhatsapp: store.contactWhatsapp || '',
             address: store.address || '',
             socials: {
@@ -177,6 +179,19 @@ export default function MinhaLojaPage() {
                                         <FormLabel>Descrição Curta</FormLabel>
                                         <FormControl>
                                             <Textarea placeholder="Descreva o que sua loja vende em poucas palavras." {...field} />
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+                             <FormField
+                                control={form.control}
+                                name="additionalInfo"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>Informações Adicionais</FormLabel>
+                                        <FormControl>
+                                            <Textarea placeholder="Ex: Horário de funcionamento: Seg a Sex, 9h-18h. Formas de pagamento: Pix, Cartão." {...field} />
                                         </FormControl>
                                         <FormMessage />
                                     </FormItem>

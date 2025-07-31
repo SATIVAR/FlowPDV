@@ -205,8 +205,8 @@ export default function LojaPage() {
                                      </div>
                                 )}
                                  {store.additionalInfo && (
-                                      <div className="flex items-start gap-3">
-                                         <p className="text-muted-foreground">{store.additionalInfo}</p>
+                                      <div className="flex items-start gap-3 pt-4 border-t">
+                                         <p className="text-muted-foreground whitespace-pre-wrap">{store.additionalInfo}</p>
                                       </div>
                                  )}
                             </CardContent>
